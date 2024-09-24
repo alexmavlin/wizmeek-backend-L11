@@ -1,0 +1,73 @@
+@import './../../vars';
+@import './../../forms';
+@import './../../pagination';
+
+.artists__header {
+    display: flex;
+    gap: 20px;
+    form {
+        margin-left: auto;
+        max-width: 350px;
+        width: 100%;
+    }
+    a {
+        font-size: 16px;
+        line-height: 20px;
+        padding: 10px 20px;
+        color: $accentWhite;
+        background-color: $backgroundBlack;
+        text-decoration: none;
+        border-radius: 20px;
+    }
+}
+
+.artists__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    &--row {
+        border-bottom: 1px solid $borderVizible;
+        padding: 20px 0;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        img {
+            width: 150px !important;
+            height: unset !important;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        p {
+            font-size: 20px;
+            line-height: 26px;
+            font-weight: 700;
+            margin-left: 70px;
+        }
+    }
+    &--actions {
+        display: flex;
+        gap: 15px;
+        margin-left: auto;
+        align-items: center;
+        a {
+            padding: 10px;
+            border-radius: 50%;
+            svg {
+                width: 30px;
+                height: 30px;
+                fill: $background;
+            }
+            &.delete {
+                color: $accentWhite;
+                font-size: 16px;
+                line-height: 22px;
+                padding: 10px 20px;
+                text-decoration: none;
+                background-color: $accentRed;
+                border-radius: 21px;
+            }
+        }
+    }
+}

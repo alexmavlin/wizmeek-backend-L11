@@ -1,0 +1,27 @@
+.pagination {
+    margin-top: 30px;
+    nav {
+        ul {
+            display: flex;
+            gap: 4px;
+            li {
+                list-style: none;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background-color: $accentGrey;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                span,
+                a {
+                    color: $accentWhite;
+                    text-decoration: none;
+                }
+                &.active {
+                    background-color: $backgroundBlack;
+                }
+            }
+        }
+    }
+}

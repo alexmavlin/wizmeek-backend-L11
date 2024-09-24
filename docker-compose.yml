@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www/
+      - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - 8876:80
+    container_name: nginx
+    depends_on:
+      - php
+
+  php:
+    build: 
+      context: .
+      dockerfile: _docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/
+    ports:
+      - 5173:5173
+    depends_on:
+      - mariadb
+    environment:
+      - CHOKIDAR_USEPOLLING=true 
+    container_name: php
+  
+  mariadb:
+    image: mariadb:10.5.18
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+      - ./dev/mariadb:/docker-entrypoint-initdb.d
+    ports:
+      - "3370:3306"
+    environment:
+        MARIADB_ROOT_PASSWORD: root
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    container_name: mariadb
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8102:80
+    environment:
+      - PMA_ARBITRARY=1
+    container_name: phpmyadmin
+    

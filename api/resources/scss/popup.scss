@@ -1,0 +1,67 @@
+@import './vars';
+.popup {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 110;
+    transition: opacity .3s ease-in-out;
+    &.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+    &__inner {
+        border-radius: 16px;
+        max-width: 550px;
+        width: 100%;
+        background-color: $accentWhite;
+        overflow: hidden;
+        form {
+            span {
+                padding: 16px 20px;
+                text-align: center;
+                font-size: 30px;
+                line-height: 38px;
+                font-weight: 700;
+                color: $accentWhite;
+                background-color: $accentGreen;
+                display: block;
+            }
+            p {
+                padding: 20px 30px;
+                font-size: 25px;
+                line-height: 32px;
+                font-weight: 500;
+                text-align: center;
+                &.description {
+                    font-size: 16px;
+                    line-height: 22px;
+                    color: $accentGrey;
+                    padding: 0px 10px 20px 10px;
+                }
+            }
+        }
+    }
+    &__btn--row {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding: 20px 20px;
+        button {
+            padding: 10px 20px;
+            border: none;
+            font-size: 25px;
+            line-height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .submitBtn {
+            color: $accentWhite;
+            background-color: $accentRed;
+        }
+    }
+}
