@@ -1,10 +1,10 @@
 up:
-	docker-compose up -d
+	sudo docker-compose up -d
 up_build:
-	docker-compose up -d --build
+	sudo docker-compose up -d --build
 down:
-	docker-compose down
+	sudo docker-compose down
 nginx-reload:
-	docker exec nginx nginx -s reload
+	sudo docker exec nginx nginx -s reload
 bash:
-	docker exec -it php bash
+	sudo docker exec -it php bash

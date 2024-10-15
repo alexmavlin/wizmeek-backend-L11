@@ -50,7 +50,15 @@
                                     Submit Video
                             </a>
                         </li>
-                        <li><a href="#">All Videos</a></li>
+                        <li>
+                            <a 
+                                href="{{ route('admin_youtube_video_index') }}"
+                                class="{{ (
+                                    Route::is('admin_youtube_video_index')
+                                    || Route::is('admin_youtube_video_edit')) ? 'active' : '' }}">
+                                    All Videos
+                            </a>
+                        </li>
                         <li>
                             <a 
                                 href="{{ route('admin_genres_index') }}"

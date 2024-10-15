@@ -18,7 +18,12 @@ use App\Http\Controllers\Admin\Genres\GenresStoreController;
 use App\Http\Controllers\Admin\Genres\GenresUpdateController;
 use App\Http\Controllers\Admin\Genres\GenresViewController;
 use App\Http\Controllers\Admin\Videos\GetYouTubeVideoDataController;
+use App\Http\Controllers\Admin\Videos\StoreYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\SubmitYouTubeVideoController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoDeleteController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -51,7 +56,12 @@ Route::prefix('admin')->group(function () {
     });
 
     Route::prefix('youtube-videos')->group(function () {
+        Route::get('/', YouTubeVideosIndexController::class)->name('admin_youtube_video_index');
         Route::get('/submit', SubmitYouTubeVideoController::class)->name('admin_submit_youtube_video');
+        Route::post('/store', StoreYouTubeVideoController::class)->name('admin_store_youtube_video');
         Route::get('/get-youtube-video-data', GetYouTubeVideoDataController::class)->name('admin_get_youtube_video_data');
+        Route::get('/edit/{video}', YouTubeVideoEditController::class)->name('admin_youtube_video_edit');
+        Route::put('/update/{video}', YouTubeVideoUpdateController::class)->name('admin_youtube_video_update');
+        Route::post('/delete/{video}', YouTubeVideoDeleteController::class)->name('admin_youtube_video_delete');
     });
 });

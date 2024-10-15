@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     originalLinkInput.addEventListener("input", function(e) {
         const link = e.target.value; // Access the value from e.target
+        const youTubeIdInputHidden = document.getElementById('youtube_id');
+        const thumbnailInputHidden = document.getElementById('thumbnail');
         
         const linkParts = link.split('?v=');
         let vidId;
@@ -35,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(videoData);
             artistNameInput.value = videoData.artist_name;
             songTitleInput.value = videoData.song_title;
+            youTubeIdInputHidden.value = videoData.id;
+            thumbnailInputHidden.value = videoData.thumbnail
           })
           .catch(error => {
             return {

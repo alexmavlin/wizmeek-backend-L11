@@ -11,7 +11,7 @@ class Artist extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = "artists";
-    protected $guarded = false;
+    protected $guarded = [];
 
     /**
      * Get paginated artists with optional filtering.
