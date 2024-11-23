@@ -17,6 +17,15 @@ use App\Http\Controllers\Admin\Genres\GenresIndexController;
 use App\Http\Controllers\Admin\Genres\GenresStoreController;
 use App\Http\Controllers\Admin\Genres\GenresUpdateController;
 use App\Http\Controllers\Admin\Genres\GenresViewController;
+use App\Http\Controllers\Admin\HomePage\HomePageController;
+use App\Http\Controllers\Admin\HomePage\SaveHomePageHighlightsController;
+use App\Http\Controllers\Admin\HomePage\SearchHighlightedVideosController;
+use App\Http\Controllers\Admin\Landing\LandingPageController;
+use App\Http\Controllers\Admin\Landing\SaveSelectedVideos;
+use App\Http\Controllers\Admin\Landing\SearchVideosController;
+use App\Http\Controllers\Admin\Subscribers\EditGlobalEmailController;
+use App\Http\Controllers\Admin\Subscribers\SendGlobalEmailController;
+use App\Http\Controllers\Admin\Subscribers\SubscribersIndexController;
 use App\Http\Controllers\Admin\Videos\GetYouTubeVideoDataController;
 use App\Http\Controllers\Admin\Videos\StoreYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\SubmitYouTubeVideoController;
@@ -32,6 +41,20 @@ Route::get('/', function () {
 
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin_dashboard');
+
+    Route::prefix('/homepage')->group(function () {
+        Route::get('/', HomePageController::class)->name('admin_homepage_index');
+        Route::post('/save', SaveHomePageHighlightsController::class)->name('admin_homepage_save_videos');
+        Route::post('/search-editors-pick', [SearchHighlightedVideosController::class, 'editorsPickVideos'])->name('admin_homepage_search_editors_pick');
+        Route::post('/search-new', [SearchHighlightedVideosController::class, 'newVideos'])->name('admin_homepage_search_new');
+        Route::post('/search-throwback', [SearchHighlightedVideosController::class, 'throwbackVideos'])->name('admin_homepage_search_throwback');
+    });
+
+    Route::prefix('/landing')->group(function () {
+        Route::get('/', LandingPageController::class)->name('admin_landing_index');
+        Route::post('/search', SearchVideosController::class)->name('admin_landing_search');
+        Route::post('/save', SaveSelectedVideos::class)->name('admin_landing_save_videos');
+    });
 
     Route::prefix('artists')->group(function () {
         Route::get('/', ArtistsIndexController::class)->name('admin_artists_index');
@@ -63,5 +86,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/edit/{video}', YouTubeVideoEditController::class)->name('admin_youtube_video_edit');
         Route::put('/update/{video}', YouTubeVideoUpdateController::class)->name('admin_youtube_video_update');
         Route::post('/delete/{video}', YouTubeVideoDeleteController::class)->name('admin_youtube_video_delete');
+    });
+
+    Route::prefix('subscribers')->group(function () {
+        Route::get('/', SubscribersIndexController::class)->name('admin_subscribers_index');
+        Route::get('/global-email', EditGlobalEmailController::class)->name('admin_subscribers_editglobalemail');
+        Route::post('/send-global-email', SendGlobalEmailController::class)->name('admin_subscribers_sendglobalemail');
     });
 });

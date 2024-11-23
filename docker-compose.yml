@@ -36,7 +36,6 @@ services:
       - "3370:3306"
     environment:
         MARIADB_ROOT_PASSWORD: root
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     container_name: mariadb
 
   phpmyadmin:

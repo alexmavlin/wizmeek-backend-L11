@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Admin\Videos;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +10,7 @@ class StoreYouTubeVideoController extends Controller
 {
     public function __invoke(StoreYouTubeVideoRequest $request)
     {
-        // dd($request);
+        // Prepare the data for storing or updating
         $storeData = [
             'original_link' => $request->original_link,
             'youtube_id' => $request->youtube_id,
@@ -27,17 +26,34 @@ class StoreYouTubeVideoController extends Controller
             'throwback' => (isset($request->new) && $request->new == 'throwback') ? 1 : 0
         ];
 
+        // Check for a soft-deleted video with the same youtube_id
+        $existingVideo = YouTubeVideo::withTrashed()->where('youtube_id', $request->youtube_id)->first();
+
+        if ($existingVideo) {
+            // Restore the soft-deleted video and update its attributes
+            $existingVideo->restore();
+            $existingVideo->update($storeData);
+
+            // Redirect with a success message
+            return redirect()->route('admin_youtube_video_index')
+                ->with('success', "The video '{$existingVideo->title}' has been restored and updated successfully.");
+        }
+
+        // If no soft-deleted video is found, create a new one
         $newVideo = YouTubeVideo::create($storeData);
-        return redirect()->route('admin_youtube_video_index');
+
+        return redirect()->route('admin_youtube_video_index')
+            ->with('success', "The video '{$newVideo->title}' has been added successfully.");
     }
 
-    private function makeDate($date) {
+    private function makeDate($date)
+    {
         $dateString = strtotime("$date-01");
-        $timestamp = date('Y-m-d H:i:s', $dateString);
-        return $timestamp;
+        return date('Y-m-d H:i:s', $dateString);
     }
 
-    private function getArtistId($artistName) {
+    private function getArtistId($artistName)
+    {
         $artist = Artist::where('name', $artistName)->select('id')->first();
 
         if ($artist) {

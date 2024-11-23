@@ -51,7 +51,7 @@
                     <p>{{ $video->artist->name }}</p>
                 </div>
                 <div class="artists__genre">
-                    <p>Genre: {{ $video->genre->genre }}</p>
+                    <p>Genre: {{ $video->genre?->genre ?? 'N/A' }}</p>
                 </div>
                 <div class="artists__country">
                     <p>Country:</p>
