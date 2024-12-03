@@ -2,7 +2,20 @@
 
 @section('content')
     <section class="addVideo">
-        <form action="" class="addvideo__form">
+        <form action="{{ route('admin_store_youtube_video') }}" class="addvideo__form" method="POST">
+            @csrf
+            @method('POST')
+
+            <input
+                type="hidden" 
+                name="youtube_id"
+                value="{{ old('youtube_id') ?: '' }}"
+                id="youtube_id">
+            <input 
+                type="hidden"
+                name="thumbnail"
+                value="{{ old('thumbnail') ?: '' }}"
+                id="thumbnail">
 
             {{-- Video Link Input --}}
             <div class="form__row">
@@ -44,6 +57,9 @@
             {{-- Content Type --}}
             <div class="form__row">
                 <div class="form__group">
+                    @error('content_type_id')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                     <select name="content_type_id" id="">
                         @foreach ($data['content_types'] as $content_type)
                             <option value="{{ $content_type->id}}">{{ $content_type->name }}</option>
@@ -112,6 +128,9 @@
             <div class="form__row">
                 <div class="form__group">
                     <label for="genre_id">Genre</label>
+                    @error('genre_id')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                     <select name="genre_id" id="genre_id">
                         @foreach ($data['genres'] as $genre)
                             <option value="{{ $genre->id}}">{{ $genre->genre }}</option>
@@ -124,6 +143,9 @@
             <div class="form__row">
                 <div class="form__group">
                     <label for="country_id">Country</label>
+                    @error('country_id')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                     <select name="country_id" id="country_id">
                         @foreach ($data['countries'] as $country)
                             <option value="{{ $country->id}}">{{ $country->name }}</option>
@@ -140,7 +162,17 @@
                         name="editors_pick"
                         id="editors_pick"
                         {{ old('editors_pick') ? 'checked' : '' }}>
-                    <label for="editors_pick">Editors Pick</label>
+                    <label for="editors_pick">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Editors Pick
+                    </label>
+                    @error('editors_pick')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -153,7 +185,17 @@
                         id="new"
                         value="new"
                         {{ old('new') == 'new' ? 'checked' : '' }}>
-                    <label for="new">New</label>
+                    <label for="new">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        New
+                    </label>
+                    @error('new')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -163,12 +205,27 @@
                     <input 
                         type="radio"
                         name="new"
+                        value="throwback"
                         id="throwback"
                         {{ old('new') == 'throwback' ? 'checked' : '' }}>
-                    <label for="throwback">Throwback</label>
+                    <label for="throwback">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Throwback
+                    </label>
+                    @error('throwback')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
-
+            <div class="form__row">
+                <div class="form__group">
+                    <button type="submit">Submit</button>
+                </div>
+            </div>
         </form>
     </section>
 @endsection

@@ -12,10 +12,13 @@ export default defineConfig({
                 'resources/scss/admin/artists/artists_create.scss',
                 'resources/scss/admin/artists/artists_edit.scss',
                 'resources/scss/popup.scss',
+                'resources/scss/admin/parts/linearPreloader.scss',
                 // JS Files
                 'resources/js/app.js',
                 'resources/js/admin/popup.js',
-                'resources/js/admin/youtubeGetVideoData.js'
+                'resources/js/admin/youtubeGetVideoData.js',
+                'resources/js/admin/loaders/landing/fetchVideoResults.js',
+                'resources/js/admin/functions/fetchVideosFolLoader.js'
             ],
             refresh: true,
         }),

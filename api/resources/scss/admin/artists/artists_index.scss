@@ -4,11 +4,19 @@
 
 .artists__header {
     display: flex;
+    align-items: center;
     gap: 20px;
     form {
         margin-left: auto;
         max-width: 350px;
         width: 100%;
+        .form__row {
+            padding-top: 0;
+            margin-top: 0;
+        }
+        &.full_width {
+            max-width: 850px;
+        }
     }
     a {
         font-size: 16px;
@@ -30,6 +38,7 @@
         border-bottom: 1px solid $borderVizible;
         padding: 20px 0;
         display: flex;
+        flex-wrap: wrap;
         gap: 20px;
         align-items: center;
         img {
@@ -38,6 +47,12 @@
             aspect-ratio: 1/1;
             border-radius: 50%;
             object-fit: cover;
+            &.quadrilateral {
+                width: 200px !important;
+                aspect-ratio: 16 / 9;
+                border-radius: 16px;
+                object-fit: cover;
+            }
         }
         p {
             font-size: 20px;
@@ -67,6 +82,53 @@
                 text-decoration: none;
                 background-color: $accentRed;
                 border-radius: 21px;
+            }
+        }
+    }
+}
+.artists__country {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    img {
+        width: 40px !important;
+        border-radius: 0 !important;
+    }
+}
+.artists__flags {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: space-around;
+    padding-top: 15px;
+    border-top: 1px solid #000;
+    p {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 0;
+        span {
+            padding: 6px 12px 6px;
+            background-color: #000;
+            border-radius: 16px;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            svg {
+                background: #000;
+                stroke: #f9f9f9;
+                stroke-dasharray: 25;
+                stroke-dashoffset: 25;
+                stroke-linecap: round;
+                stroke-width: 0.2rem;
+                border-radius: 0.2rem;
+                fill: none;
+                transition: stroke-dashoffset 0.6s;
+            }
+            &.active {
+                svg {
+                    stroke-dashoffset: 0;
+                }
             }
         }
     }

@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
         <title>Laravel</title>
 
@@ -40,9 +42,13 @@
                                     Dashboard
                                 </a>
                         </li>
-                        <li><a href="#">Pages</a></li>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Content</a></li>
+                        <li>
+                            <a 
+                                href="{{ route('admin_homepage_index') }}"
+                                class="{{ Route::is('admin_homepage_index') ? 'active' : '' }}">
+                                    Home
+                            </a>
+                        </li>
                         <li>
                             <a 
                                 href="{{ route('admin_submit_youtube_video')}}"
@@ -50,7 +56,15 @@
                                     Submit Video
                             </a>
                         </li>
-                        <li><a href="#">All Videos</a></li>
+                        <li>
+                            <a 
+                                href="{{ route('admin_youtube_video_index') }}"
+                                class="{{ (
+                                    Route::is('admin_youtube_video_index')
+                                    || Route::is('admin_youtube_video_edit')) ? 'active' : '' }}">
+                                    All Videos
+                            </a>
+                        </li>
                         <li>
                             <a 
                                 href="{{ route('admin_genres_index') }}"
@@ -73,14 +87,25 @@
                                     Artists
                             </a>
                         </li>
-                        <li><a href="#">Broadcast</a></li>
-                        <li><a href="#">Submissions</a></li>
-                        <li><a href="#">Landing Page</a></li>
+                        <li>
+                            <a 
+                                href="{{ route('admin_landing_index')}}"
+                                class="{{ (
+                                    Route::is('admin_landing_index')) ? 'active' : '' }}">
+                                    Landing Page
+                            </a>
+                        </li>
                         <li><a href="#">Feedback</a></li>
                         <li><a href="#">About Us</a></li>
-                        <li><a href="#">Advertise</a></li>
                         <li><a href="#">Users</a></li>
-                        <li><a href="#">Messages</a></li>
+                        <li>
+                            <a 
+                                href="{{ route('admin_subscribers_index') }}"
+                                class="{{ (
+                                    Route::is('admin_subscribers_index')) ? 'active' : '' }}">
+                                    Subscribers
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </aside>
