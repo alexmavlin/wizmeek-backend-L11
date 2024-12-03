@@ -21,6 +21,21 @@
                 </div>
             </div>
 
+            {{-- Genre Color Input --}}
+            <div class="form__row">
+                <div class="form__froup">
+                    <input type="color" placeholder="" id="color" name="color" value="{{ old('color') ?: '' }}">
+                    <label for="color">
+                        @error('color')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Select a Genre Color*</span>
+                        @enderror
+                    </label>
+                </div>
+            </div>
+            {{-- // Genre Color Input --}}
+
             {{-- Submit Button --}}
             <div class="form__row">
                 <button class="submit">Submit</button>

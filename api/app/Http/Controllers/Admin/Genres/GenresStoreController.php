@@ -13,7 +13,8 @@ class GenresStoreController extends Controller
     {    
         // Now you can save the artist with the avatar path
         $artist = Genre::create([
-            'genre' => $request->input('genre')
+            'genre' => $request->input('genre'),
+            'color' => $request->input('color')
         ]);
     
         // Redirect or return success response

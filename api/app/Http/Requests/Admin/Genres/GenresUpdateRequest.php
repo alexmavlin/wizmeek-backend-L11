@@ -22,7 +22,8 @@ class GenresUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "genre" => "required|string|max:100"
+            "genre" => "required|string|max:100",
+            "color" => "nullable|string|max:7"
         ];
     }
 }

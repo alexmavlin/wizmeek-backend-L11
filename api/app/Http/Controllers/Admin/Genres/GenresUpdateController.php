@@ -10,9 +10,10 @@ class GenresUpdateController extends Controller
 {
     public function __invoke(GenresUpdateRequest $request, Genre $genre)
     {
-
+        // dd($request->all());
         // Update other artist data
         $genre->genre = $request->input('genre');
+        $genre->color = $request->input('color');
 
         // Save the artist record
         $genre->save();
