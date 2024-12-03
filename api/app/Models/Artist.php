@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\GenreTrait;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -60,6 +61,30 @@ class Artist extends Model
         return $data;
     }
 
+    public static function deleteArtist($id) {
+        $query = self::query();
+
+        $artist = $query->with([
+            'youTubeVideos' => function ($q) {
+                $q->select('id', 'artist_id');
+            }
+        ])->find($id);
+
+        if (!$artist) {
+            throw new Exception('The specified artist was not found.');
+        }
+
+        // dd($genre);
+
+        // Delete associated YouTube videos (soft delete if `SoftDeletes` is used)
+        foreach ($artist->youTubeVideos as $video) {
+            $video->delete();
+        }
+
+        // Delete the genre itself
+        return $artist->delete();
+    }
+
     public function genres()
     {
         return $this->hasManyThrough(
@@ -71,16 +96,8 @@ class Artist extends Model
             'genre_id'           // Local key on YouTubeVideo
         );
     }
-}
 
-/* 
-{
-        "_id": 1,
-        "nFan": 250,
-        "shareLink": "https://example.com/profile/1",
-        "cover": "/img/oble_reed/avatar_1.webp",
-        "name": "Jane Doe",
-        "bio": "A passionate artist and traveler. Sharing my journey through art and photography.",
-        "type": "R&B"
-    },
-*/
+    public function youTubeVideos() {
+        return $this->hasMany(YouTubeVideo::class, 'artist_id', 'id');
+    }
+}

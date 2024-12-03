@@ -61,7 +61,8 @@
                                 href="{{ route('admin_youtube_video_index') }}"
                                 class="{{ (
                                     Route::is('admin_youtube_video_index')
-                                    || Route::is('admin_youtube_video_edit')) ? 'active' : '' }}">
+                                    || Route::is('admin_youtube_video_edit')
+                                    || Route::is('admin_youtube_videos_deleted')) ? 'active' : '' }}">
                                     All Videos
                             </a>
                         </li>

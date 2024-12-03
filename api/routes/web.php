@@ -31,7 +31,10 @@ use App\Http\Controllers\Admin\Videos\GetYouTubeVideoDataController;
 use App\Http\Controllers\Admin\Videos\StoreYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\SubmitYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDeleteController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoDeletedIndexController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoDestroyController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoRestoreController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use App\Http\Middleware\AuthenticateAdmin;
@@ -88,6 +91,9 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
         Route::get('/edit/{video}', YouTubeVideoEditController::class)->name('admin_youtube_video_edit');
         Route::put('/update/{video}', YouTubeVideoUpdateController::class)->name('admin_youtube_video_update');
         Route::post('/delete/{video}', YouTubeVideoDeleteController::class)->name('admin_youtube_video_delete');
+        Route::get('/deleted-videos', YouTubeVideoDeletedIndexController::class)->name('admin_youtube_videos_deleted');
+        Route::post('/destroy/{id}', YouTubeVideoDestroyController::class)->name('admin_destroy_youtube_video');
+        Route::post('/restore/{id}', YouTubeVideoRestoreController::class)->name('admin_restore_youtube_video');
     });
 
     Route::prefix('subscribers')->group(function () {

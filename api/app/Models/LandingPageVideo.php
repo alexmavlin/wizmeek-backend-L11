@@ -58,7 +58,7 @@ class LandingPageVideo extends Model
                         $q->select('id', 'flag');
                     },
                     'genre' => function ($q) {
-                        $q->select('id', 'genre');
+                        $q->select('id', 'genre', 'color');
                     },
                     'artist' => function ($q) {
                         $q->select('id', 'name');
@@ -85,6 +85,7 @@ class LandingPageVideo extends Model
                     'thumbnail' => $video->thumbnail,
                     'release_year' => date('Y', strtotime($video->release_date)),
                     'genre' => $video->genre->genre ?? null,
+                    'genre_color' => $video->genre->color,
                     'country_flag' => $video->country ? asset($video->country->flag) : null,
                     'editors_pick' => $video->editors_pick ? true : false,
                     'new' => $video->new ? true : false,
