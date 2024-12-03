@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 
 class ArtistsDeleteController extends Controller
 {
-    public function __invoke(Artist $artist)
+    public function __invoke($artist)
     {
-        // Soft delete the artist
-        $artist->delete();
-
-        // Redirect back with a success message
-        return redirect()->route('admin_artists_index')->with('success', "Artist $artist->name deleted successfully.");
+        try {
+            Artist::deleteArtist($artist);
+            return redirect()->route('admin_artists_index')->with('success', "Artist $artist->name deleted successfully.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to delete artist. Error: ' . $e->getMessage());
+        }
     }
 }

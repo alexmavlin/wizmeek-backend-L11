@@ -26,6 +26,14 @@
         background-color: $backgroundBlack;
         text-decoration: none;
         border-radius: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        svg {
+            width: 30px;
+            height: 30px;
+            fill: $accentWhite;
+        }
     }
 }
 
@@ -74,6 +82,7 @@
                 height: 30px;
                 fill: $background;
             }
+            &.button, 
             &.delete {
                 color: $accentWhite;
                 font-size: 16px;
@@ -82,6 +91,9 @@
                 text-decoration: none;
                 background-color: $accentRed;
                 border-radius: 21px;
+            }
+            &.button {
+                background-color: $accentGreen;
             }
         }
     }

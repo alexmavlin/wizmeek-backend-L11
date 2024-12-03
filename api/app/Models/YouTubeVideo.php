@@ -53,7 +53,7 @@ class YouTubeVideo extends Model
         }); */
         $query->with([
             'artist:id,name',
-            'genre:id,genre',
+            'genre:id,genre,color',
             'country:id,flag,name'
         ]);
 
@@ -72,7 +72,7 @@ class YouTubeVideo extends Model
         );
 
         // Return paginated results ordered by creation date
-        return $query->orderBy('created_at', 'DESC')->paginate(10);
+        return $query->orderBy('updated_at', 'DESC')->paginate(10);
     }
 
     public function removeRelatedSelections()
@@ -130,7 +130,7 @@ class YouTubeVideo extends Model
                 $q->select('id', 'flag');
             },
             'genre' => function ($q) {
-                $q->select('id', 'genre');
+                $q->select('id', 'genre', 'color');
             },
             'artist' => function ($q) {
                 $q->select('id', 'name');
@@ -150,6 +150,7 @@ class YouTubeVideo extends Model
                 'thumbnail' => $video->thumbnail,
                 'release_year' => date('Y', strtotime($video->release_date)),
                 'genre' => $video->genre ? $video->genre->genre : "NaN",
+                'genre_color' => $video->genre->color,
                 'country_flag' => asset($video->country->flag),
                 'editors_pick' => $video->editors_pick ? true : false,
                 'new' => $video->new ? true : false,
@@ -189,6 +190,114 @@ class YouTubeVideo extends Model
             ];
         }
         return $data;
+    }
+
+    public static function getDeleted() {
+        $query = self::query();
+        $query->onlyTrashed();
+
+        // Fetch input values from the request
+        $title = request('title');
+        $genre = request('genre');
+        $country = request('country');
+        $flag = request('flags');
+        /* $contentType = request('content_type'); */
+
+        // Apply filters conditionally
+        $query->when($title, function($q, $title) {
+            return $q->where('title', 'like', '%' . $title . '%');
+        });
+
+        $query->when($genre, function($q, $genre) {
+            return $q->where('genre_id', $genre);
+        });
+
+        $query->when($country, function($q, $country) {
+            return $q->where('country_id', $country);
+        });
+
+        $query->when($flag, function ($q, $flag) {
+            if ($flag === 'new') {
+                return $q->where('new', 1);
+            } elseif ($flag === 'editors_pick') {
+                return $q->where('editors_pick', 1);
+            } elseif ($flag === 'throwback') {
+                return $q->where('throwback', 1);
+            }
+        });
+
+        $query->select(
+            'id', 
+            'content_type_id', 
+            'artist_id',
+            'title',
+            'release_date',
+            'thumbnail',
+            'genre_id',
+            'country_id',
+            'editors_pick',
+            'new',
+            'throwback'
+        );
+
+        $query->with([
+            'artist' => function ($q) {
+                $q->withTrashed();
+                $q->select('id', 'name');
+            },
+            'genre' => function($q) {
+                $q->withTrashed();
+                $q->select('id', 'genre', 'color');
+            },
+            'country' => function($q) {
+                $q->withTrashed();
+                $q->select('id', 'flag', 'name');
+            }
+        ]);
+
+        $videos = $query->orderBy('created_at', 'DESC')->paginate(10);
+        return $videos;
+    }
+
+    public static function restoreVideo($id) {
+        // Query soft-deleted video
+        $query = self::query()->onlyTrashed()->where('id', $id);
+    
+        // Include soft-deleted related models
+        $query->with([
+            'artist' => function ($q) {
+                $q->onlyTrashed();
+            },
+            'genre' => function ($q) {
+                $q->onlyTrashed();
+            },
+            'country' => function ($q) {
+                $q->onlyTrashed();
+            },
+        ]);
+    
+        $video = $query->first();
+    
+        // Check if the video exists and is soft-deleted
+        if (!$video) {
+            throw new \Exception('The video could not be found or is not soft-deleted.');
+        }
+    
+        // Restore related models if they exist and are soft-deleted
+        if ($video->artist && $video->artist->trashed()) {
+            $video->artist->restore();
+        }
+        if ($video->genre && $video->genre->trashed()) {
+            $video->genre->restore();
+        }
+        if ($video->country && $video->country->trashed()) {
+            $video->country->restore();
+        }
+    
+        // Restore the video itself
+        $video->restore();
+    
+        return $video;
     }
 
     public function artist() {

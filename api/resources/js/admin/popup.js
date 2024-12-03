@@ -14,8 +14,10 @@ document.addEventListener("DOMContentLoaded", function() {
     let popUpBtns = [];
 
     const deleteBtns = document.getElementsByClassName('deleteBtn');
+    const restoreBtns = document.getElementsByClassName('restoreBtn');
     if (deleteBtns.length !== 0) {
         popUpBtns.push(...deleteBtns);
+        popUpBtns.push(...restoreBtns);
     }
 
     for (const btn of popUpBtns) {
