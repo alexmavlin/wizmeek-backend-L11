@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\Artists\ArtistsIndexController;
 use App\Http\Controllers\Admin\Artists\ArtistsStoreController;
 use App\Http\Controllers\Admin\Artists\ArtistsUpdateController;
 use App\Http\Controllers\Admin\Artists\ArtistsViewController;
+use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Genres\GenresCreateController;
 use App\Http\Controllers\Admin\Genres\GenresDeleteController;
@@ -33,13 +34,14 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoDeleteController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
+use App\Http\Middleware\AuthenticateAdmin;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [AdminLoginController::class, 'login'])->name('admin_ligin');
+Route::post('/admin-authenticate', [AdminLoginController::class, 'authenticate'])->name('admin_authenticate');
+Route::get('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin_logout');
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin_dashboard');
 
     Route::prefix('/homepage')->group(function () {

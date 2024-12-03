@@ -1,5 +1,46 @@
 @import './vars';
 
+form {
+    .alert {
+        &-danger {
+            p {
+                color: $accentRed;
+            }
+        }
+    }
+}
+
+section.login {
+    padding: 70px 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.login {
+    &__inner {
+        max-width: 600px;
+        width: 100%;
+        form {
+            max-width: 600px;
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: $accentWhite;
+        }
+    }
+}
+
+.form__logo {
+    margin: 0 auto;
+    padding: 10px 16px;
+    border-radius: 5px;
+    background-color: $background;
+    display: inline-block;
+    align-self: center;
+}
+
 .form__row {
     display: flex;
     gap: 20px;
@@ -82,7 +123,8 @@
             }
         }
     }
-    input[type=text]{
+    input[type=text],
+    input[type=password]{
         width: 100%;
         font-size: 16px;
         line-height: 20px;

@@ -106,6 +106,12 @@
                                     Subscribers
                             </a>
                         </li>
+                        <li style="margin-top: 30px">
+                            <a 
+                                href="{{ route('admin_logout') }}">
+                                    Logout
+                            </a>
+                        </li>
                     </ul>
                 </nav>
             </aside>
