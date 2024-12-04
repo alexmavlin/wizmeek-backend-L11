@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Genre;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class YouTubeVideo extends Model
 {
@@ -15,7 +16,8 @@ class YouTubeVideo extends Model
     protected $table = 'you_tube_videos';
     protected $guarded = [];
 
-    public static function getVideosForIndex() {
+    public static function getVideosForIndex()
+    {
         $query = self::query();
 
         // Fetch input values from the request
@@ -26,15 +28,15 @@ class YouTubeVideo extends Model
         /* $contentType = request('content_type'); */
 
         // Apply filters conditionally
-        $query->when($title, function($q, $title) {
+        $query->when($title, function ($q, $title) {
             return $q->where('title', 'like', '%' . $title . '%');
         });
 
-        $query->when($genre, function($q, $genre) {
+        $query->when($genre, function ($q, $genre) {
             return $q->where('genre_id', $genre);
         });
 
-        $query->when($country, function($q, $country) {
+        $query->when($country, function ($q, $country) {
             return $q->where('country_id', $country);
         });
 
@@ -58,8 +60,8 @@ class YouTubeVideo extends Model
         ]);
 
         $query->select(
-            'id', 
-            'content_type_id', 
+            'id',
+            'content_type_id',
             'artist_id',
             'title',
             'release_date',
@@ -88,7 +90,8 @@ class YouTubeVideo extends Model
         }
     }
 
-    public static function getVideosApi($request) {
+    public static function getVideosApi($request)
+    {
         $limit = $request->header('X-Limit', 10);
         $mode = $request->header('X-Mode', 'latest');
         $genre = $request->header('X-Genre');
@@ -97,22 +100,12 @@ class YouTubeVideo extends Model
 
         if ($genre) {
             $query->whereHas('genre', function ($q) use ($genre) {
-                $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'name' is the column in genres table
+                $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'genre' is the column in genres table
             });
         }
 
-        switch ($mode) {
-            case 'random':
-                $query->inRandomOrder();
-                break;
-            case 'latest':
-            default:
-                $query->latest();
-                break;
-        }
-
         $query->select(
-            'id', 
+            'id',
             'country_id',
             'genre_id',
             'artist_id',
@@ -121,7 +114,7 @@ class YouTubeVideo extends Model
             'editors_pick',
             'new',
             'throwback',
-            'title', 
+            'title',
             'release_date'
         );
 
@@ -134,34 +127,69 @@ class YouTubeVideo extends Model
             },
             'artist' => function ($q) {
                 $q->select('id', 'name');
-            }
+            },
         ]);
 
-        // Limit the number of videos
-        $videos = $query->limit($limit)->get();
+        if (Auth::check()) {
+            $query->with([
+                'likedByUsers' => function ($q) {
+                    $q->where('user_id', Auth::user()->id()); // Filter for the logged-in user
+                    $q->select('id');
+                }
+            ]);
+        }
+        $query->withCount('likedByUsers');
 
-        $response = [];
-        // dd($videos);
-        foreach ($videos as $video) {
-            $response[] = [
-                'artist' => $video->artist->name,
-                'title' => $video->title,
-                'youtube_id' => $video->youtube_id,
-                'thumbnail' => $video->thumbnail,
-                'release_year' => date('Y', strtotime($video->release_date)),
-                'genre' => $video->genre ? $video->genre->genre : "NaN",
-                'genre_color' => $video->genre->color,
-                'country_flag' => asset($video->country->flag),
-                'editors_pick' => $video->editors_pick ? true : false,
-                'new' => $video->new ? true : false,
-                'throwback' => $video->throwback ? true : false
-            ];
+        // Handle sorting based on mode
+        switch ($mode) {
+            case 'random':
+                $query->inRandomOrder();
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('updated_at', 'DESC');
+                break;
         }
 
-        return $response;
+        // Paginate the query
+        $paginatedVideos = $query->paginate($limit);
+
+        // Format the response data
+        $response = $paginatedVideos->getCollection()->map(function ($video) {
+            return [
+                'artist' => $video->artist->name,
+                'country_flag' => asset($video->country->flag),
+                'editors_pick' => $video->editors_pick ? true : false,
+                'genre' => $video->genre ? $video->genre->genre : "NaN",
+                'genre_color' => $video->genre->color,
+                'isFavorite' => false,
+                'isLiked' => false,
+                'new' => $video->new ? true : false,
+                'nLikes' => $video->liked_by_users_count,
+                'release_year' => date('Y', strtotime($video->release_date)),
+                'throwback' => $video->throwback ? true : false,
+                'thumbnail' => $video->thumbnail,
+                'title' => $video->title,
+                'youtube_id' => $video->youtube_id,
+            ];
+        });
+
+        // Wrap the response with pagination metadata
+        return [
+            'data' => $response,
+            'pagination' => [
+                'total' => $paginatedVideos->total(),
+                'per_page' => $paginatedVideos->perPage(),
+                'current_page' => $paginatedVideos->currentPage(),
+                'last_page' => $paginatedVideos->lastPage(),
+                'next_page_url' => $paginatedVideos->nextPageUrl(),
+                'prev_page_url' => $paginatedVideos->previousPageUrl(),
+            ],
+        ];
     }
 
-    public static function getForLoader($searchString) {
+    public static function getForLoader($searchString)
+    {
         $query = self::query();
         //dd($searchString);
         $query->select('id', 'title', 'thumbnail', 'artist_id');
@@ -171,7 +199,7 @@ class YouTubeVideo extends Model
             $q->where('name', 'like', '%' . $searchString . '%');
         });
         $query->with([
-            'artist' => function($q) {
+            'artist' => function ($q) {
                 $q->select('id', 'name');
             }
         ]);
@@ -192,7 +220,8 @@ class YouTubeVideo extends Model
         return $data;
     }
 
-    public static function getDeleted() {
+    public static function getDeleted()
+    {
         $query = self::query();
         $query->onlyTrashed();
 
@@ -204,15 +233,15 @@ class YouTubeVideo extends Model
         /* $contentType = request('content_type'); */
 
         // Apply filters conditionally
-        $query->when($title, function($q, $title) {
+        $query->when($title, function ($q, $title) {
             return $q->where('title', 'like', '%' . $title . '%');
         });
 
-        $query->when($genre, function($q, $genre) {
+        $query->when($genre, function ($q, $genre) {
             return $q->where('genre_id', $genre);
         });
 
-        $query->when($country, function($q, $country) {
+        $query->when($country, function ($q, $country) {
             return $q->where('country_id', $country);
         });
 
@@ -227,8 +256,8 @@ class YouTubeVideo extends Model
         });
 
         $query->select(
-            'id', 
-            'content_type_id', 
+            'id',
+            'content_type_id',
             'artist_id',
             'title',
             'release_date',
@@ -245,11 +274,11 @@ class YouTubeVideo extends Model
                 $q->withTrashed();
                 $q->select('id', 'name');
             },
-            'genre' => function($q) {
+            'genre' => function ($q) {
                 $q->withTrashed();
                 $q->select('id', 'genre', 'color');
             },
-            'country' => function($q) {
+            'country' => function ($q) {
                 $q->withTrashed();
                 $q->select('id', 'flag', 'name');
             }
@@ -259,10 +288,11 @@ class YouTubeVideo extends Model
         return $videos;
     }
 
-    public static function restoreVideo($id) {
+    public static function restoreVideo($id)
+    {
         // Query soft-deleted video
         $query = self::query()->onlyTrashed()->where('id', $id);
-    
+
         // Include soft-deleted related models
         $query->with([
             'artist' => function ($q) {
@@ -275,14 +305,14 @@ class YouTubeVideo extends Model
                 $q->onlyTrashed();
             },
         ]);
-    
+
         $video = $query->first();
-    
+
         // Check if the video exists and is soft-deleted
         if (!$video) {
             throw new \Exception('The video could not be found or is not soft-deleted.');
         }
-    
+
         // Restore related models if they exist and are soft-deleted
         if ($video->artist && $video->artist->trashed()) {
             $video->artist->restore();
@@ -293,30 +323,45 @@ class YouTubeVideo extends Model
         if ($video->country && $video->country->trashed()) {
             $video->country->restore();
         }
-    
+
         // Restore the video itself
         $video->restore();
-    
+
         return $video;
     }
 
-    public function artist() {
+    public function artist()
+    {
         return $this->belongsTo(Artist::class, 'artist_id', 'id');
     }
 
-    public function genre() {
+    public function genre()
+    {
         return $this->belongsTo(Genre::class, 'genre_id', 'id');
     }
 
-    public function country() {
+    public function country()
+    {
         return $this->belongsTo(Country::class, 'country_id', 'id');
     }
 
-    public function landingItems() {
+    public function landingItems()
+    {
         return $this->hasMany(LandingPageVideo::class, 'video_id');
     }
 
-    public function highlightItems() {
+    public function highlightItems()
+    {
         return $this->hasMany(HiglighVideo::class, 'video_id');
+    }
+
+    public function likedByUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'youtube_videos_likes',
+            'video_id',
+            'user_id'
+        )->withTimestamps();
     }
 }

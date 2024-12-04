@@ -65,4 +65,15 @@ class User extends Authenticatable
     {
         return self::whereDate('created_at', Carbon::today())->count();
     }
+
+
+    public function likedVideos()
+    {
+        return $this->belongsToMany(
+            YouTubeVideo::class,     // Related model
+            'youtube_videos_likes',  // Pivot table
+            'user_id',               // Foreign key on the pivot table for this model
+            'video_id'               // Foreign key on the pivot table for the related model
+        )->withTimestamps();         // Include timestamps if present
+    }
 }

@@ -12,16 +12,17 @@ class LandingPageVideo extends Model
     protected $table = 'landing_page_videos';
     protected $guarded = ['id'];
 
-    public static function getForLanding() {
+    public static function getForLanding()
+    {
         $query = self::query();
 
         $query->with([
-            'videos' => function($q) {
+            'videos' => function ($q) {
                 $q->select(
                     'id',
                     'artist_id',
                     'thumbnail',
-                    'title', 
+                    'title',
                 );
                 $q->with([
                     'artist' => function ($q) {
@@ -34,13 +35,14 @@ class LandingPageVideo extends Model
         return $query->get();
     }
 
-    public static function getLandingVideosApi() {
+    public static function getLandingVideosApi()
+    {
         $query = self::query();
-    
+
         $query->with([
-            'videos' => function($query) {
+            'videos' => function ($query) {
                 $query->select(
-                    'id', 
+                    'id',
                     'country_id',
                     'genre_id',
                     'artist_id',
@@ -49,10 +51,10 @@ class LandingPageVideo extends Model
                     'editors_pick',
                     'new',
                     'throwback',
-                    'title', 
+                    'title',
                     'release_date'
                 );
-    
+
                 $query->with([
                     'country' => function ($q) {
                         $q->select('id', 'flag');
@@ -64,19 +66,20 @@ class LandingPageVideo extends Model
                         $q->select('id', 'name');
                     }
                 ]);
+                $query->withCount('likedByUsers');
             }
         ]);
-        
+
         // Get the landing page videos
         $videos = $query->get();
-    
+
         // Initialize response array
         $response = [];
-    
+
         // Loop through the collection of landing page videos
         foreach ($videos as $landingPageVideo) {
             $video = $landingPageVideo->videos; // Single video from the 'belongsTo' relationship
-    
+
             if ($video) {
                 $response[] = [
                     'artist' => $video->artist->name ?? null,
@@ -84,6 +87,9 @@ class LandingPageVideo extends Model
                     'youtube_id' => $video->youtube_id,
                     'thumbnail' => $video->thumbnail,
                     'release_year' => date('Y', strtotime($video->release_date)),
+                    'isFavorite' => false,
+                    'isLiked' => false,
+                    'nLike' => $video->liked_by_users_count,
                     'genre' => $video->genre->genre ?? null,
                     'genre_color' => $video->genre->color,
                     'country_flag' => $video->country ? asset($video->country->flag) : null,
@@ -93,11 +99,12 @@ class LandingPageVideo extends Model
                 ];
             }
         }
-    
+
         return $response;
     }
 
-    public function videos() {
+    public function videos()
+    {
         return $this->belongsTo(YouTubeVideo::class, 'video_id');
     }
 }
