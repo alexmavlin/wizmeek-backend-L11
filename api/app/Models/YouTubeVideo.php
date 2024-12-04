@@ -95,18 +95,26 @@ class YouTubeVideo extends Model
         $limit = $request->header('X-Limit', 10);
         $mode = $request->header('X-Mode', 'latest');
         $genre = $request->header('X-Genre');
+        $videoType = $request->header('X-Video-Type');
 
         $query = self::query();
 
-        if ($genre) {
+        if ($genre && strtolower($genre) != 'all') {
             $query->whereHas('genre', function ($q) use ($genre) {
                 $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'genre' is the column in genres table
+            });
+        }
+
+        if ($videoType) {
+            $query->whereHas('contentType', function ($q) use ($videoType) {
+                $q->where('name', 'like', '%' . $videoType . '%');
             });
         }
 
         $query->select(
             'id',
             'country_id',
+            'content_type_id',
             'genre_id',
             'artist_id',
             'youtube_id',
@@ -363,5 +371,10 @@ class YouTubeVideo extends Model
             'video_id',
             'user_id'
         )->withTimestamps();
+    }
+
+    public function contentType()
+    {
+        return $this->belongsTo(ContentType::class, 'content_type_id', 'id');
     }
 }

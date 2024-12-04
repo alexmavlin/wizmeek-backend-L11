@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
+use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
 use App\Http\Controllers\Api\Videos\GetVideosController;
@@ -25,4 +26,8 @@ Route::prefix('highlights')->group(function () {
 
 Route::prefix('artists')->group(function() {
     Route::get('/get', GetArtistsListController::class);
+});
+
+Route::prefix('genres')->group(function () {
+    Route::get('/get', GetGenresController::class);
 });
