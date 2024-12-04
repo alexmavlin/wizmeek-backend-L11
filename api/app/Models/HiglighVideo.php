@@ -256,6 +256,8 @@ class HiglighVideo extends Model
         ])
         ->get();
 
+        // dd($items);
+
         $data = [
             "flag" => "new",
             "items" => self::buildHighlightsInstanceDataArray($items)

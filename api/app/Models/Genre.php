@@ -68,6 +68,24 @@ class Genre extends Model
         return $query->get();
     }
 
+    public static function getForApi() {
+        $query = self::query();
+        $query->select('id', 'genre');
+
+        $genres = $query->get();
+
+        $response = [];
+
+        foreach ($genres as $genre) {
+            $response[] = [
+                'id' => $genre->id,
+                'label' => $genre->genre
+            ];
+        }
+
+        return $response;
+    }
+
     public function youTubeVideos()
     {
         return $this->hasMany(YouTubeVideo::class, 'genre_id', 'id');

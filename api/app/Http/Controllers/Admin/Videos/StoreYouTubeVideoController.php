@@ -10,6 +10,7 @@ class StoreYouTubeVideoController extends Controller
 {
     public function __invoke(StoreYouTubeVideoRequest $request)
     {
+        // dd($request->all());
         // Prepare the data for storing or updating
         $storeData = [
             'original_link' => $request->original_link,

@@ -155,7 +155,8 @@
             </div>
 
             {{-- Editors Pick --}}
-            <div class="form__row">
+            <div class="form__row labelled row">
+                <span class="form__row--label">Video Flags</span>
                 <div class="form__group">
                     <input 
                         type="checkbox"
@@ -174,10 +175,90 @@
                         <span class="danger">{{ $message }}</span>
                     @enderror
                 </div>
+                <div class="form__group">
+                    <input 
+                        type="checkbox"
+                        name="new"
+                        id="new"
+                        value="new"
+                        {{ old('new') == 'new' ? 'checked' : '' }}>
+                    <label for="new">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        New
+                    </label>
+                    @error('new')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form__group">
+                    <input 
+                        type="checkbox"
+                        name="new"
+                        value="throwback"
+                        id="throwback"
+                        {{ old('new') == 'throwback' ? 'checked' : '' }}>
+                    <label for="throwback">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Throwback
+                    </label>
+                    @error('throwback')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
             </div>
 
+            {{-- <div class="form__row labelled row">
+                <span class="form__row--label">Video Type</span>
+                <div class="form__group">
+                    <input 
+                        type="radio"
+                        name="video_type"
+                        value="video"
+                        id="video_type1"
+                        {{ old('new') == 'throwback' ? 'checked' : '' }}>
+                    <label for="video_type1">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Official Video Clip
+                    </label>
+                    @error('video_type1')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form__group">
+                    <input 
+                        type="radio"
+                        name="video_type"
+                        value="audio"
+                        id="video_type2"
+                        {{ old('new') == 'throwback' ? 'checked' : '' }}>
+                    <label for="video_type2">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Official Audio Clip
+                    </label>
+                    @error('video_type2')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div> --}}
+
             {{-- NEW Flag --}}
-            <div class="form__row">
+            {{-- <div class="form__row">
                 <div class="form__group">
                     <input 
                         type="radio"
@@ -197,10 +278,10 @@
                         <span class="danger">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
+            </div> --}}
 
             {{-- Editors Pick --}}
-            <div class="form__row">
+            {{-- <div class="form__row">
                 <div class="form__group">
                     <input 
                         type="radio"
@@ -220,7 +301,7 @@
                         <span class="danger">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
+            </div> --}}
             <div class="form__row">
                 <div class="form__group">
                     <button type="submit">Submit</button>

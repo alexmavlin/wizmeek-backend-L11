@@ -34,7 +34,8 @@ class StoreYouTubeVideoRequest extends FormRequest
             "country_id" => "required|string",
             "editors_pick" => "nullable|string",
             "new" => "nullable|string",
-            "throwback" => "nullable|string"
+            "throwback" => "nullable|string",
+            "video_type" => "required|string"
         ];
     }
 }
