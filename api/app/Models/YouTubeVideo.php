@@ -174,6 +174,7 @@ class YouTubeVideo extends Model
                 'isLiked' => false,
                 'new' => $video->new ? true : false,
                 'nLikes' => $video->liked_by_users_count,
+                'nLike' => $video->liked_by_users_count,
                 'release_year' => date('Y', strtotime($video->release_date)),
                 'throwback' => $video->throwback ? true : false,
                 'thumbnail' => $video->thumbnail,
