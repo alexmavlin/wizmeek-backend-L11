@@ -90,14 +90,45 @@ class YouTubeVideo extends Model
         }
     }
 
+    public static function getFavoriteVideos($request)
+    {
+        $user = Auth::user();
+
+        // Ensure the 'favoriteVideos' relationship is loaded
+        $user->load(['favoriteVideos']);
+
+        // Get the IDs of the favorite videos
+        $favoriteVideoIds = $user->favoriteVideos->pluck('id');
+
+        // Create a pre-query for the favorite videos
+        $preQuery = self::query()->whereIn('id', $favoriteVideoIds);
+
+        // Pass the pre-query into queryVideosForMediaCard
+        $paginatedVideos = self::queryVideosForMediaCard($request, $preQuery);
+
+        // Process the videos with getMediaCardsData
+        return self::getMediaCardsData($paginatedVideos);
+    }
+
     public static function getVideosApi($request)
+    {
+        // Paginate the query
+        $paginatedVideos = self::queryVideosForMediaCard($request);
+
+        // Format the response data
+        return self::getMediaCardsData($paginatedVideos);
+    }
+
+    private static function queryVideosForMediaCard($request, $preQuery = null)
     {
         $limit = $request->header('X-Limit', 10);
         $mode = $request->header('X-Mode', 'latest');
         $genre = $request->header('X-Genre');
         $videoType = $request->header('X-Video-Type');
+        $flag = $request->header('X-Video-Flag');
+        $artistId = $request->header('X-Artist');
 
-        $query = self::query();
+        $query = $preQuery ? $preQuery : self::query();
 
         if ($genre && strtolower($genre) != 'all') {
             $query->whereHas('genre', function ($q) use ($genre) {
@@ -109,6 +140,18 @@ class YouTubeVideo extends Model
             $query->whereHas('contentType', function ($q) use ($videoType) {
                 $q->where('name', 'like', '%' . $videoType . '%');
             });
+        }
+
+        if ($flag) {
+            if (strtolower($flag) === 'new') {
+                $query->where('new', 1);
+            } elseif (strtolower($flag) === 'throwback') {
+                $query->where('throwback', 1);
+            }
+        }
+
+        if ($artistId) {
+            $query->where('artist_id', $artistId);
         }
 
         $query->select(
@@ -141,8 +184,14 @@ class YouTubeVideo extends Model
         if (Auth::check()) {
             $query->with([
                 'likedByUsers' => function ($q) {
-                    $q->where('user_id', Auth::user()->id()); // Filter for the logged-in user
-                    $q->select('id');
+                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
+                    $q->select('youtube_videos_likes.id');
+                }
+            ]);
+            $query->with([
+                'favoriteByUser' => function ($q) {
+                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
+                    $q->select('youtube_videos_favorites.id');
                 }
             ]);
         }
@@ -159,19 +208,21 @@ class YouTubeVideo extends Model
                 break;
         }
 
-        // Paginate the query
-        $paginatedVideos = $query->paginate($limit);
+        return $query->paginate($limit);
+    }
 
-        // Format the response data
+    private static function getMediaCardsData($paginatedVideos)
+    {
         $response = $paginatedVideos->getCollection()->map(function ($video) {
+            // dd($video);
             return [
                 'artist' => $video->artist->name,
                 'country_flag' => asset($video->country->flag),
                 'editors_pick' => $video->editors_pick ? true : false,
                 'genre' => $video->genre ? $video->genre->genre : "NaN",
                 'genre_color' => $video->genre->color,
-                'isFavorite' => false,
-                'isLiked' => false,
+                'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
+                'isLiked' => count($video->likedByUsers) > 0 ? true : false ,
                 'new' => $video->new ? true : false,
                 'nLikes' => $video->liked_by_users_count,
                 'nLike' => $video->liked_by_users_count,
@@ -369,6 +420,16 @@ class YouTubeVideo extends Model
         return $this->belongsToMany(
             User::class,
             'youtube_videos_likes',
+            'video_id',
+            'user_id'
+        )->withTimestamps();
+    }
+
+    public function favoriteByUser()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'youtube_videos_favorites',
             'video_id',
             'user_id'
         )->withTimestamps();
