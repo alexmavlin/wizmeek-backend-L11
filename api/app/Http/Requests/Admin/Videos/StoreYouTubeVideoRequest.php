@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin\Videos;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StoreYouTubeVideoRequest extends FormRequest
 {
@@ -14,6 +16,12 @@ class StoreYouTubeVideoRequest extends FormRequest
         return true;
     }
 
+    /* public function failedValidation(Validator $validator)
+    {
+        dd($validator->errors()->all());
+        throw new ValidationException($validator);
+    } */
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -21,9 +29,10 @@ class StoreYouTubeVideoRequest extends FormRequest
      */
     public function rules(): array
     {
+        // dd($this->all());
         return [
-            "original_link" => "required|string|unique:you_tube_videos,original_link",
-            "youtube_id" => "required|string|max:50|unique:you_tube_videos,youtube_id",
+            "original_link" => "required|string",
+            "youtube_id" => "required|string|max:50",
             "content_type_id" => "required|string",
             "artist_id" => "nullable|string",
             "artist_name" => "required|string|max:150",
@@ -34,8 +43,7 @@ class StoreYouTubeVideoRequest extends FormRequest
             "country_id" => "required|string",
             "editors_pick" => "nullable|string",
             "new" => "nullable|string",
-            "throwback" => "nullable|string",
-            "video_type" => "required|string"
+            "throwback" => "nullable|string"
         ];
     }
 }

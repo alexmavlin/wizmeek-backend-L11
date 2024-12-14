@@ -6,11 +6,18 @@
             @csrf
             @method('POST')
 
+            @error('youtube_id')
+                <span class="danger">{{ $message }}</span>
+            @enderror
             <input
                 type="hidden" 
                 name="youtube_id"
                 value="{{ old('youtube_id') ?: '' }}"
                 id="youtube_id">
+
+            @error('thumbnail')
+                <span class="danger">{{ $message }}</span>
+            @enderror
             <input 
                 type="hidden"
                 name="thumbnail"

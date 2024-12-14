@@ -38,6 +38,7 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoRestoreController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use App\Http\Controllers\Api\Authentication\LoginController;
+use App\Http\Controllers\Api\Authentication\RegisterController;
 use App\Http\Middleware\AuthenticateAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,7 @@ Route::post('/admin-authenticate', [AdminLoginController::class, 'authenticate']
 Route::get('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin_logout');
 
 Route::post('/api-login', LoginController::class);
+Route::post('/api-register', RegisterController::class);
 
 Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin_dashboard');

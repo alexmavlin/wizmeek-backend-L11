@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
-use App\Http\Controllers\Api\Authentication\LoginController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
