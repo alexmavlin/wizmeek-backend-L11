@@ -164,13 +164,14 @@
             </div>
 
             {{-- Editors Pick --}}
-            <div class="form__row">
+            <div class="form__row labelled row">
+                <span class="form__row--label">Video Flags</span>
                 <div class="form__group">
                     <input 
                         type="checkbox"
                         name="editors_pick"
                         id="editors_pick"
-                        {{ (old('editors_pick') || $data['video']->editors_pick) ? 'checked' : '' }}>
+                        {{ old('editors_pick') ? 'checked' : ($data['video']->editors_pick ? 'checked' : '') }}>
                     <label for="editors_pick">
                         <div class="">
                             <svg class="checkbox__check" width="24" height="24">
@@ -183,17 +184,13 @@
                         <span class="danger">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
-
-            {{-- NEW Flag --}}
-            <div class="form__row">
                 <div class="form__group">
                     <input 
-                        type="radio"
+                        type="checkbox"
                         name="new"
                         id="new"
                         value="new"
-                        {{ (old('new') == 'new' || $data['video']->new) ? 'checked' : '' }}>
+                        {{ old('new') == 'new' ? 'checked' : ($data['video']->new ? 'checked' : '') }}>
                     <label for="new">
                         <div class="">
                             <svg class="checkbox__check" width="24" height="24">
@@ -206,17 +203,13 @@
                         <span class="danger">{{ $message }}</span>
                     @enderror
                 </div>
-            </div>
-
-            {{-- Editors Pick --}}
-            <div class="form__row">
                 <div class="form__group">
                     <input 
-                        type="radio"
+                        type="checkbox"
                         name="new"
                         value="throwback"
                         id="throwback"
-                        {{ (old('new') == 'throwback' || $data['video']->throwback) ? 'checked' : '' }}>
+                        {{ old('new') == 'throwback' ? 'checked' : ($data['video']->throwback ? 'checked' : '') }}>
                     <label for="throwback">
                         <div class="">
                             <svg class="checkbox__check" width="24" height="24">
@@ -230,6 +223,7 @@
                     @enderror
                 </div>
             </div>
+
             <div class="form__row">
                 <div class="form__group">
                     <button type="submit">Submit</button>

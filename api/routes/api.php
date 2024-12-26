@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
+use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
@@ -23,6 +24,10 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
 
     Route::prefix('videos')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
+    });
+
+    Route::prefix('genres')->group(function () {
+        Route::get('/get-music-taste', GetGenresMusictasteController::class);
     });
 });
 

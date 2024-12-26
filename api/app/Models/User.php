@@ -87,4 +87,14 @@ class User extends Authenticatable
             'video_id'
         )->withTimestamps();
     }
+
+    public function genreTaste()
+    {
+        return $this->belongsToMany(
+            Genre::class,
+            'users_genres_taste',
+            'user_id',
+            'genre_id'
+        );
+    }
 }

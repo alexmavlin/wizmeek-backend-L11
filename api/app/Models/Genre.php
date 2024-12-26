@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Genre extends Model
 {
@@ -60,6 +61,34 @@ class Genre extends Model
         return $genre->delete();
     }
 
+    public static function getUsersTaste() {
+
+        $query = self::query();
+        $query->select('id', 'genre', 'color');
+        $genres = $query->get()->toArray();
+
+        $user = Auth::user();
+
+        $user->load([
+            'genreTaste' => function($q) {
+                $q->select('genres.id');
+            }
+        ]);
+
+        $userTastyGenres = $user->genreTaste->pluck('id')->toArray();
+
+        $ret = [];
+        foreach ($genres as $genre) {
+            $ret[] = [
+                'id' => $genre['id'],
+                'genre' => $genre['genre'],
+                'color' => $genre['color'],
+                'isGenreTasty' => in_array($genre['id'], $userTastyGenres) ? true : false
+            ];
+        }
+        return $ret;
+    }
+
     public static function getForSelect()
     {
         $query = self::query();
@@ -70,7 +99,7 @@ class Genre extends Model
 
     public static function getForApi() {
         $query = self::query();
-        $query->select('id', 'genre');
+        $query->select('id', 'genre', 'color');
 
         $genres = $query->get();
 
@@ -79,7 +108,8 @@ class Genre extends Model
         foreach ($genres as $genre) {
             $response[] = [
                 'id' => $genre->id,
-                'label' => $genre->genre
+                'label' => $genre->genre,
+                'color' => $genre->color
             ];
         }
 
@@ -89,5 +119,15 @@ class Genre extends Model
     public function youTubeVideos()
     {
         return $this->hasMany(YouTubeVideo::class, 'genre_id', 'id');
+    }
+
+    public function tasteUsers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'users_genres_taste',
+            'genre_id',
+            'user_id'
+        );
     }
 }
