@@ -28,6 +28,8 @@ class YouTubeVideoUpdateRequest extends FormRequest
             "artist_id" => "nullable|string",
             "artist_name" => "required|string|max:150",
             "title" => "required|string|max:150",
+            "spotify_link" => "nullable|string|max:1000",
+            "apple_music_link" => "nullable|string|max:1000",
             "thumbnail" => "required|string",
             "release_date" => "required|string",
             "genre_id" => "required|string",

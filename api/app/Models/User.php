@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -65,6 +66,18 @@ class User extends Authenticatable
     public static function getTodayRegisteredUsers(): int
     {
         return self::whereDate('created_at', Carbon::today())->count();
+    }
+
+    public static function bindGenreToUser($genre_id)
+    {
+        $user = self::find(Auth::user()->id);
+        $user->genreTaste()->sync([$genre_id]);
+    }
+
+    public static function unbindGenreFromUser($genre_id)
+    {
+        $user = self::find(Auth::user()->id);
+        $user->genreTaste()->detach([$genre_id]);
     }
 
 

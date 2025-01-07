@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            {{-- Artist Name --}}
+            {{-- Song Title --}}
             <div class="form__row">
                 <div class="form__group">
                     <input 
@@ -108,6 +108,44 @@
                             <span class="danger">{{ $message }}</span>
                         @else
                             <span>Title*</span>
+                        @enderror
+                    </label>
+                </div>
+            </div>
+
+            {{-- Spotify Link --}}
+            <div class="form__row">
+                <div class="form__group">
+                    <input 
+                        type="text" 
+                        placeholder="" 
+                        name="spotify_link" 
+                        value="{{ old('spotify_link') ?: '' }}" 
+                        id="spotify_link">
+                    <label for="spotify_link">
+                        @error('spotify_link')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Spotify Link</span>
+                        @enderror
+                    </label>
+                </div>
+            </div>
+
+            {{-- Apple Music Link --}}
+            <div class="form__row">
+                <div class="form__group">
+                    <input 
+                        type="text" 
+                        placeholder="" 
+                        name="apple_music_link" 
+                        value="{{ old('apple_music_link') ?: '' }}" 
+                        id="apple_music_link">
+                    <label for="apple_music_link">
+                        @error('apple_music_link')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Apple Music Link</span>
                         @enderror
                     </label>
                 </div>

@@ -156,6 +156,7 @@ class YouTubeVideo extends Model
 
         $query->select(
             'id',
+            'apple_music_link',
             'country_id',
             'content_type_id',
             'genre_id',
@@ -164,6 +165,7 @@ class YouTubeVideo extends Model
             'thumbnail',
             'editors_pick',
             'new',
+            'spotify_link',
             'throwback',
             'title',
             'release_date'
@@ -217,6 +219,7 @@ class YouTubeVideo extends Model
             // dd($video);
             return [
                 'artist' => $video->artist->name,
+                'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
                 'country_flag' => asset($video->country->flag),
                 'editors_pick' => $video->editors_pick ? true : false,
                 'genre' => $video->genre ? $video->genre->genre : "NaN",
@@ -227,6 +230,7 @@ class YouTubeVideo extends Model
                 'nLikes' => $video->liked_by_users_count,
                 'nLike' => $video->liked_by_users_count,
                 'release_year' => date('Y', strtotime($video->release_date)),
+                'spotify_link' => $video->spotify_link ? $video->spotify_link : "",
                 'throwback' => $video->throwback ? true : false,
                 'thumbnail' => $video->thumbnail,
                 'title' => $video->title,

@@ -18,6 +18,8 @@ class StoreYouTubeVideoController extends Controller
             'content_type_id' => (int) $request->content_type_id,
             'artist_id' => $this->getArtistId($request->artist_name),
             'title' => $request->title,
+            "spotify_link" => $request->spotify_link,
+            "apple_music_link" => $request->apple_music_link,
             'thumbnail' => $request->thumbnail,
             'release_date' => $this->makeDate($request->release_date),
             'genre_id' => (int) $request->genre_id,
