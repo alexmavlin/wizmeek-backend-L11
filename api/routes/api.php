@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
+use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
+use App\Http\Controllers\Api\Genres\UnbindGenreTasteController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
+use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
+use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
 use App\Http\Controllers\Api\User\UserProfileController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
@@ -24,10 +28,14 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
 
     Route::prefix('videos')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
+        Route::post('/handle-like-video', UserLikesVideoController::class);
+        Route::post('/handle-favorite-video', UserClicksFavoriteOnVideoController::class);
     });
 
     Route::prefix('genres')->group(function () {
         Route::get('/get-music-taste', GetGenresMusictasteController::class);
+        Route::post('/bind-genre', BindGenreTasteController::class);
+        Route::post('/unbind-genre', UnbindGenreTasteController::class);
     });
 });
 

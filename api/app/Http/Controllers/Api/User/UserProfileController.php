@@ -29,7 +29,7 @@ class UserProfileController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'nickname' => $user->nickname,
-            'avatar' => $user->avatar ? $user->avatar : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
+            'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
             'description' => $user->description,
             'joined' => date('M Y', strtotime($user->created_at)),
             'following' => 15,

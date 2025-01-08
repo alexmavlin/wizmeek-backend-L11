@@ -14,7 +14,7 @@ class UserNavDetailsController extends Controller
         $userDetails = [
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar,
+            'avatar' => asset('img/avatars/' . $user->avatar),
             'doesNewNoticeExist' => true
         ];
 

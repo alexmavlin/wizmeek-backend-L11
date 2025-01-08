@@ -80,6 +80,35 @@ class User extends Authenticatable
         $user->genreTaste()->detach([$genre_id]);
     }
 
+    public static function handleLikedVideo($video_id) 
+    {
+        $user = self::find(Auth::user()->id);
+    
+        $isLiked = $user->likedVideos()->where('video_id', $video_id)->exists();
+    
+        if ($isLiked) {
+            $user->likedVideos()->detach($video_id);
+            return "Unliked video with id: " . $video_id;
+        } else {
+            $user->likedVideos()->attach($video_id);
+            return "Liked video with id: " . $video_id;
+        }
+    }
+
+    public static function handleFavoritedVideo($video_id)
+    {
+        $user = self::find(Auth::user()->id);
+    
+        $isLiked = $user->favoriteVideos()->where('video_id', $video_id)->exists();
+    
+        if ($isLiked) {
+            $user->favoriteVideos()->detach($video_id);
+            return "Video with id: " . $video_id . " was removed from favorites.";
+        } else {
+            $user->favoriteVideos()->attach($video_id);
+            return "Video with id: " . $video_id . " was added to favorites.";
+        }
+    }
 
     public function likedVideos()
     {
