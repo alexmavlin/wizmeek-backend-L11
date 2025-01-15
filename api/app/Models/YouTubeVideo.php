@@ -218,6 +218,7 @@ class YouTubeVideo extends Model
         $response = $paginatedVideos->getCollection()->map(function ($video) {
             // dd($video);
             return [
+                'id' => $video->id,
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
                 'country_flag' => asset($video->country->flag),

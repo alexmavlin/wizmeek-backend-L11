@@ -28,14 +28,14 @@ class UserLikesVideoController extends Controller
                 'message' => $result,
                 'error' => '',
                 'data' => []
-            ], 401);
+            ], 204);
         } catch (\Exception $exception) {
             return response()->json([
                 'success' => false,
                 'message' => "Unable to bind a genre to the User's taste.",
                 'error' => $exception->getMessage(),
                 'data' => []
-            ], 401);
+            ], 519);
         }
     }
 }
