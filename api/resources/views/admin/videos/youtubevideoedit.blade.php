@@ -262,6 +262,29 @@
                 </div>
             </div>
 
+            {{-- Additional settings --}}
+            <div class="form__row labelled row">
+                <span class="form__row--label">Additional Settings</span>
+                <div class="form__group">
+                    <input 
+                        type="checkbox"
+                        name="is_draft"
+                        id="is_draft"
+                        {{ old('is_draft') ? 'checked' : ($data['video']->is_draft ? 'checked' : '') }}>
+                    <label for="is_draft">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Keep as Draft
+                    </label>
+                    @error('is_draft')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
             <div class="form__row">
                 <div class="form__group">
                     <button type="submit">Submit</button>

@@ -105,6 +105,11 @@
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>    
                     </span></p>
+                    <p>Draft: <span class="{{ $video->is_draft ? 'active' : '' }}">
+                        <svg class="checkbox__check" width="24" height="24">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>    
+                    </span></p>
                 </div>
             </div>
         @endforeach

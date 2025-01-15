@@ -26,7 +26,8 @@ class YouTubeVideoUpdateController extends Controller
             'country_id' => (int) $request->country_id,
             'editors_pick' => isset($request->editors_pick) ? 1 : 0,
             'new' => (isset($request->new) && $request->new == 'new') ? 1 : 0,
-            'throwback' => (isset($request->new) && $request->new == 'throwback') ? 1 : 0
+            'throwback' => (isset($request->new) && $request->new == 'throwback') ? 1 : 0,
+            'is_draft' => isset($request->is_draft) ? 1 : 0
         ];
 
         $video->update($storeData);

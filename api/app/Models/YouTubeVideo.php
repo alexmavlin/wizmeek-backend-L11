@@ -70,7 +70,8 @@ class YouTubeVideo extends Model
             'country_id',
             'editors_pick',
             'new',
-            'throwback'
+            'throwback',
+            'is_draft'
         );
 
         // Return paginated results ordered by creation date
@@ -168,8 +169,11 @@ class YouTubeVideo extends Model
             'spotify_link',
             'throwback',
             'title',
-            'release_date'
+            'release_date',
+            'is_draft'
         );
+
+        $query->where('is_draft', 0);
 
         $query->with([
             'country' => function ($q) {
