@@ -110,6 +110,36 @@ class User extends Authenticatable
         }
     }
 
+    public static function getProfileDetailsForApiEdit() 
+    {
+        $query = self::query();
+
+        $query->select(
+            'id',
+            'name',
+            'nickname',
+            'avatar',
+            'google_avatar',
+            'description',
+            'created_at'
+        );
+
+        $user = $query->find(auth()->id());
+
+        $response = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'nickname' => $user->nickname,
+            'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
+            'description' => $user->description,
+            'joined' => date('M Y', strtotime($user->created_at)),
+            'following' => 15,
+            'followed_by' => 165
+        ];
+
+        return $response;
+    }
+
     public function likedVideos()
     {
         return $this->belongsToMany(

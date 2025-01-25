@@ -7,10 +7,13 @@ use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
 use App\Http\Controllers\Api\Genres\UnbindGenreTasteController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
+use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
 use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
 use App\Http\Controllers\Api\User\UserProfileController;
+use App\Http\Controllers\Api\User\UserProfileEditController;
+use App\Http\Controllers\Api\User\UserProfileUpdateController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
 use App\Http\Controllers\Api\Videos\GetVideosController;
 use Illuminate\Http\Request;
@@ -24,6 +27,11 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/get-header', UserNavDetailsController::class);
         Route::get('/profile', UserProfileController::class);
+        Route::get('/profile-edit', UserProfileEditController::class);
+        Route::post('/update-description', [UserProfileUpdateController::class, 'updateDescription']);
+        Route::post('/update-name-email', [UserProfileUpdateController::class, 'updateNameAndEmail']);
+        Route::post('/update-password', [UserProfileUpdateController::class, 'updatePassword']);
+        Route::post('/update-avatar', UserAvatarUpdateController::class);
     }); 
 
     Route::prefix('videos')->group(function () {

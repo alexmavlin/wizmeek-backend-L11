@@ -17,7 +17,7 @@ class LoginController extends Controller
             // Validate the request input
             $validated = $request->validate([
                 'email' => 'required|email',
-                'password' => 'required|string|min:6',
+                'password' => 'required|string|min:4',
                 'remember' => 'nullable|boolean'
             ]);
 
