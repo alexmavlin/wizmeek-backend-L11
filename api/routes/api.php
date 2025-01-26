@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
+use App\Http\Controllers\Api\Comments\StoreVideoCommentController;
 use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
 
     Route::prefix('comments')->group(function () {
         Route::post('/like', UserLikesVideoCommentController::class);
+        Route::post('/store', StoreVideoCommentController::class);
     });
 
     Route::prefix('genres')->group(function () {
