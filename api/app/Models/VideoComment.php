@@ -28,6 +28,6 @@ class VideoComment extends Model
     }
 
     public function userLikes() {
-        return $this->belongsToMany(User::class, 'users_video_comments', 'user_id', 'id');
+        return $this->belongsToMany(User::class, 'users_video_comments', 'video_comment_id', 'user_id');
     }
 }

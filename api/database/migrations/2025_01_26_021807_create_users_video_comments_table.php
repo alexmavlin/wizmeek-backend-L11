@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('users_video_comments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(false)->comment('User ID');
-            $table->unsignedBigInteger('video_comment_id')->nullable(false)->comment('YouTube Video ID');
+            $table->unsignedBigInteger('user_id')->comment('User ID');
+            $table->unsignedBigInteger('video_comment_id')->comment('YouTube Video ID');
 
-            $table->foreign('user_id', 'user_comment_user_fk')->references('id')->on('users');
-            $table->foreign('video_comment_id', 'user_comment_comment_fk')->references('id')->on('video_comments');
+            $table->foreign('user_id', 'user_comment_user_fk')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('video_comment_id', 'user_comment_comment_fk')->references('id')->on('video_comments')->onDelete('cascade');
         });
     }
 

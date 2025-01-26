@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
 use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
+use App\Http\Controllers\Api\User\UserLikesVideoCommentController;
 use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
 use App\Http\Controllers\Api\User\UserProfileController;
@@ -38,6 +39,10 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
         Route::post('/handle-like-video', UserLikesVideoController::class);
         Route::post('/handle-favorite-video', UserClicksFavoriteOnVideoController::class);
+    });
+
+    Route::prefix('comments')->group(function () {
+        Route::post('/like', UserLikesVideoCommentController::class);
     });
 
     Route::prefix('genres')->group(function () {

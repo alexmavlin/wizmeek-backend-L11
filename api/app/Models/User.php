@@ -80,6 +80,21 @@ class User extends Authenticatable
         $user->genreTaste()->detach([$genre_id]);
     }
 
+    public static function handleLikedVideoComment($comment_id)
+    {
+        $user = self::find(Auth::user()->id);
+
+        $isLiked = $user->commentLikes()->where('video_comment_id', $comment_id)->exists();
+
+        if ($isLiked) {
+            $user->commentLikes()->detach($comment_id);
+            return "Unliked video comment with id: " . $comment_id;
+        } else {
+            $user->commentLikes()->attach($comment_id);
+            return "Liked video comment with id: " . $comment_id;
+        }
+    }
+
     public static function handleLikedVideo($video_id) 
     {
         $user = self::find(Auth::user()->id);
@@ -177,6 +192,6 @@ class User extends Authenticatable
 
     public function commentLikes()
     {
-        return $this->belongsToMany(VideoComment::class, 'users_video_comments', 'video_comment_id', 'id');
+        return $this->belongsToMany(VideoComment::class, 'users_video_comments', 'user_id', 'video_comment_id');
     }
 }
