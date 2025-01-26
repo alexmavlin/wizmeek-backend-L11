@@ -20,6 +20,7 @@ class GetVideosController extends Controller
                 $videos = YouTubeVideo::getVideosApi($request);
                 break;
         }
+        // dd($videos);
         // Return JSON response
         return response()->json($videos);
     }

@@ -169,4 +169,14 @@ class User extends Authenticatable
             'genre_id'
         );
     }
+
+    public function comments() 
+    {
+        return $this->hasMany(VideoComment::class, 'user_id', 'id');
+    }
+
+    public function commentLikes()
+    {
+        return $this->belongsToMany(VideoComment::class, 'users_video_comments', 'video_comment_id', 'id');
+    }
 }

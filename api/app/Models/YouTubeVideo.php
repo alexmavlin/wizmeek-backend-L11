@@ -203,6 +203,29 @@ class YouTubeVideo extends Model
         }
         $query->withCount('likedByUsers');
 
+        $query->with([
+            'comments' => function ($q) {
+                $q->limit(4);
+                $q->orderBy('created_at', 'DESC');
+                $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+                $q->with([
+                    'user' => function ($q) {
+                        $q->select('id', 'name', 'avatar', 'google_avatar');
+                    }
+                ]);
+
+                if (Auth::check()) {
+                    $q->with([
+                        'userLikes' => function ($q) {
+                            $q->where('user_id', Auth::user()->id);
+                            $q->select('users_video_comments.id');
+                        }
+                    ]);
+                }
+                $q->withCount('userLikes');
+            }
+        ]);
+
         // Handle sorting based on mode
         switch ($mode) {
             case 'random':
@@ -214,7 +237,28 @@ class YouTubeVideo extends Model
                 break;
         }
 
+        // dd($query->paginate($limit));
         return $query->paginate($limit);
+    }
+
+    private static function getCommentsData($comments)
+    {
+        // dd($comments);
+        $data = [];
+        foreach ($comments as $comment) {
+            array_push($data, [
+                "_id" => $comment->id,
+                "content" => $comment->content,
+                "created" => date('d M Y', strtotime($comment->created_at)),
+                "isLiked" => count($comment->userLikes) > 0 ? true : false,
+                "nLike" => $comment->user_likes_count,
+                "user" => [
+                    "name" => $comment->user->name,
+                    "avatar" => $comment->user->avatar ? asset('img/avatars/' . $comment->user->avatar) : ($comment->user->google_avatar ? $comment->user->google_avatar : asset('img/artists/avatars/noAvatar.webp'))
+                ]
+            ]);
+        }
+        return $data;
     }
 
     private static function getMediaCardsData($paginatedVideos)
@@ -226,6 +270,7 @@ class YouTubeVideo extends Model
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
                 'country_flag' => asset($video->country->flag),
+                'comments' => self::getCommentsData($video->comments),
                 'editors_pick' => $video->editors_pick ? true : false,
                 'genre' => $video->genre ? $video->genre->genre : "NaN",
                 'genre_color' => $video->genre->color,
@@ -447,5 +492,10 @@ class YouTubeVideo extends Model
     public function contentType()
     {
         return $this->belongsTo(ContentType::class, 'content_type_id', 'id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(VideoComment::class, 'youtube_video_id', 'id');
     }
 }
