@@ -64,6 +64,29 @@
                 </div>
             </div>
 
+            {{-- Additional settings --}}
+            <div class="form__row labelled row">
+                <span class="form__row--label">Additional Settings</span>
+                <div class="form__group">
+                    <input 
+                        type="checkbox"
+                        name="is_visible"
+                        id="is_visible"
+                        {{ old('is_visible') ? 'checked' : '' }}>
+                    <label for="is_visible">
+                        <div class="">
+                            <svg class="checkbox__check" width="24" height="24">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        Visible
+                    </label>
+                    @error('is_visible')
+                        <span class="danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
             {{-- Submit Button --}}
             <div class="form__row">
                 <button class="submit">Submit</button>

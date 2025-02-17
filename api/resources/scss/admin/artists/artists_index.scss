@@ -42,6 +42,16 @@
     flex-direction: column;
     gap: 15px;
     margin-top: 30px;
+    &--visibility__flag {
+        position: absolute;
+        top: 10px;
+        left: 130px;
+        width: 40px;
+        height: 40px;
+        svg {
+            fill: rgba($color: #000000, $alpha: 0.45);
+        }
+    }
     &--row {
         border-bottom: 1px solid $borderVizible;
         padding: 20px 0;
@@ -49,6 +59,7 @@
         flex-wrap: wrap;
         gap: 20px;
         align-items: center;
+        position: relative;
         img {
             width: 150px !important;
             height: unset !important;

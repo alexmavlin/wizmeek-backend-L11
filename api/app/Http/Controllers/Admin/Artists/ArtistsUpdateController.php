@@ -43,6 +43,7 @@ class ArtistsUpdateController extends Controller
         $artist->name = $request->input('name');
         $artist->short_description = $request->input('short_description');
         $artist->full_description = $request->input('full_description');
+        $artist->is_visible = $request->input('is_visible') ? 1 : 0;
 
         // Save the artist record
         $artist->save();

@@ -25,7 +25,8 @@ class ArtistsStoreRequest extends FormRequest
             "name" => "required|string|max:200",
             "avatar" => "required|image|mimes:jpg,jpeg,png,webp",
             "short_description" => "nullable|string|max:500",
-            "full_description" => "nullable|string|max:5000"
+            "full_description" => "nullable|string|max:5000",
+            "is_visible" => "nullable"
         ];
     }
 }

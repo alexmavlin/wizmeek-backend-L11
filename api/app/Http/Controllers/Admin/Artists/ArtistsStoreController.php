@@ -32,7 +32,8 @@ class ArtistsStoreController extends Controller
             'name' => $request->input('name'),
             'avatar' => $filePath, // Save the file path in the database
             'short_description' => $request->input('short_description'),
-            'full_description' => $request->input('full_description')
+            'full_description' => $request->input('full_description'),
+            'is_visible' => $request->input('is_visible') ? 1 : 0
         ]);
     
         // Redirect or return success response
