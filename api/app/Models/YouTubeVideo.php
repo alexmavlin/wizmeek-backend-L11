@@ -120,6 +120,135 @@ class YouTubeVideo extends Model
         return self::getMediaCardsData($paginatedVideos);
     }
 
+    public static function queryVideosForMediaCardByUserTaste($request, $preQuery = null) 
+    {
+        $limit = $request->header('X-Limit', 10);
+        $mode = $request->header('X-Mode', 'latest');
+        $genre = $request->header('X-Genre');
+        $videoType = $request->header('X-Video-Type');
+        $flag = $request->header('X-Video-Flag');
+        $artistId = $request->header('X-Artist');
+
+        $query = $preQuery ? $preQuery : self::query();
+
+        if ($genre && strtolower($genre) != 'all') {
+            $query->whereHas('genre', function ($q) use ($genre) {
+                $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'genre' is the column in genres table
+            });
+        }
+
+        if ($videoType) {
+            $query->whereHas('contentType', function ($q) use ($videoType) {
+                $q->where('name', 'like', '%' . $videoType . '%');
+            });
+        }
+
+        if ($flag) {
+            if (strtolower($flag) === 'new') {
+                $query->where('new', 1);
+            } elseif (strtolower($flag) === 'throwback') {
+                $query->where('throwback', 1);
+            }
+        }
+
+        if ($artistId) {
+            $query->where('artist_id', $artistId);
+        }
+
+        $query->select(
+            'id',
+            'apple_music_link',
+            'country_id',
+            'content_type_id',
+            'genre_id',
+            'artist_id',
+            'youtube_id',
+            'thumbnail',
+            'editors_pick',
+            'new',
+            'spotify_link',
+            'throwback',
+            'title',
+            'release_date',
+            'is_draft'
+        );
+
+        $query->where('is_draft', 0);
+
+        $user_id = Auth::user()->id;
+        $query->whereHas('genre', function ($query) use ($user_id) {
+            $query->whereHas('tasteUsers', function ($subQuery) use ($user_id) {
+                $subQuery->where('users.id', $user_id); // Correct table alias
+            });
+        });
+
+        $query->with([
+            'country' => function ($q) {
+                $q->select('id', 'flag');
+            },
+            'genre' => function ($q) {
+                $q->select('id', 'genre', 'color');
+            },
+            'artist' => function ($q) {
+                $q->select('id', 'name');
+            },
+        ]);
+
+        if (Auth::check()) {
+            $query->with([
+                'likedByUsers' => function ($q) {
+                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
+                    $q->select('youtube_videos_likes.id');
+                }
+            ]);
+            $query->with([
+                'favoriteByUser' => function ($q) {
+                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
+                    $q->select('youtube_videos_favorites.id');
+                }
+            ]);
+        }
+        $query->withCount('likedByUsers');
+
+        $query->with([
+            'comments' => function ($q) {
+                $q->limit(4);
+                $q->orderBy('created_at', 'DESC');
+                $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+                $q->with([
+                    'user' => function ($q) {
+                        $q->select('id', 'name', 'avatar', 'google_avatar');
+                    }
+                ]);
+
+                if (Auth::check()) {
+                    $q->with([
+                        'userLikes' => function ($q) {
+                            $q->where('user_id', Auth::user()->id);
+                            $q->select('users_video_comments.id');
+                        }
+                    ]);
+                }
+                $q->withCount('userLikes');
+            }
+        ]);
+
+        // Handle sorting based on mode
+        switch ($mode) {
+            case 'random':
+                $query->inRandomOrder();
+                break;
+            case 'latest':
+            default:
+                $query->orderBy('updated_at', 'DESC');
+                break;
+        }
+
+        // dd($query->paginate($limit));
+        $paginatedVideos =  $query->paginate($limit);
+        return self::getMediaCardsData($paginatedVideos); 
+    }
+
     private static function queryVideosForMediaCard($request, $preQuery = null)
     {
         $limit = $request->header('X-Limit', 10);

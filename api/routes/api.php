@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\User\UserProfileController;
 use App\Http\Controllers\Api\User\UserProfileEditController;
 use App\Http\Controllers\Api\User\UserProfileUpdateController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
+use App\Http\Controllers\Api\Videos\GetVideosByUserTasteController;
 use App\Http\Controllers\Api\Videos\GetVideosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
         Route::post('/handle-like-video', UserLikesVideoController::class);
         Route::post('/handle-favorite-video', UserClicksFavoriteOnVideoController::class);
+        Route::get('/get-by-taste', GetVideosByUserTasteController::class);
     });
 
     Route::prefix('comments')->group(function () {

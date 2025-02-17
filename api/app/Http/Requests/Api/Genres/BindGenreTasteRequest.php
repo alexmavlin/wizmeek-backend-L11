@@ -22,7 +22,7 @@ class BindGenreTasteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "genre_id" => "required|integer|numeric"
+            "genre_id" => "required|integer|numeric|exists:genres,id"
         ];
     }
 }

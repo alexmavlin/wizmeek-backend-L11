@@ -67,6 +67,8 @@ class Genre extends Model
         $query->select('id', 'genre', 'color');
         $genres = $query->get()->toArray();
 
+        // dd($genres);
+
         $user = Auth::user();
 
         $user->load([
