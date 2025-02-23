@@ -33,10 +33,11 @@ services:
       - ./tmp/db:/var/lib/mysql
       - ./dev/mariadb:/docker-entrypoint-initdb.d
     ports:
-      - "3370:3306"
+      - "3371:3306"
     environment:
         MARIADB_ROOT_PASSWORD: root
     container_name: mariadb
+    user: root
 
   phpmyadmin:
     image: phpmyadmin
