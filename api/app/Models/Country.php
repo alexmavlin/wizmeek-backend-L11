@@ -21,6 +21,7 @@ class Country extends Model
         $query = self::query();
 
         $query->select('id', 'name');
+        $query->orderBy('name', 'ASC');
 
         // Paginate the results with 10 records per page
         return $query->get();
