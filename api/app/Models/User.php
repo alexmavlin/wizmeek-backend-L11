@@ -125,6 +125,33 @@ class User extends Authenticatable
         }
     }
 
+    public static function getProfileDetailsAsGuest($uid)
+    {
+        $query = self::query();
+
+        $query->select(
+            'id',
+            'name',
+            'avatar',
+            'google_avatar',
+            'created_at',
+            'description'
+        );
+        $query->withCount('followingUsers');
+        $query->withCount('followedByUsers');
+        $user = $query->find($uid);
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
+            'description' => $user->description,
+            'joined' => date('M Y', strtotime($user->created_at)),
+            'following' => $user->following_users_count,
+            'followed_by' => $user->followed_by_users_count
+        ]);
+    }
+
     public static function getProfileDetails() 
     {
         $authUserId = Auth::user()->id;

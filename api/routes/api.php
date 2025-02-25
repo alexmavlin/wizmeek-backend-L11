@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
 use App\Http\Controllers\Api\User\UserProfileController;
 use App\Http\Controllers\Api\User\UserProfileEditController;
+use App\Http\Controllers\Api\User\UserProfileGuestController;
 use App\Http\Controllers\Api\User\UserProfileUpdateController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
 use App\Http\Controllers\Api\Videos\GetVideosByUserTasteController;
@@ -74,4 +75,8 @@ Route::prefix('artists')->group(function() {
 
 Route::prefix('genres')->group(function () {
     Route::get('/get', GetGenresController::class);
+});
+
+Route::prefix('user')->group(function () {
+    Route::get('/get-as-guest/{uid}', UserProfileGuestController::class);
 });

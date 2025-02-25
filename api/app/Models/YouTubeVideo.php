@@ -382,6 +382,7 @@ class YouTubeVideo extends Model
                 "isLiked" => count($comment->userLikes) > 0 ? true : false,
                 "nLike" => $comment->user_likes_count,
                 "user" => [
+                    "id" => $comment->user->id,
                     "name" => $comment->user->name,
                     "avatar" => $comment->user->avatar ? asset('img/avatars/' . $comment->user->avatar) : ($comment->user->google_avatar ? $comment->user->google_avatar : asset('img/artists/avatars/noAvatar.webp'))
                 ]
