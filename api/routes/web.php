@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use App\Http\Controllers\Api\Authentication\LoginController;
 use App\Http\Controllers\Api\Authentication\RegisterController;
 use App\Http\Middleware\AuthenticateAdmin;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AdminLoginController::class, 'login'])->name('admin_ligin');
@@ -105,5 +106,16 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
         Route::get('/', SubscribersIndexController::class)->name('admin_subscribers_index');
         Route::get('/global-email', EditGlobalEmailController::class)->name('admin_subscribers_editglobalemail');
         Route::post('/send-global-email', SendGlobalEmailController::class)->name('admin_subscribers_sendglobalemail');
+    });
+
+    Route::prefix('service')->group(function () {
+        Route::get('/migrate', function () {
+            try {
+                Artisan::call('migrate', ['--force' => true]);
+                dd('Database migrated successfuly.');
+            } catch (\Exception $error) {
+                dd('Error while migrating database: ' . $error);
+            }            
+        });
     });
 });

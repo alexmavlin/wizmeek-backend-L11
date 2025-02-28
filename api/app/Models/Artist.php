@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Artist extends Model
 {
@@ -84,6 +85,27 @@ class Artist extends Model
 
         // Delete the genre itself
         return $artist->delete();
+    }
+
+    public static function apiSearch($searchString)
+    {
+        $query = Cache::remember("apiArtistSearch:$searchString", 600, function () use ($searchString) {
+            return self::where('name', 'like', '%' . $searchString . '%')
+                ->where('is_visible', 1)
+                ->select('id', 'name', 'avatar', 'is_visible')
+                ->limit(3)
+                ->get();
+        });
+
+        $response = $query->map(function ($artist) {
+            return [
+                'id' => $artist->id,
+                'name' => $artist->name,
+                'avatar' => asset($artist->avatar),
+            ];
+        });
+
+        return $response;
     }
 
     public function genres()

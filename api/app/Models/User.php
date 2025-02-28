@@ -233,4 +233,14 @@ class User extends Authenticatable
     public function followedByUsers() {
         return $this->belongsToMany(User::class, 'users_follow_users', 'followed_user_id', 'follower_user_id');
     }
+
+    public function videosInProfile()
+    {
+        return $this->belongsToMany(
+            YouTubeVideo::class,
+            'users_profile_videos',
+            'user_id',
+            'video_id'
+        );
+    }
 }

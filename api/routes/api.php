@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
 use App\Http\Controllers\Api\Comments\StoreVideoCommentController;
+use App\Http\Controllers\Api\Common\VideoArtistsSearchController;
 use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
@@ -17,6 +18,8 @@ use App\Http\Controllers\Api\User\UserProfileController;
 use App\Http\Controllers\Api\User\UserProfileEditController;
 use App\Http\Controllers\Api\User\UserProfileGuestController;
 use App\Http\Controllers\Api\User\UserProfileUpdateController;
+use App\Http\Controllers\Api\User\UserProfileVideosController;
+use App\Http\Controllers\Api\Videos\GetSingleVideoController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
 use App\Http\Controllers\Api\Videos\GetVideosByUserTasteController;
 use App\Http\Controllers\Api\Videos\GetVideosController;
@@ -36,6 +39,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/update-name-email', [UserProfileUpdateController::class, 'updateNameAndEmail']);
         Route::post('/update-password', [UserProfileUpdateController::class, 'updatePassword']);
         Route::post('/update-avatar', UserAvatarUpdateController::class);
+        Route::post('/add-video-to-profile', UserProfileVideosController::class);
     }); 
 
     Route::prefix('videos')->group(function () {
@@ -57,12 +61,15 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     });
 });
 
+Route::post('/media-search', VideoArtistsSearchController::class);
+
 Route::prefix('subscribers')->group(function () {
     Route::post('/store', StoreSubscriberController::class);
 });
 
 Route::prefix('videos')->group(function () {
     Route::get('/get', GetVideosController::class);
+    Route::get('/get-single/{id}', GetSingleVideoController::class);
 });
 
 Route::prefix('highlights')->group(function () {
