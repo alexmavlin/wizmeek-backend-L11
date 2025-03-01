@@ -28,18 +28,22 @@ class UserProfileVideosController extends Controller
                 if ($user->videosInProfile()->where('video_id', $request->video_id)->exists()) {
                     // If attached, detach it
                     $user->videosInProfile()->detach($request->video_id);
-                    $result = "Video was detached.";
+                    $result = "detached";
+                    $dataResponse = false;
                 } else {
                     // If not attached, attach it
                     $user->videosInProfile()->attach($request->video_id);
-                    $result = "Video was attached";
+                    $result = "attached";
+                    $dataResponse = true;
                 }
             }
             return response()->json([
                 'success' => true,
                 'message' => $result,
                 'error' => '',
-                'data' => []
+                'data' => [
+                    "isInProfile" => $dataResponse
+                ]
             ], 200);
         } catch (\Exception $exception) {
             return response()->json([

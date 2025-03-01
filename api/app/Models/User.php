@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Traits\MediaCardTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,7 +14,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, MediaCardTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -95,12 +97,12 @@ class User extends Authenticatable
         }
     }
 
-    public static function handleLikedVideo($video_id) 
+    public static function handleLikedVideo($video_id)
     {
         $user = self::find(Auth::user()->id);
-    
+
         $isLiked = $user->likedVideos()->where('video_id', $video_id)->exists();
-    
+
         if ($isLiked) {
             $user->likedVideos()->detach($video_id);
             return "Unliked video with id: " . $video_id;
@@ -113,9 +115,9 @@ class User extends Authenticatable
     public static function handleFavoritedVideo($video_id)
     {
         $user = self::find(Auth::user()->id);
-    
+
         $isLiked = $user->favoriteVideos()->where('video_id', $video_id)->exists();
-    
+
         if ($isLiked) {
             $user->favoriteVideos()->detach($video_id);
             return "Video with id: " . $video_id . " was removed from favorites.";
@@ -152,7 +154,7 @@ class User extends Authenticatable
         ]);
     }
 
-    public static function getProfileDetails() 
+    public static function getProfileDetails()
     {
         $authUserId = Auth::user()->id;
         // dd($authUserId);
@@ -216,7 +218,7 @@ class User extends Authenticatable
         );
     }
 
-    public function comments() 
+    public function comments()
     {
         return $this->hasMany(VideoComment::class, 'user_id', 'id');
     }
@@ -226,11 +228,13 @@ class User extends Authenticatable
         return $this->belongsToMany(VideoComment::class, 'users_video_comments', 'user_id', 'video_comment_id');
     }
 
-    public function followingUsers() {
+    public function followingUsers()
+    {
         return $this->belongsToMany(User::class, 'users_follow_users', 'follower_user_id', 'followed_user_id');
     }
 
-    public function followedByUsers() {
+    public function followedByUsers()
+    {
         return $this->belongsToMany(User::class, 'users_follow_users', 'followed_user_id', 'follower_user_id');
     }
 

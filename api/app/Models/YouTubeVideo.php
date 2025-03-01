@@ -93,7 +93,7 @@ class YouTubeVideo extends Model
     }
 
     public static function getFavoriteVideos($request)
-    {
+    {        
         $user = Auth::user();
 
         // Ensure the 'favoriteVideos' relationship is loaded
@@ -107,6 +107,8 @@ class YouTubeVideo extends Model
 
         // Pass the pre-query into queryVideosForMediaCard
         $paginatedVideos = self::queryVideosForMediaCard($request, $preQuery);
+
+        // dd($paginatedVideos);
 
         // Process the videos with getMediaCardsData
         return self::getMediaCardsData($paginatedVideos);
@@ -209,6 +211,7 @@ class YouTubeVideo extends Model
                 }
             ]);
         }
+
         $query->withCount('likedByUsers');
 
         $query->with([
@@ -258,6 +261,7 @@ class YouTubeVideo extends Model
         $videoType = $request->header('X-Video-Type');
         $flag = $request->header('X-Video-Flag');
         $artistId = $request->header('X-Artist');
+        $withProfileAttached = $request->header('X-With-Profile-Attached');
 
         $query = $preQuery ? $preQuery : self::query();
 
@@ -331,6 +335,15 @@ class YouTubeVideo extends Model
                 }
             ]);
         }
+
+        if ($withProfileAttached && Auth::check()) {
+            $query->withExists([
+                'inUserProfile' => function ($q) {
+                    $q->where('user_id', Auth::user()->id);
+                }
+            ]);
+        }
+
         $query->withCount('likedByUsers');
 
         $query->with([
@@ -406,6 +419,7 @@ class YouTubeVideo extends Model
                 'genre' => $video->genre ? $video->genre->genre : "NaN",
                 'genre_color' => $video->genre->color,
                 'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
+                'isInProfile' => $video->in_user_profile_exists ? true : false,
                 'isLiked' => count($video->likedByUsers) > 0 ? true : false,
                 'new' => $video->new ? true : false,
                 'nLikes' => $video->liked_by_users_count,
@@ -799,6 +813,76 @@ class YouTubeVideo extends Model
         });
 
         return self::getMediaCardsData($relatedVideosPaginated);
+    }
+
+    public static function getProfileVideos($user_id)
+    {
+        $query = self::query();
+
+        $query->whereHas('inUserProfile', function ($query) use ($user_id) {
+            $query->where('users.id', $user_id);
+        });
+
+        $query->select(
+            'id',
+            'apple_music_link',
+            'country_id',
+            'content_type_id',
+            'genre_id',
+            'artist_id',
+            'youtube_id',
+            'thumbnail',
+            'editors_pick',
+            'new',
+            'spotify_link',
+            'throwback',
+            'title',
+            'release_date',
+            'is_draft'
+        );
+
+        $query->with([
+            'country:id,flag',
+            'genre:id,genre,color',
+            'artist:id,name',
+        ]);
+
+        if (Auth::check()) {
+            $query->with([
+                'likedByUsers' => function ($q) {
+                    $q->where('user_id', Auth::id())->select('youtube_videos_likes.id');
+                },
+                'favoriteByUser' => function ($q) {
+                    $q->where('user_id', Auth::id())->select('youtube_videos_favorites.id');
+                }
+            ]);
+        }
+
+        $query->withCount('likedByUsers');
+
+        $query->with([
+            'comments' => function ($q) {
+                $q->limit(4)
+                    ->orderBy('created_at', 'DESC')
+                    ->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at')
+                    ->with([
+                        'user:id,name,avatar,google_avatar'
+                    ]);
+
+                if (Auth::check()) {
+                    $q->with([
+                        'userLikes' => function ($q) {
+                            $q->where('user_id', Auth::id())->select('users_video_comments.id');
+                        }
+                    ]);
+                }
+                $q->withCount('userLikes');
+            }
+        ]);
+        
+        $paginatedVideos = $query->paginate(6);
+
+        return self::getMediaCardsData($paginatedVideos); // ✅ Move pagination here
     }
 
 

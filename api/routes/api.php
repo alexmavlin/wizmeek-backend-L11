@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
 use App\Http\Controllers\Api\Genres\UnbindGenreTasteController;
 use App\Http\Controllers\Api\Highlights\HomePageHighlightsController;
 use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
+use App\Http\Controllers\Api\User\GetUserProfileVideosController;
 use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
 use App\Http\Controllers\Api\User\UserLikesVideoCommentController;
@@ -86,4 +87,5 @@ Route::prefix('genres')->group(function () {
 
 Route::prefix('user')->group(function () {
     Route::get('/get-as-guest/{uid}', UserProfileGuestController::class);
+    Route::get('/get-profile-videos/{uid}', GetUserProfileVideosController::class);
 });
