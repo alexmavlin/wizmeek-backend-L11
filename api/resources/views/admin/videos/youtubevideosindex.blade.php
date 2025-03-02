@@ -8,6 +8,7 @@
                 <div class="form__group">
                     <label for="genre">Genre: </label>
                     <select name="genre" id="genre">
+                        <option value="">Select Genre</option>
                         @foreach ($data['genres'] as $genre)
                             <option value="{{ $genre->id }}" {{ request('genre') == $genre->id ? 'selected' : '' }}>{{ $genre->genre }}</option>
                         @endforeach
@@ -16,6 +17,7 @@
                 <div class="form__group">
                     <label for="country">Country:</label>
                     <select name="country" id="country">
+                        <option value="">Select Country</option>
                         @foreach ($data['countries'] as $country)
                             <option value="{{ $country->id }}" {{ request('country') == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
                         @endforeach

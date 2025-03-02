@@ -23,7 +23,7 @@ class YouTubeVideosIndexController extends Controller
             "genres" => Genre::getForSelect(),
             "countries" => Country::getForSelect()
         ];
-        // dd($data);
+        // dd($request);
         return view('admin.videos.youtubevideosindex', compact('data'));
     }
 }

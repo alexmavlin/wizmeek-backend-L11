@@ -22,7 +22,7 @@ class YouTubeVideo extends Model
         $query = self::query();
 
         // Fetch input values from the request
-        $title = request('title');
+        $title = request('filter_expression');
         $genre = request('genre');
         $country = request('country');
         $flag = request('flags');
