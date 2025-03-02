@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/scss/admin/artists/artists_index.scss',
                 'resources/scss/admin/artists/artists_create.scss',
                 'resources/scss/admin/artists/artists_edit.scss',
+                'resources/scss/admin/artists/artists_view.scss',
                 'resources/scss/popup.scss',
                 'resources/scss/admin/parts/linearPreloader.scss',
                 // JS Files
