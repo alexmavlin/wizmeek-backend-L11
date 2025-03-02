@@ -30,7 +30,11 @@ class YouTubeVideo extends Model
 
         // Apply filters conditionally
         $query->when($title, function ($q, $title) {
-            return $q->where('title', 'like', '%' . $title . '%');
+            return $q->where('title', 'like', '%' . $title . '%')
+                    ->orWherehas('artist', function($subQuery) use ($title) {
+                        $subQuery->select('id', 'name');
+                        $subQuery->where('name', 'like', '%' . $title . '%');
+                    });
         });
 
         $query->when($genre, function ($q, $genre) {
