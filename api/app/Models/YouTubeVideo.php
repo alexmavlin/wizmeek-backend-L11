@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Genre;
-use Illuminate\Http\Request;
+use App\Traits\MediaCardTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class YouTubeVideo extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, MediaCardTrait;
 
     protected $table = 'you_tube_videos';
     protected $guarded = [];
@@ -293,37 +293,15 @@ class YouTubeVideo extends Model
             $query->where('artist_id', $artistId);
         }
 
-        $query->select(
-            'id',
-            'apple_music_link',
-            'country_id',
-            'content_type_id',
-            'genre_id',
-            'artist_id',
-            'youtube_id',
-            'thumbnail',
-            'editors_pick',
-            'new',
-            'spotify_link',
-            'throwback',
-            'title',
-            'release_date',
-            'is_draft'
-        );
+        /* Select columns */
+        self::selectColumns($query);
+        /* // Select columns */
 
         $query->where('is_draft', 0);
 
-        $query->with([
-            'country' => function ($q) {
-                $q->select('id', 'flag');
-            },
-            'genre' => function ($q) {
-                $q->select('id', 'genre', 'color');
-            },
-            'artist' => function ($q) {
-                $q->select('id', 'name');
-            },
-        ]);
+        /* Get relations */
+        self::queryForRelations($query);
+        /* // Get relations */
 
         if (Auth::check()) {
             $query->with([
@@ -350,28 +328,9 @@ class YouTubeVideo extends Model
 
         $query->withCount('likedByUsers');
 
-        $query->with([
-            'comments' => function ($q) {
-                $q->limit(4);
-                $q->orderBy('created_at', 'DESC');
-                $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
-                $q->with([
-                    'user' => function ($q) {
-                        $q->select('id', 'name', 'avatar', 'google_avatar');
-                    }
-                ]);
-
-                if (Auth::check()) {
-                    $q->with([
-                        'userLikes' => function ($q) {
-                            $q->where('user_id', Auth::user()->id);
-                            $q->select('users_video_comments.id');
-                        }
-                    ]);
-                }
-                $q->withCount('userLikes');
-            }
-        ]);
+        /* Get Comments */
+        self::queryForVideoComments($query);
+        /* // Get Comments */
 
         // Handle sorting based on mode
         switch ($mode) {
@@ -386,69 +345,6 @@ class YouTubeVideo extends Model
 
         // dd($query->paginate($limit));
         return $query->paginate($limit);
-    }
-
-    private static function getCommentsData($comments)
-    {
-        // dd($comments);
-        $data = [];
-        foreach ($comments as $comment) {
-            array_push($data, [
-                "_id" => $comment->id,
-                "content" => $comment->content,
-                "created" => date('d M Y', strtotime($comment->created_at)),
-                "isLiked" => count($comment->userLikes) > 0 ? true : false,
-                "nLike" => $comment->user_likes_count,
-                "user" => [
-                    "id" => $comment->user->id,
-                    "name" => $comment->user->name,
-                    "avatar" => $comment->user->avatar ? asset('img/avatars/' . $comment->user->avatar) : ($comment->user->google_avatar ? $comment->user->google_avatar : asset('img/artists/avatars/noAvatar.webp'))
-                ]
-            ]);
-        }
-        return $data;
-    }
-
-    private static function getMediaCardsData($paginatedVideos)
-    {
-        $response = $paginatedVideos->getCollection()->map(function ($video) {
-            // dd($video);
-            return [
-                'id' => $video->id,
-                'artist' => $video->artist->name,
-                'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
-                'country_flag' => asset($video->country->flag),
-                'comments' => self::getCommentsData($video->comments),
-                'editors_pick' => $video->editors_pick ? true : false,
-                'genre' => $video->genre ? $video->genre->genre : "NaN",
-                'genre_color' => $video->genre->color,
-                'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
-                'isInProfile' => $video->in_user_profile_exists ? true : false,
-                'isLiked' => count($video->likedByUsers) > 0 ? true : false,
-                'new' => $video->new ? true : false,
-                'nLikes' => $video->liked_by_users_count,
-                'nLike' => $video->liked_by_users_count,
-                'release_year' => date('Y', strtotime($video->release_date)),
-                'spotify_link' => $video->spotify_link ? $video->spotify_link : "",
-                'throwback' => $video->throwback ? true : false,
-                'thumbnail' => $video->thumbnail,
-                'title' => $video->title,
-                'youtube_id' => $video->youtube_id,
-            ];
-        });
-
-        // Wrap the response with pagination metadata
-        return [
-            'data' => $response,
-            'pagination' => [
-                'total' => $paginatedVideos->total(),
-                'per_page' => $paginatedVideos->perPage(),
-                'current_page' => $paginatedVideos->currentPage(),
-                'last_page' => $paginatedVideos->lastPage(),
-                'next_page_url' => $paginatedVideos->nextPageUrl(),
-                'prev_page_url' => $paginatedVideos->previousPageUrl(),
-            ],
-        ];
     }
 
     public static function getForLoader($searchString)

@@ -65,7 +65,8 @@ class StoreYouTubeVideoController extends Controller
         } else {
             $newArtistData = [
                 'name' => $artistName,
-                'avatar' => 'img/artists/avatars/noAvatar.webp'
+                'avatar' => 'img/artists/avatars/noAvatar.webp',
+                'is_visible' => 0
             ];
             $newArtist = Artist::create($newArtistData);
             return $newArtist->id;
