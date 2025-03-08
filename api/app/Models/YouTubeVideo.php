@@ -31,10 +31,10 @@ class YouTubeVideo extends Model
         // Apply filters conditionally
         $query->when($title, function ($q, $title) {
             return $q->where('title', 'like', '%' . $title . '%')
-                    ->orWherehas('artist', function($subQuery) use ($title) {
-                        $subQuery->select('id', 'name');
-                        $subQuery->where('name', 'like', '%' . $title . '%');
-                    });
+                ->orWherehas('artist', function ($subQuery) use ($title) {
+                    $subQuery->select('id', 'name');
+                    $subQuery->where('name', 'like', '%' . $title . '%');
+                });
         });
 
         $query->when($genre, function ($q, $genre) {
@@ -97,7 +97,7 @@ class YouTubeVideo extends Model
     }
 
     public static function getFavoriteVideos($request)
-    {        
+    {
         $user = Auth::user();
 
         // Ensure the 'favoriteVideos' relationship is loaded
@@ -635,20 +635,22 @@ class YouTubeVideo extends Model
 
         $cacheKey = "singleYouTubeVideoRelated:$youtube_id:page:$page"; // Different cache per page
 
-        $relatedVideosPaginated = Cache::remember($cacheKey, 3600, function () use ($youtube_id) {
+        $relatedVideosPaginated = Cache::remember($cacheKey, 3600, function () use ($youtube_id, $page) {
             $query = self::query();
 
-            $query->whereHas('artist', function ($q) use ($youtube_id) {
-                $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
-                    $q->where('youtube_id', $youtube_id);
+            $query->where('youtube_id', '!=', $youtube_id) // Exclude the current video
+                ->where(function ($q) use ($youtube_id) {
+                    $q->whereHas('artist', function ($q) use ($youtube_id) {
+                        $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
+                            $q->where('youtube_id', $youtube_id);
+                        });
+                    })
+                        ->orWhereHas('genre', function ($q) use ($youtube_id) {
+                            $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
+                                $q->where('youtube_id', $youtube_id);
+                            });
+                        });
                 });
-            });
-
-            $query->orWhereHas('genre', function ($q) use ($youtube_id) {
-                $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
-                    $q->where('youtube_id', $youtube_id);
-                });
-            });
 
             $query->select(
                 'id',
@@ -695,6 +697,7 @@ class YouTubeVideo extends Model
                         ->with([
                             'user:id,name,avatar,google_avatar'
                         ]);
+                    $q->orderBy('created_at', 'ASC');
 
                     if (Auth::check()) {
                         $q->with([
@@ -707,7 +710,7 @@ class YouTubeVideo extends Model
                 }
             ]);
 
-            $query->inRandomOrder();
+            $query->orderBy('views', 'DESC');
 
             return $query->paginate(3); // Paginate properly
         });
@@ -779,7 +782,7 @@ class YouTubeVideo extends Model
                 $q->withCount('userLikes');
             }
         ]);
-        
+
         $paginatedVideos = $query->paginate(6);
 
         return self::getMediaCardsData($paginatedVideos); // ✅ Move pagination here
