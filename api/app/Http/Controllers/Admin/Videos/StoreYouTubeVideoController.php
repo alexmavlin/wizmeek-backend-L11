@@ -10,8 +10,6 @@ class StoreYouTubeVideoController extends Controller
 {
     public function __invoke(StoreYouTubeVideoRequest $request)
     {
-        // dd($request->all());
-        // Prepare the data for storing or updating
         $storeData = [
             'original_link' => $request->original_link,
             'youtube_id' => $request->youtube_id,
@@ -30,21 +28,21 @@ class StoreYouTubeVideoController extends Controller
             'is_draft' => isset($request->is_draft) ? 1 : 0
         ];
 
-        // Check for a soft-deleted video with the same youtube_id
-        $existingVideo = YouTubeVideo::withTrashed()->where('youtube_id', $request->youtube_id)->first();
-
-        if ($existingVideo) {
-            // Restore the soft-deleted video and update its attributes
-            $existingVideo->restore();
-            $existingVideo->update($storeData);
-
-            // Redirect with a success message
-            return redirect()->route('admin_youtube_video_index')
-                ->with('success', "The video '{$existingVideo->title}' has been restored and updated successfully.");
+        try {
+            $existingVideo = YouTubeVideo::withTrashed()->where('youtube_id', $request->youtube_id)->first();
+    
+            if ($existingVideo) {
+                $existingVideo->restore();
+                $existingVideo->update($storeData);
+    
+                return redirect()->route('admin_youtube_video_index')
+                    ->with('success', "The video '{$existingVideo->title}' has been restored and updated successfully.");
+            }
+    
+            $newVideo = YouTubeVideo::create($storeData);
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to create a new video. Error: ' . $error->getMessage());
         }
-
-        // If no soft-deleted video is found, create a new one
-        $newVideo = YouTubeVideo::create($storeData);
 
         return redirect()->route('admin_youtube_video_index')
             ->with('success', "The video '{$newVideo->title}' has been added successfully.");

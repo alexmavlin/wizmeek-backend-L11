@@ -11,10 +11,12 @@ class Country extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Get countries for select inputs.
+     * Retrieves a list of all countries for selection purposes.
      *
-     * @param string $filterExpression
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * This method fetches all records containing their ID and genre name, 
+     * which can be used in dropdowns or selection lists.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection The collection of genres containing ID and genre name.
      */
     public static function getForSelect()
     {

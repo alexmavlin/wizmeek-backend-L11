@@ -13,8 +13,8 @@ class ArtistsDeleteController extends Controller
         try {
             Artist::deleteArtist($artist);
             return redirect()->route('admin_artists_index')->with('success', "Artist $artist->name deleted successfully.");
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error has occured during an attempt to delete artist. Error: ' . $e->getMessage());
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to delete artist. Error: ' . $error->getMessage());
         }
     }
 }

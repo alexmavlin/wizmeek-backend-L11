@@ -10,7 +10,11 @@ class LandingPageController extends Controller
 {
     public function __invoke()
     {
-        $videos = LandingPageVideo::getForLanding();
+        try {
+            $videos = LandingPageVideo::getForLanding();
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to load Landing Page Videos. Error: ' . $error->getMessage());
+        }
 
         $data = [
             "scss" => [
@@ -22,8 +26,6 @@ class LandingPageController extends Controller
             ],
             "videos" => $videos
         ];
-
-        // dd($data);
 
         return view('admin.landing.landing', compact('data'));
     }

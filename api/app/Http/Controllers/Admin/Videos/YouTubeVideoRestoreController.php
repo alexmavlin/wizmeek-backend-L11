@@ -12,9 +12,11 @@ class YouTubeVideoRestoreController extends Controller
     {
         try {
             YouTubeVideo::restoreVideo($id);
-            return redirect()->route('admin_youtube_video_index');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error has occured during an attempt to restore a video. Error: ' . $e->getMessage());
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to restore a video. Error: ' . $error->getMessage());
         }
+
+
+        return redirect()->route('admin_youtube_video_index');
     }
 }

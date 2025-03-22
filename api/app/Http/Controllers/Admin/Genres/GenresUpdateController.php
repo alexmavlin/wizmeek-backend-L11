@@ -10,15 +10,14 @@ class GenresUpdateController extends Controller
 {
     public function __invoke(GenresUpdateRequest $request, Genre $genre)
     {
-        // dd($request->all());
-        // Update other artist data
-        $genre->genre = $request->input('genre');
-        $genre->color = $request->input('color');
+        try {
+            $genre->genre = $request->input('genre');
+            $genre->color = $request->input('color');
+            $genre->save();
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to update a genre. Error: ' . $error->getMessage());
+        }
 
-        // Save the artist record
-        $genre->save();
-
-        // Redirect or return a success response
         return redirect()->route('admin_genres_view', $genre)->with('success', 'Genre updated successfully.');
     }
 }

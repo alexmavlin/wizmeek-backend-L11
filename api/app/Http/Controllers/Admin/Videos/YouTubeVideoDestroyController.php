@@ -13,9 +13,7 @@ class YouTubeVideoDestroyController extends Controller
 
         $query->onlyTrashed();
 
-        $video = $query->find($id);
-
-        // dd($video);
+        $video = $query;
 
         if (!$video) {
             return redirect()->back()->with('error', 'The video could not be found or has already been permanently deleted.');

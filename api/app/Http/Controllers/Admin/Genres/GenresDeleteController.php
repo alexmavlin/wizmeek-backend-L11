@@ -12,8 +12,8 @@ class GenresDeleteController extends Controller
         try {
             Genre::deleteGenre($genre);
             return redirect()->route('admin_genres_index')->with('success', "Artist $genre->genre deleted successfully.");
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error has occured during an attempt to delete the genre. Error: ' . $e->getMessage());
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to delete the genre. Error: ' . $error->getMessage());
         }
     }
 }

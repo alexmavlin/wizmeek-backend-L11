@@ -11,13 +11,15 @@ class GenresStoreController extends Controller
 {
     public function __invoke(GenresCreateRequest $request)
     {    
-        // Now you can save the artist with the avatar path
-        $artist = Genre::create([
-            'genre' => $request->input('genre'),
-            'color' => $request->input('color')
-        ]);
+        try {
+            $artist = Genre::create([
+                'genre' => $request->input('genre'),
+                'color' => $request->input('color')
+            ]);
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to store a genre. Error: ' . $error->getMessage());
+        }
     
-        // Redirect or return success response
         return redirect()->route('admin_genres_index')->with('success', 'Genre created successfully.');
     }
 }

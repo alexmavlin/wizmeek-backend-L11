@@ -12,6 +12,14 @@ class YouTubeVideosIndexController extends Controller
 {
     public function __invoke(Request $request)
     {
+        try {
+            $videos = YouTubeVideo::getVideosForIndex();
+            $genres = Genre::getForSelect();
+            $countries = Country::getForSelect();
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to load videos and data. Error: ' . $error->getMessage());
+        }
+        
         $data = [
             "scss" => [
                 'resources/scss/admin/artists/artists_index.scss'
@@ -19,11 +27,11 @@ class YouTubeVideosIndexController extends Controller
             "js" => [
 
             ],
-            "videos" => YouTubeVideo::getVideosForIndex(),
-            "genres" => Genre::getForSelect(),
-            "countries" => Country::getForSelect()
+            "videos" => $videos,
+            "genres" => $genres,
+            "countries" => $countries,
         ];
-        // dd($request);
+
         return view('admin.videos.youtubevideosindex', compact('data'));
     }
 }

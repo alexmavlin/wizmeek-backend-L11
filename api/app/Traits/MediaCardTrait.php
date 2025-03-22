@@ -15,7 +15,7 @@ trait MediaCardTrait
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
                 'country_flag' => asset($video->country->flag),
-                'comments' => self::getCommentsData($video->comments),
+                'comments' => $video->comments ? self::getCommentsData($video->comments) : [],
                 'isVideo' => $video->contentType?->name === 'Music Video',
                 'isAudio' => $video->contentType?->name === 'Music Audio',
                 'editors_pick' => $video->editors_pick ? true : false,
@@ -60,7 +60,7 @@ trait MediaCardTrait
             array_push($data, [
                 "_id" => $comment->id,
                 "content" => $comment->content,
-                "created" => date('d M Y', strtotime($comment->created_at)),
+                "created" => strtotime($comment->created_at),
                 "isLiked" => count($comment->userLikes) > 0 ? true : false,
                 "nLike" => $comment->user_likes_count,
                 "user" => [

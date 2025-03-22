@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\Comments;
 
 use App\Events\Comments\CommentPosted;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Comments\StoreVideoCommentRequest;
 use App\Models\VideoComment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class StoreVideoCommentController extends Controller
+class StoreVideoCommentWithBroadcastingController extends Controller
 {
-    public function __invoke(StoreVideoCommentRequest $request)
+    public function __invoke(Request $request)
     {
         if (!Auth::check())
         {
@@ -23,14 +23,13 @@ class StoreVideoCommentController extends Controller
         }
 
         try {
-            // dd($request->youtube_video_id);
             $result = VideoComment::create([
                 "content" => $request->content,
                 "user_id" => Auth::user()->id,
                 "youtube_video_id" => $request->youtube_video_id
             ]);
             $newComment = VideoComment::getComment($result->id);
-            broadcast(new CommentPosted($newComment, $request->youtube_video_id));
+            broadcast(new CommentPosted($newComment, $request->youtube_video_id))->toOthers();
             return response()->json([
                 'success' => true,
                 'message' => "Successfuly created a comment",

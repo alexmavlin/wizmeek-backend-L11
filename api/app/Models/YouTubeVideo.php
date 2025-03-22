@@ -6,17 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Genre;
+use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class YouTubeVideo extends Model
 {
-    use HasFactory, SoftDeletes, MediaCardTrait;
+    use HasFactory, SoftDeletes, MediaCardTrait, DataTypeTrait;
 
     protected $table = 'you_tube_videos';
     protected $guarded = [];
 
+    /**
+     * Retrieves a paginated list of videos for the index page with optional filtering.
+     *
+     * This method fetches videos from the database while allowing filtering based on:
+     * - Title or artist name
+     * - Genre
+     * - Country
+     * - Flags (new, editors' pick, throwback)
+     *
+     * The results include related artist, genre, and country details.
+     *
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator Paginated collection of videos.
+     */
     public static function getVideosForIndex()
     {
         $query = self::query();
@@ -347,12 +361,20 @@ class YouTubeVideo extends Model
         return $query->paginate($limit);
     }
 
-    public static function getForLoader($searchString)
+    /**
+     * Retrieves a list of videos based on a search string.
+     *
+     * This method fetches videos whose title matches the provided search string or whose associated 
+     * artist's name matches the search string. The results include the video ID, title, thumbnail, 
+     * and artist details. The data is then formatted using the `getHighlightedDatatype` method.
+     *
+     * @param string $searchString The search term used to filter videos by title or artist name.
+     * @return array The filtered and formatted list of videos, including ID, title, thumbnail, and artist name.
+     */
+    public static function getForLoader($searchString): array
     {
         $query = self::query();
-        //dd($searchString);
         $query->select('id', 'title', 'thumbnail', 'artist_id');
-        // dd($query->get());
         $query->where('title', 'like', '%' . $searchString . '%');
         $query->orWhereHas('artist', function ($q) use ($searchString) {
             $q->where('name', 'like', '%' . $searchString . '%');
@@ -366,17 +388,7 @@ class YouTubeVideo extends Model
 
         $videos = $query->get();
 
-        $data = [];
-
-        foreach ($videos as $video) {
-            $data[] = [
-                'id' => $video->id,
-                'artist' => $video->artist->name,
-                'title' => $video->title,
-                'thumbnail' => $video->thumbnail
-            ];
-        }
-        return $data;
+        return self::getHighlightedDatatype($videos);
     }
 
     public static function getDeleted()
@@ -571,28 +583,6 @@ class YouTubeVideo extends Model
             }
             $query->withCount('likedByUsers');
 
-            $query->with([
-                'comments' => function ($q) {
-                    $q->limit(4);
-                    $q->orderBy('created_at', 'DESC');
-                    $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
-                    $q->with([
-                        'user' => function ($q) {
-                            $q->select('id', 'name', 'avatar', 'google_avatar');
-                        }
-                    ]);
-
-                    if (Auth::check()) {
-                        $q->with([
-                            'userLikes' => function ($q) {
-                                $q->where('user_id', Auth::user()->id);
-                                $q->select('users_video_comments.id');
-                            }
-                        ]);
-                    }
-                    $q->withCount('userLikes');
-                }
-            ]);
             return $query->first();
         });
 
@@ -611,7 +601,7 @@ class YouTubeVideo extends Model
             'artist' => $video->artist->name,
             'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
             'country_flag' => asset($video->country->flag),
-            'comments' => self::getCommentsData($video->comments),
+            'comments' => [],
             'editors_pick' => $video->editors_pick ? true : false,
             'genre' => $video->genre ? $video->genre->genre : "NaN",
             'genre_color' => $video->genre->color,

@@ -16,7 +16,11 @@ class SendGlobalEmailController extends Controller
             'body' => $request->message,
         ];
 
-        SendEmailsToSubscribers::dispatch($emailData);
+        try {
+            SendEmailsToSubscribers::dispatch($emailData);
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to send a global email. Error: ' . $error->getMessage());
+        }
 
         return redirect()->route('admin_subscribers_index');
     }

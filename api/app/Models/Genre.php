@@ -21,25 +21,34 @@ class Genre extends Model
      * @param string $filterExpression
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public static function get($filterExpression = '')
+    public static function getFiltered($filterExpression = '')
     {
-        // Start the query
         $query = self::query();
 
-        // Apply filter if $filterExpression is not empty
         if (!empty($filterExpression)) {
             $query->where('genre', 'like', '%' . $filterExpression . '%');
         }
 
-        // Paginate the results with 10 records per page
+        $query->select('id', 'genre');
+
         return $query->paginate(10);
     }
 
+    /**
+     * Deletes a genre and its associated YouTube videos.
+     *
+     * This method retrieves the genre by ID along with its related YouTube videos.
+     * If the genre exists, all associated YouTube videos are deleted before deleting the genre.
+     * If the genre is not found, an exception is thrown.
+     *
+     * @param int $id The ID of the genre to be deleted.
+     * @throws \Exception If the genre is not found.
+     * @return bool|null Returns `true` if the deletion was successful, `false` if it failed, or `null` if no deletion occurred.
+     */
     public static function deleteGenre($id)
     {
         $query = self::query();
 
-        // Find the genre by ID and eager load related YouTube videos
         $genre = $query->with([
             'youTubeVideos' => function ($q) {
                 $q->select('id', 'genre_id');
@@ -49,19 +58,15 @@ class Genre extends Model
         if (!$genre) {
             throw new Exception('The specified genre was not found.');
         }
-
-        // dd($genre);
-
-        // Delete associated YouTube videos (soft delete if `SoftDeletes` is used)
         foreach ($genre->youTubeVideos as $video) {
             $video->delete();
         }
 
-        // Delete the genre itself
         return $genre->delete();
     }
 
-    public static function getUsersTaste() {
+    public static function getUsersTaste()
+    {
 
         $query = self::query();
         $query->select('id', 'genre', 'color');
@@ -72,7 +77,7 @@ class Genre extends Model
         $user = Auth::user();
 
         $user->load([
-            'genreTaste' => function($q) {
+            'genreTaste' => function ($q) {
                 $q->select('genres.id');
             }
         ]);
@@ -91,6 +96,14 @@ class Genre extends Model
         return $ret;
     }
 
+    /**
+     * Retrieves a list of all genres for selection purposes.
+     *
+     * This method fetches all records containing their ID and genre name, 
+     * which can be used in dropdowns or selection lists.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection The collection of genres containing ID and genre name.
+     */
     public static function getForSelect()
     {
         $query = self::query();
@@ -99,7 +112,8 @@ class Genre extends Model
         return $query->get();
     }
 
-    public static function getForApi() {
+    public static function getForApi()
+    {
         $query = self::query();
         $query->select('id', 'genre', 'color');
 

@@ -12,6 +12,15 @@ class LandingPageVideo extends Model
     protected $table = 'landing_page_videos';
     protected $guarded = ['id'];
 
+    /**
+     * Retrieves a list of artists with their associated videos for the landing page.
+     *
+     * This method fetches all artists and includes their related videos with details such as 
+     * video ID, artist ID, thumbnail, and title. It also retrieves the artist name for each video.
+     * The results are ordered in ascending order by artist ID.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection The collection of artists with their associated videos.
+     */
     public static function getForLanding()
     {
         $query = self::query();

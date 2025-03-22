@@ -12,6 +12,13 @@ class SubmitYouTubeVideoController extends Controller
 {
     public function __invoke()
     {
+        try {
+            $content_types = ContentType::getForSelect();
+            $genres = Genre::getForSelect();
+            $countries = Country::getForSelect();
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to get data for submit page. Error: ' . $error->getMessage());
+        }
         $data = [
             "scss" => [
                 'resources/scss/admin/artists/artists_create.scss'
@@ -19,9 +26,9 @@ class SubmitYouTubeVideoController extends Controller
             "js" => [
             'resources/js/admin/youtubeGetVideoData.js'
             ],
-            "content_types" => ContentType::getForSelect(),
-            "genres" => Genre::getForSelect(),
-            "countries" => Country::getForSelect(),
+            "content_types" => $content_types,
+            "genres" => $genres,
+            "countries" => $countries
         ];
         return view('admin.videos.submityoutubevideo', compact('data'));
     }

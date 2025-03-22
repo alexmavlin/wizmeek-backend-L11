@@ -11,7 +11,6 @@ class YouTubeVideoUpdateController extends Controller
 {
     public function __invoke(YouTubeVideo $video, YouTubeVideoUpdateRequest $request)
     {
-        // dd($video, $request);
         $storeData = [
             'original_link' => $request->original_link,
             'youtube_id' => $request->youtube_id,
@@ -30,7 +29,12 @@ class YouTubeVideoUpdateController extends Controller
             'is_draft' => isset($request->is_draft) ? 1 : 0
         ];
 
-        $video->update($storeData);
+        try {
+            $video->update($storeData);
+        } catch (\Exception $error) {
+            return redirect()->back()->with('error', 'An error has occured during an attempt to update a video. Error: ' . $error->getMessage());
+        }
+
         return redirect()->route('admin_youtube_video_index');
     }
 

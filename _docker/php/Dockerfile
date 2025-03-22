@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install pdo_mysql \
     && docker-php-ext-install bcmath \
     && docker-php-ext-install gd \
-    && docker-php-ext-install zip
+    && docker-php-ext-install zip \
+    && docker-php-ext-install pcntl
 
 # Install Node.js and npm
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - \

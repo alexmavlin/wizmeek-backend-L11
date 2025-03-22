@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
+use App\Http\Controllers\Api\Comments\GetSingleVideoCommentsController;
 use App\Http\Controllers\Api\Comments\StoreVideoCommentController;
+use App\Http\Controllers\Api\Comments\StoreVideoCommentWithBroadcastingController;
 use App\Http\Controllers\Api\Common\VideoArtistsSearchController;
 use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
@@ -53,6 +55,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::prefix('comments')->group(function () {
         Route::post('/like', UserLikesVideoCommentController::class);
         Route::post('/store', StoreVideoCommentController::class);
+        Route::post('/store-from-live-chat', StoreVideoCommentWithBroadcastingController::class);
     });
 
     Route::prefix('genres')->group(function () {
@@ -88,4 +91,8 @@ Route::prefix('genres')->group(function () {
 Route::prefix('user')->group(function () {
     Route::get('/get-as-guest/{uid}', UserProfileGuestController::class);
     Route::get('/get-profile-videos/{uid}', GetUserProfileVideosController::class);
+});
+
+Route::prefix('comments')->group(function () {
+    Route::get('/get-for-a-single-video/{video_id}', GetSingleVideoCommentsController::class);
 });
