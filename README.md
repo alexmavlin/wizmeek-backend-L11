@@ -38,7 +38,7 @@ DB_PASSWORD=root
 ## Log and Cache permissions
 If you try to access ```localhost:8876``` in the browser it may complain on the lack of permissions. This is because docker needs a write access for the log files and cache files. If it happened, give full rights to the ```storage``` and ```bootstrap``` folders:
 1. Enter bash mode ```make bash```
-2. Run this command ```chmod -R 777 /var/www/api/storage /var/www/api/bootstrap/cache
+2. Run this command ```chmod -R 777 /var/www/api/storage /var/www/api/bootstrap/cache```
 
 ## Generating APP Key
 Laravel APP key is not provided in the ```.env.example``` file, so you may want to generate it. Use this command:
@@ -72,10 +72,14 @@ User::create([
 4. However this will create a user, you would still need to give the user a right to access admin panel. You need to manually change ```role``` column in the DB to ```admin```, as it is protected from changes in the User model.
 5. Now you may login to an admin account!
 
+## Watching SASS/JS/BLADE changes
+1. Enter bash mode ```make up```
+2. Run ```npm run dev``` - this will automatically watch for any updates in ```*.scss``` files, ```*.js``` files and ```*.blade.php```
+
 ## Second run
-1. Open the PMS-Backend folder in terminal and run ```make up```. It will set all the environment in the Docker Desktop.
+1. Open the ```wizmeek-backend-L11``` folder in terminal and run ```make up```. It will set all the cached environment in the Docker Desktop.
 2. To get into a PHP's /bin/bash run ```make bash```.
-3. You are ready to work.
+3. You are ready to work!
 
 ## Finishing work
 1. Press ```Ctrl/Cmd + D``` to exit /bin/bash mode.
