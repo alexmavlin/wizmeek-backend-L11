@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\DataTypeTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LandingPageVideo extends Model
 {
-    use HasFactory;
+    use HasFactory, DataTypeTrait;
 
     protected $table = 'landing_page_videos';
     protected $guarded = ['id'];
@@ -44,6 +45,14 @@ class LandingPageVideo extends Model
         return $query->get();
     }
 
+    /**
+     * Retrieve landing page videos with related data.
+     *
+     * This method fetches landing videos along with their related artist, genre, and country data.
+     * It also includes the count of users who liked each video.
+     *
+     * @return array The formatted landing videos data array.
+     */
     public static function getLandingVideosApi()
     {
         $query = self::query();
@@ -79,37 +88,9 @@ class LandingPageVideo extends Model
             }
         ]);
 
-        // Get the landing page videos
         $videos = $query->get();
 
-        // Initialize response array
-        $response = [];
-
-        // Loop through the collection of landing page videos
-        foreach ($videos as $landingPageVideo) {
-            $video = $landingPageVideo->videos; // Single video from the 'belongsTo' relationship
-
-            if ($video) {
-                $response[] = [
-                    'artist' => $video->artist->name ?? null,
-                    'title' => $video->title,
-                    'youtube_id' => $video->youtube_id,
-                    'thumbnail' => $video->thumbnail,
-                    'release_year' => date('Y', strtotime($video->release_date)),
-                    'isFavorite' => false,
-                    'isLiked' => false,
-                    'nLike' => $video->liked_by_users_count,
-                    'genre' => $video->genre->genre ?? null,
-                    'genre_color' => $video->genre->color,
-                    'country_flag' => $video->country ? asset($video->country->flag) : null,
-                    'editors_pick' => $video->editors_pick ? true : false,
-                    'new' => $video->new ? true : false,
-                    'throwback' => $video->throwback ? true : false
-                ];
-            }
-        }
-
-        return $response;
+        return self::buildLandingVideosDataArray($videos);
     }
 
     public function videos()

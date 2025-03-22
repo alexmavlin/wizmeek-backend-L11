@@ -44,15 +44,12 @@ class Subscriber extends Model
     {
         $query = self::query();
 
-        // Select relevant fields
         $query->select('id', 'email', 'created_at');
 
-        // Apply email filter if provided
         if ($filterExpression) {
             $query->where('email', 'like', '%' . $filterExpression . '%');
         }
 
-        // Return paginated results
         return $query->paginate(25);
     }
 }

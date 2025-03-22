@@ -23,7 +23,6 @@ class StoreVideoCommentController extends Controller
         }
 
         try {
-            // dd($request->youtube_video_id);
             $result = VideoComment::create([
                 "content" => $request->content,
                 "user_id" => Auth::user()->id,

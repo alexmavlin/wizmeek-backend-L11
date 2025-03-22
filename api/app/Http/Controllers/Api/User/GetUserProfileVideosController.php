@@ -11,7 +11,6 @@ class GetUserProfileVideosController extends Controller
     {
         try {
             $result = YouTubeVideo::getProfileVideos($uid);
-            // dd($result);
             return response()->json([
                 'success' => true,
                 'message' => "Successfuly fetched user's profile videos",

@@ -82,22 +82,29 @@ class HiglighVideo extends Model
         return self::getHighlightedDatatype($videos);
     }
 
-    public static function getHighlightsApi()
+    /**
+     * Retrieve highlighted video categories for the API.
+     *
+     * @return array An array containing highlights for 'new', 'throwback', and 'editors_pick' categories.
+     */
+    public static function getHighlightsApi(): array
     {
-        $news = self::getNews();
-        $throwbacks = self::getThrowbacks();
-        $editorsPicks = self::getEditorsPicks();
-        $data = [
-            $news,
-            $throwbacks,
-            $editorsPicks
+        return [
+            self::queryForHighlightsApi('new'),
+            self::queryForHighlightsApi('throwback'),
+            self::queryForHighlightsApi('editors_pick')
         ];
-        return $data;
     }
 
-    private static function getThrowbacks()
+    /**
+     * Query and retrieve highlighted videos for a given flag.
+     *
+     * @param string $flag The flag used to filter highlighted videos (e.g., 'new', 'throwback', 'editors_pick').
+     * @return array An array containing the flag and corresponding highlighted videos.
+     */
+    private static function queryForHighlightsApi($flag): array
     {
-        $items = self::where('flag', 'throwback')
+        $items = self::where('flag', $flag)
             ->select('id', 'video_id', 'flag')
             ->with([
                 "video" => function ($query) {
@@ -132,130 +139,12 @@ class HiglighVideo extends Model
             ->get();
 
         $data = [
-            "flag" => "throwback",
+            "flag" => $flag,
             "items" => self::buildHighlightsInstanceDataArray($items)
         ];
 
         return $data;
     }
-
-    private static function getNews()
-    {
-        $items = self::where('flag', 'new')
-            ->select('id', 'video_id', 'flag')
-            ->with([
-                "video" => function ($query) {
-                    $query->select(
-                        'id',
-                        'country_id',
-                        'content_type_id',
-                        'genre_id',
-                        'artist_id',
-                        'youtube_id',
-                        'thumbnail',
-                        'editors_pick',
-                        'new',
-                        'throwback',
-                        'title',
-                        'release_date'
-                    );
-                    $query->with([
-                        'country' => function ($q) {
-                            $q->select('id', 'flag');
-                        },
-                        'genre' => function ($q) {
-                            $q->select('id', 'genre', 'color');
-                        },
-                        'artist' => function ($q) {
-                            $q->select('id', 'name');
-                        },
-                    ]);
-                    $query->withCount('likedByUsers');
-                }
-            ])
-            ->get();
-
-        // dd($items);
-
-        $data = [
-            "flag" => "new",
-            "items" => self::buildHighlightsInstanceDataArray($items)
-        ];
-
-        return $data;
-    }
-
-    private static function getEditorsPicks()
-    {
-        $items = self::where('flag', 'editors_pick')
-            ->select('id', 'video_id', 'flag')
-            ->with([
-                "video" => function ($query) {
-                    $query->select(
-                        'id',
-                        'country_id',
-                        'content_type_id',
-                        'genre_id',
-                        'artist_id',
-                        'youtube_id',
-                        'thumbnail',
-                        'editors_pick',
-                        'new',
-                        'throwback',
-                        'title',
-                        'release_date'
-                    );
-                    $query->with([
-                        'country' => function ($q) {
-                            $q->select('id', 'flag');
-                        },
-                        'genre' => function ($q) {
-                            $q->select('id', 'genre', 'color');
-                        },
-                        'artist' => function ($q) {
-                            $q->select('id', 'name');
-                        },
-                    ]);
-                    $query->withCount('likedByUsers');
-                }
-            ])
-            ->get();
-
-        $data = [
-            "flag" => "editors_pick",
-            "items" => self::buildHighlightsInstanceDataArray($items)
-        ];
-
-        return $data;
-    }
-
-    private static function buildHighlightsInstanceDataArray($instances)
-    {
-        $data = [];
-        foreach ($instances as $instance) {
-            $data[] = [
-                "cover" => $instance->video->thumbnail,
-                //"title" => $instance->video->artist->name . " - " . $instance->video->title,
-                'artist' => $instance->video->artist->name,
-                'country_flag' => asset($instance->video->country->flag),
-                'editors_pick' => $instance->video->editors_pick ? true : false,
-                'genre' => $instance->video->genre ? $instance->video->genre->genre : "NaN",
-                'genre_color' => $instance->video->genre->color,
-                'isFavorite' => false,
-                'isLiked' => false,
-                'new' => $instance->video->new ? true : false,
-                'nLikes' => $instance->video->liked_by_users_count,
-                'nLike' => $instance->video->liked_by_users_count,
-                'release_year' => date('Y', strtotime($instance->video->release_date)),
-                'throwback' => $instance->video->throwback ? true : false,
-                'thumbnail' => $instance->video->thumbnail,
-                'title' => $instance->video->title,
-                'youtube_id' => $instance->video->youtube_id,
-            ];
-        }
-        return $data;
-    }
-
 
     public function video()
     {

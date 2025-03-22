@@ -14,7 +14,6 @@ class LoginController extends Controller
     public function __invoke(Request $request)
     {
         try {
-            // Validate the request input
             $validated = $request->validate([
                 'email' => 'required|email',
                 'password' => 'required|string|min:4',
@@ -53,20 +52,17 @@ class LoginController extends Controller
 
             Auth::login($user, $rememberMe);
 
-            // Simulate successful login for now
             return response()->json([
                 'message' => 'Login successful!',
                 'data' => $user,
             ], 200);
 
         } catch (ValidationException $e) {
-            // Catch validation errors and return a JSON response
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
-            // Handle other exceptions and return a JSON response
             return response()->json([
                 'message' => 'An unexpected error occurred',
                 'error' => $e->getMessage(),

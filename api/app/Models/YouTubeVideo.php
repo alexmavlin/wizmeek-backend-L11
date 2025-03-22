@@ -97,6 +97,14 @@ class YouTubeVideo extends Model
         return $query->orderBy('updated_at', 'DESC')->paginate(10);
     }
 
+    /**
+     * Remove related selections for the current model instance.
+     *
+     * This method loads and deletes all related landing page items 
+     * and highlight items associated with the model.
+     *
+     * @return void
+     */
     public function removeRelatedSelections()
     {
         $this->load(['landingItems', 'highlightItems']);
@@ -110,34 +118,44 @@ class YouTubeVideo extends Model
         }
     }
 
+    /**
+     * Retrieve the authenticated user's favorite videos.
+     *
+     * This method fetches the user's favorite videos, applies query filters,
+     * and returns them in a structured format suitable for media cards.
+     *
+     * @param \Illuminate\Http\Request $request The request containing filter parameters.
+     * @return array The formatted favorite videos data.
+     */
     public static function getFavoriteVideos($request)
     {
         $user = Auth::user();
 
-        // Ensure the 'favoriteVideos' relationship is loaded
         $user->load(['favoriteVideos']);
 
-        // Get the IDs of the favorite videos
         $favoriteVideoIds = $user->favoriteVideos->pluck('id');
 
-        // Create a pre-query for the favorite videos
         $preQuery = self::query()->whereIn('id', $favoriteVideoIds);
 
-        // Pass the pre-query into queryVideosForMediaCard
         $paginatedVideos = self::queryVideosForMediaCard($request, $preQuery);
 
-        // dd($paginatedVideos);
-
-        // Process the videos with getMediaCardsData
         return self::getMediaCardsData($paginatedVideos);
     }
 
+    /**
+     * Retrieve and format videos for the API.
+     *
+     * This method queries videos based on the request parameters,
+     * applies pagination, and returns them in a structured format
+     * suitable for media cards.
+     *
+     * @param \Illuminate\Http\Request $request The request containing filter parameters.
+     * @return array The formatted video data.
+     */
     public static function getVideosApi($request)
     {
-        // Paginate the query
         $paginatedVideos = self::queryVideosForMediaCard($request);
 
-        // Format the response data
         return self::getMediaCardsData($paginatedVideos);
     }
 

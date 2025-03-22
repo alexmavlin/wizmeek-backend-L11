@@ -65,14 +65,20 @@ class Genre extends Model
         return $genre->delete();
     }
 
+    /**
+     * Retrieves the user's taste preferences for music genres.
+     *
+     * This method fetches all available genres and checks whether each genre 
+     * is part of the authenticated user's preferred genres. The result includes 
+     * the genre's ID, name, color, and whether the user likes it.
+     *
+     * @return array An array of genres with user preference information.
+     */
     public static function getUsersTaste()
     {
-
         $query = self::query();
         $query->select('id', 'genre', 'color');
-        $genres = $query->get()->toArray();
-
-        // dd($genres);
+        $genres = $query->get();
 
         $user = Auth::user();
 
@@ -84,16 +90,14 @@ class Genre extends Model
 
         $userTastyGenres = $user->genreTaste->pluck('id')->toArray();
 
-        $ret = [];
-        foreach ($genres as $genre) {
-            $ret[] = [
-                'id' => $genre['id'],
-                'genre' => $genre['genre'],
-                'color' => $genre['color'],
-                'isGenreTasty' => in_array($genre['id'], $userTastyGenres) ? true : false
+        return $genres->map(function ($genre) use ($userTastyGenres) {
+            return [
+                'id' => $genre->id,
+                'genre' => $genre->genre,
+                'color' => $genre->color,
+                'isGenreTasty' => in_array($genre->id, $userTastyGenres)
             ];
-        }
-        return $ret;
+        })->toArray();
     }
 
     /**
@@ -112,24 +116,23 @@ class Genre extends Model
         return $query->get();
     }
 
-    public static function getForApi()
+    /**
+     * Retrieve genres for API response.
+     *
+     * @return array The list of genres formatted for API response.
+     */
+    public static function getForApi(): array
     {
         $query = self::query();
         $query->select('id', 'genre', 'color');
 
-        $genres = $query->get();
-
-        $response = [];
-
-        foreach ($genres as $genre) {
-            $response[] = [
+        return $query->get()->map(function ($genre) {
+            return [
                 'id' => $genre->id,
                 'label' => $genre->genre,
                 'color' => $genre->color
             ];
-        }
-
-        return $response;
+        })->toArray();
     }
 
     public function youTubeVideos()

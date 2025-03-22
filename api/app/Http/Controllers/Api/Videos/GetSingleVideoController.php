@@ -14,8 +14,6 @@ class GetSingleVideoController extends Controller
             $video = YouTubeVideo::getSingle($id);
             $relatedVideos = YouTubeVideo::getRelatedForSingle($id, $request);
 
-            // dd($relatedVideos);
-
             return response()->json([
                 'success' => true,
                 'message' => "Successfuly fetched data.",

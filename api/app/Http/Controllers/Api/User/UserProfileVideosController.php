@@ -21,17 +21,14 @@ class UserProfileVideosController extends Controller
         }
 
         try {
-            $user = auth()->user(); // Get the authenticated user
+            $user = auth()->user();
 
             if ($user) {
-                // Check if the video is already attached
                 if ($user->videosInProfile()->where('video_id', $request->video_id)->exists()) {
-                    // If attached, detach it
                     $user->videosInProfile()->detach($request->video_id);
                     $result = "detached";
                     $dataResponse = false;
                 } else {
-                    // If not attached, attach it
                     $user->videosInProfile()->attach($request->video_id);
                     $result = "attached";
                     $dataResponse = true;

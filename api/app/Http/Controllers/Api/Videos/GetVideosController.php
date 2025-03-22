@@ -11,7 +11,6 @@ class GetVideosController extends Controller
 {
     public function __invoke(Request $request)
     {
-        // dd($request->header('X-mode'));
         switch ($request->header('X-mode')) {
             case 'landing':
                 $videos = LandingPageVideo::getLandingVideosApi();
@@ -20,8 +19,6 @@ class GetVideosController extends Controller
                 $videos = YouTubeVideo::getVideosApi($request);
                 break;
         }
-        // dd($videos);
-        // Return JSON response
         return response()->json($videos);
     }
 }

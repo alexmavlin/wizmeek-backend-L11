@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\DataTypeTrait;
 use App\Traits\GenreTrait;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Artist extends Model
 {
-    use HasFactory, SoftDeletes, GenreTrait;
+    use HasFactory, SoftDeletes, GenreTrait, DataTypeTrait;
 
     protected $table = "artists";
     protected $guarded = [];
@@ -56,20 +57,7 @@ class Artist extends Model
         ]);
         $artists = $query->get();
 
-        $data = [];
-
-        foreach ($artists as $artist) {
-            $data[] = [
-                '_id' => $artist->id,
-                'nFan' => 250,
-                'shareLink' => "https://example.com/profile/1",
-                'cover' => asset($artist->avatar),
-                'name' => $artist->name,
-                'bio' => $artist->short_description,
-                'type' => self::mergeGenreNames($artist->genres)
-            ];
-        }
-        return $data;
+        return self::getApiArtistsIndexDatatype($artists);
     }
 
     /**
@@ -104,6 +92,16 @@ class Artist extends Model
         return $artist->delete();
     }
 
+    /**
+     * Searches for artists by name with caching for optimized performance.
+     *
+     * This method retrieves artists whose names match the given search string,
+     * limiting the results to three. The results are cached for 10 minutes (600 seconds)
+     * to reduce database load.
+     *
+     * @param string $searchString The search query for artist names.
+     * @return \Illuminate\Support\Collection A collection of artists with their ID, name, and avatar URL.
+     */
     public static function apiSearch($searchString)
     {
         $query = Cache::remember("apiArtistSearch:$searchString", 600, function () use ($searchString) {
@@ -128,12 +126,12 @@ class Artist extends Model
     public function genres()
     {
         return $this->hasManyThrough(
-            Genre::class,        // Final target model
-            YouTubeVideo::class, // Intermediate model
-            'artist_id',         // Foreign key on YouTubeVideo (linking to Artist)
-            'id',                // Foreign key on Genre (linking to YouTubeVideo)
-            'id',                // Local key on Artist
-            'genre_id'           // Local key on YouTubeVideo
+            Genre::class,        
+            YouTubeVideo::class, 
+            'artist_id',         
+            'id',                
+            'id',                
+            'genre_id'           
         );
     }
 

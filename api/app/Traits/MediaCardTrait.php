@@ -6,10 +6,19 @@ use Illuminate\Support\Facades\Auth;
 
 trait MediaCardTrait
 {
+    /**
+     * Get formatted media card data from paginated video results.
+     *
+     * This method processes a paginated collection of videos, formatting each video
+     * into an array with relevant details, including artist information, links,
+     * genre, likes, and additional metadata.
+     *
+     * @param \Illuminate\Pagination\LengthAwarePaginator $paginatedVideos Paginated collection of videos.
+     * @return array Formatted media card data with pagination details.
+     */
     private static function getMediaCardsData($paginatedVideos)
     {
         $response = $paginatedVideos->getCollection()->map(function ($video) {
-            // dd($video);
             return [
                 'id' => $video->id,
                 'artist' => $video->artist->name,
@@ -36,9 +45,6 @@ trait MediaCardTrait
             ];
         });
 
-        // dd($response);
-
-        // Wrap the response with pagination metadata
         return [
             'data' => $response,
             'pagination' => [
@@ -52,9 +58,18 @@ trait MediaCardTrait
         ];
     }
 
+    /**
+     * Format comment data into an array structure.
+     *
+     * This method processes a collection of comments, formatting each comment into 
+     * a structured array with details including content, timestamp, like status, 
+     * and user information.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection|array $comments Collection or array of comment objects.
+     * @return array Formatted array of comment data.
+     */
     private static function getCommentsData($comments)
     {
-        // dd($comments);
         $data = [];
         foreach ($comments as $comment) {
             array_push($data, [
@@ -73,6 +88,16 @@ trait MediaCardTrait
         return $data;
     }
 
+    /**
+     * Modify a query to include related video comments and associated user data.
+     *
+     * This method appends comment-related data to a query, including the latest 
+     * four comments, associated users, like counts, and whether the authenticated 
+     * user has liked a comment.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @return void
+     */
     private static function queryForVideoComments($query): void
     {
         $query->with([
@@ -99,6 +124,15 @@ trait MediaCardTrait
         ]);
     }
 
+    /**
+     * Select specific columns for the video query.
+     *
+     * This method modifies the given query by selecting only the necessary 
+     * columns from the database to optimize performance.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @return void
+     */
     private static function selectColumns($query): void
     {
         $query->select(
@@ -120,11 +154,20 @@ trait MediaCardTrait
         );
     }
 
+    /**
+     * Load relationships for the video query.
+     *
+     * This method optimizes the query by specifying the necessary related 
+     * models and selecting only essential columns to improve performance.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @return void
+     */
     private static function queryForRelations($query): void
     {
         $query->with([
             'artist:id,name',
-            'country:id,flag', 
+            'country:id,flag',
             'genre:id,genre,color',
             'contentType:id,name'
         ]);

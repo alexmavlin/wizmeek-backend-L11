@@ -9,12 +9,6 @@ use Exception;
 
 class StoreSubscriberController extends Controller
 {
-    /**
-     * Handle the incoming request to store a new subscriber.
-     *
-     * @param  StoreSubscriberRequest  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function __invoke(StoreSubscriberRequest $request): \Illuminate\Http\JsonResponse
     {
         $subscriberData = [
