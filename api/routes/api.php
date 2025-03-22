@@ -55,7 +55,6 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::prefix('comments')->group(function () {
         Route::post('/like', UserLikesVideoCommentController::class);
         Route::post('/store', StoreVideoCommentController::class);
-        Route::post('/store-from-live-chat', StoreVideoCommentWithBroadcastingController::class);
     });
 
     Route::prefix('genres')->group(function () {
