@@ -24,6 +24,9 @@ class ArtistsUpdateController extends Controller
             $artist->short_description = $request->input('short_description');
             $artist->full_description = $request->input('full_description');
             $artist->is_visible = $request->input('is_visible') ? 1 : 0;
+            $artist->spotify_link = $request->input('spotify_link', '');
+            $artist->apple_music_link = $request->input('apple_music_link', '');
+            $artist->instagram_link = $request->input('instagram_link', '');
     
             $artist->save();
         } catch (\Exception $error) {

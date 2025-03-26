@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -84,6 +85,36 @@ class User extends Authenticatable
     {
         $user = self::find(Auth::user()->id);
         $user->genreTaste()->attach([$genre_id]);
+    }
+
+    /**
+     * Searches for artists by name with caching for optimized performance.
+     *
+     * This method retrieves artists whose names match the given search string,
+     * limiting the results to three. The results are cached for 10 minutes (600 seconds)
+     * to reduce database load.
+     *
+     * @param string $searchString The search query for artist names.
+     * @return \Illuminate\Support\Collection A collection of artists with their ID, name, and avatar URL.
+     */
+    public static function apiSearch($searchString)
+    {
+        $query = Cache::remember("apiUserSearch:$searchString", 600, function () use ($searchString) {
+            return self::where('name', 'like', '%' . $searchString . '%')
+                ->select('id', 'name', 'avatar', 'google_avatar')
+                ->limit(3)
+                ->get();
+        });
+
+        $response = $query->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => asset($user->avatar) ? asset("img/avatars/$user->avatar") : $user->google_avatar,
+            ];
+        });
+
+        return $response;
     }
 
     /**
