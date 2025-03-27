@@ -48,11 +48,11 @@ class Artist extends Model
     public static function getForApi(): array
     {
         $query = self::query();
-        $query->select('id', 'name', 'avatar', 'short_description', 'is_visible');
+        $query->select('id', 'name', 'avatar', 'short_description', 'is_visible', 'spotify_link', 'apple_music_link', 'instagram_link');
         $query->where('is_visible', '1');
         $query->with([
             "genres" => function ($query) {
-                $query->select('genre');
+                $query->select('genre')->distinct();
             }
         ]);
         $artists = $query->get();

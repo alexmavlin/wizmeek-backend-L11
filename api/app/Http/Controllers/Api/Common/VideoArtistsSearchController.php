@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Common;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Common\VideoArtistsSearchRequest;
 use App\Models\Artist;
+use App\Models\User;
 use App\Models\YouTubeVideo;
 
 class VideoArtistsSearchController extends Controller
@@ -16,13 +17,15 @@ class VideoArtistsSearchController extends Controller
         try {
             $medias = YouTubeVideo::apiSearch($searchString);
             $artists = Artist::apiSearch($searchString);
+            $users = User::apiSearch($searchString);
             return response()->json([
                 'success' => true,
                 'message' => "Successfuly fetched data.",
                 'error' => '',
                 'data' => [
                     'medias' => $medias,
-                    'artists' => $artists
+                    'artists' => $artists,
+                    'users' => $users
                 ]
             ], 200);
         } catch (\Exception $exception) {

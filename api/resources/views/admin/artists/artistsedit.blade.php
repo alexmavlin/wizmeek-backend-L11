@@ -64,6 +64,47 @@
                 </div>
             </div>
 
+            {{-- Social Links --}}
+            <div class="form__row labelled row" style="padding-top: 35px">
+                <span class="form__row--label">Social Links</span>
+
+                {{-- Spotify --}}
+                <div class="form__froup">
+                    <input type="text" placeholder="" name="spotify_link" id="spotify_link" value="{{ old('spotify_link') ?: $data['artist']->spotify_link }}">
+                    <label for="spotify_link">
+                        @error('spotify_link')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Spotify profile link</span>
+                        @enderror
+                    </label>
+                </div>
+
+                {{-- Apple Music --}}
+                <div class="form__froup">
+                    <input type="text" placeholder="" name="apple_music_link" id="apple_music_link" value="{{ old('apple_music_link') ?: $data['artist']->apple_music_link }}">
+                    <label for="apple_music_link">
+                        @error('apple_music_link')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Apple Music profile link</span>
+                        @enderror
+                    </label>
+                </div>
+
+                {{-- Instagram --}}
+                <div class="form__froup">
+                    <input type="text" placeholder="" name="instagram_link" id="instagram_link" value="{{ old('instagram_link') ?: $data['artist']->instagram_link }}">
+                    <label for="instagram_link">
+                        @error('instagram_link')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Instagram profile link</span>
+                        @enderror
+                    </label>
+                </div>
+            </div>
+
             {{-- Additional settings --}}
             <div class="form__row labelled row">
                 <span class="form__row--label">Additional Settings</span>

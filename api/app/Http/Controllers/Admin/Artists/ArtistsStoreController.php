@@ -23,7 +23,10 @@ class ArtistsStoreController extends Controller
                 'avatar' => $avatarPath,
                 'short_description' => $request->input('short_description'),
                 'full_description' => $request->input('full_description'),
-                'is_visible' => $request->input('is_visible') ? 1 : 0
+                'is_visible' => $request->input('is_visible') ? 1 : 0,
+                'spotify_link' => $request->input('spotify_link', ''),
+                'apple_music_link' => $request->input('apple_music_link', ''),
+                'instagram_link' => $request->input('instagram_link', '')
             ]);
         } catch (\Exception $error) {
             return redirect()->back()->with('error', 'An error has occured during an attempt to store an artist. Error: ' . $error->getMessage());

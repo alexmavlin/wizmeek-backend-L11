@@ -51,7 +51,10 @@ trait DataTypeTrait
                 'cover' => asset($artist->avatar),
                 'name' => $artist->name,
                 'bio' => $artist->short_description,
-                'type' => self::mergeGenreNames($artist->genres)
+                'type' => self::mergeGenreNames($artist->genres),
+                'spotify_link' => $artist->spotify_link,
+                'apple_music_link' => $artist->apple_music_link,
+                'instagram_link' => $artist->instagram_link
             ];
         })->toArray();
     }
