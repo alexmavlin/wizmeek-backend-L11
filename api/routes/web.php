@@ -43,6 +43,10 @@ use App\Http\Middleware\AuthenticateAdmin;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/email-viewer', function () {
+    return view('emails.forgot-password');
+});
+
 Route::get('/', [AdminLoginController::class, 'login'])->name('admin_ligin');
 Route::post('/admin-authenticate', [AdminLoginController::class, 'authenticate'])->name('admin_authenticate');
 Route::get('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin_logout');
