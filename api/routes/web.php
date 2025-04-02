@@ -10,6 +10,9 @@ use App\Http\Controllers\Admin\Artists\ArtistsUpdateController;
 use App\Http\Controllers\Admin\Artists\ArtistsViewController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Feedback\FeedbackDeleteController;
+use App\Http\Controllers\Admin\Feedback\FeedbackIndexController;
+use App\Http\Controllers\Admin\Feedback\FeedbackViewController;
 use App\Http\Controllers\Admin\Genres\GenresCreateController;
 use App\Http\Controllers\Admin\Genres\GenresDeleteController;
 use App\Http\Controllers\Admin\Genres\GenresDestroyController;
@@ -56,6 +59,12 @@ Route::post('/api-register', RegisterController::class);
 
 Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin_dashboard');
+
+    Route::prefix('/feedbacks')->group(function () {
+        Route::get('/', FeedbackIndexController::class)->name('admin_feedback_index');
+        Route::get('/{id}', FeedbackViewController::class)->name('admin_feedback_view');
+        Route::post('/delete/{id}', FeedbackDeleteController::class)->name('admin_feedback_delete');
+    });
 
     Route::prefix('/homepage')->group(function () {
         Route::get('/', HomePageController::class)->name('admin_homepage_index');
