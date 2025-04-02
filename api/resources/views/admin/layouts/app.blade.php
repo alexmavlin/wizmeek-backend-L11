@@ -51,6 +51,15 @@
                         </li>
                         <li>
                             <a 
+                                href="{{ route('admin_feedback_index') }}"
+                                class="{{ (
+                                    Route::is('admin_feedback_index')
+                                    || Route::is('admin_feedback_view')) ? 'active' : '' }}">
+                                    Feedback
+                            </a>
+                        </li>
+                        <li>
+                            <a 
                                 href="{{ route('admin_submit_youtube_video')}}"
                                 class="{{ Route::is('admin_submit_youtube_video') ? 'active' : '' }}">
                                     Submit Video

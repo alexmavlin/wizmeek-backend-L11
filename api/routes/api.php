@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\Artists\GetArtistsListController;
+use App\Http\Controllers\Api\Authentication\ForgotPasswordController;
+use App\Http\Controllers\Api\Authentication\ResetPasswordController;
 use App\Http\Controllers\Api\Comments\GetSingleVideoCommentsController;
 use App\Http\Controllers\Api\Comments\StoreVideoCommentController;
-use App\Http\Controllers\Api\Comments\StoreVideoCommentWithBroadcastingController;
 use App\Http\Controllers\Api\Common\VideoArtistsSearchController;
+use App\Http\Controllers\Api\Feedback\StoreFeedbackController;
 use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
@@ -33,6 +35,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/forgot-password', ForgotPasswordController::class);
+Route::post('/reset-password', ResetPasswordController::class);
+
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/get-header', UserNavDetailsController::class);
@@ -44,6 +49,10 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/update-avatar', UserAvatarUpdateController::class);
         Route::post('/add-video-to-profile', UserProfileVideosController::class);
     }); 
+
+    Route::prefix('feedback')->group(function () {
+        Route::post('/store', StoreFeedbackController::class);
+    });
 
     Route::prefix('videos')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
@@ -95,3 +104,4 @@ Route::prefix('user')->group(function () {
 Route::prefix('comments')->group(function () {
     Route::get('/get-for-a-single-video/{video_id}', GetSingleVideoCommentsController::class);
 });
+
