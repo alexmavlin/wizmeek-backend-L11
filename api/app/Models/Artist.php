@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\QueryFilters\Api\Artists\ArtistsGetByGenreFilter;
+use App\QueryFilters\Api\Artists\ArtistsSelectFilter;
+use App\QueryFilters\Api\Artists\ArtistsVisibleFilter;
+use App\QueryFilters\Api\Artists\ArtistsWithGenreFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\GenreTrait;
 use Exception;
@@ -9,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Cache;
 
 class Artist extends Model
@@ -47,22 +52,21 @@ class Artist extends Model
      */
     public static function getForApi(): array
     {
-        $genreId = request()->header('X-Genre');
-        
-        $query = self::query();
-        $query->select('id', 'name', 'avatar', 'short_description', 'is_visible', 'spotify_link', 'apple_music_link', 'instagram_link');
-        $query->where('is_visible', '1');
-        if ((int) $genreId) {
-            $query->whereHas('genres', function ($q) use ($genreId) {
-                $q->where('genres.id', (int) $genreId);
-            });
-        }
-        $query->with([
-            "genres" => function ($query) {
-                $query->select('genre')->distinct();
-            }
-        ]);
-        $artists = $query->get();
+        $genreId = (string) request()->header('X-Genre') ?: (string) '0';
+        $cacheKey = 'artists_for_api_by_genre' . $genreId;
+
+        $artists = Cache::remember($cacheKey, now()->addMinutes(20), function () {
+            return app(Pipeline::class)
+                ->send(self::query())
+                ->through([
+                    ArtistsSelectFilter::class,
+                    ArtistsVisibleFilter::class,
+                    ArtistsGetByGenreFilter::class,
+                    ArtistsWithGenreFilter::class
+                ])
+                ->thenReturn()
+                ->get();
+        });
 
         return self::getApiArtistsIndexDatatype($artists);
     }
@@ -133,17 +137,21 @@ class Artist extends Model
     public function genres()
     {
         return $this->hasManyThrough(
-            Genre::class,        
-            YouTubeVideo::class, 
-            'artist_id',         
-            'id',                
-            'id',                
-            'genre_id'           
+            Genre::class,
+            YouTubeVideo::class,
+            'artist_id',
+            'id',
+            'id',
+            'genre_id'
         );
     }
 
     public function youTubeVideos()
     {
-        return $this->hasMany(YouTubeVideo::class, 'artist_id', 'id');
+        return $this->hasMany(
+            YouTubeVideo::class,
+            'artist_id',
+            'id'
+        );
     }
 }
