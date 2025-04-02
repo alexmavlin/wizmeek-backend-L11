@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Authentication\ResetPasswordController;
 use App\Http\Controllers\Api\Comments\GetSingleVideoCommentsController;
 use App\Http\Controllers\Api\Comments\StoreVideoCommentController;
 use App\Http\Controllers\Api\Common\VideoArtistsSearchController;
+use App\Http\Controllers\Api\Feedback\StoreFeedbackController;
 use App\Http\Controllers\Api\Genres\BindGenreTasteController;
 use App\Http\Controllers\Api\Genres\GetGenresController;
 use App\Http\Controllers\Api\Genres\GetGenresMusictasteController;
@@ -48,6 +49,10 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/update-avatar', UserAvatarUpdateController::class);
         Route::post('/add-video-to-profile', UserProfileVideosController::class);
     }); 
+
+    Route::prefix('feedback')->group(function () {
+        Route::post('/store', StoreFeedbackController::class);
+    });
 
     Route::prefix('videos')->group(function () {
         Route::get('/get-favorites', GetUsersFavoriteVideosController::class);
