@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\ResetPasswordConfrimationMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,12 +27,6 @@ class SendResetPasswordConfirmationEmail implements ShouldQueue
 
     public function handle()
     {
-        Mail::send('emails.reset-password-confirmation', [
-            'email' => $this->email,
-            'loginLink' => $this->loginLink,
-            'name' => $this->name
-        ], function ($message) {
-            $message->to($this->email)->subject('Wizmeek - Password Reset Confirmation');
-        });
+        Mail::mailer('mailjet')->to($this->email)->send(new ResetPasswordConfrimationMail($this->email, $this->loginLink, $this->name));
     }
 }
