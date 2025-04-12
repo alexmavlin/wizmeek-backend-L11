@@ -18,6 +18,10 @@ class VideoComment extends Model
         $query = self::query();
 
         $query->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+        $query->whereHas('user', function ($q) {
+            $q->select('id', 'deleted_at');
+            $q->where('deleted_at', null);
+        });
         $query->with([
             'user' => function ($q) {
                 $q->select('id', 'name', 'avatar', 'google_avatar');
@@ -56,6 +60,10 @@ class VideoComment extends Model
         $query->limit(10);
         $query->orderBy('created_at', 'DESC');
         $query->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+        $query->whereHas('user', function ($q) {
+            $q->select('id', 'deleted_at');
+            $q->where('deleted_at', null);
+        });
         $query->with([
             'user' => function ($q) {
                 $q->select('id', 'name', 'avatar', 'google_avatar');

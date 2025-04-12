@@ -255,6 +255,10 @@ class YouTubeVideo extends Model
                 $q->limit(4);
                 $q->orderBy('created_at', 'DESC');
                 $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+                $q->whereHas('user', function ($q) {
+                    $q->select('id', 'deleted_at');
+                    $q->where('deleted_at', null);
+                });
                 $q->with([
                     'user' => function ($q) {
                         $q->select('id', 'name', 'avatar', 'google_avatar');
@@ -702,6 +706,10 @@ class YouTubeVideo extends Model
                     $q->limit(4)
                         ->orderBy('created_at', 'DESC')
                         ->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at')
+                        ->whereHas('user', function ($q) {
+                            $q->select('id', 'deleted_at');
+                            $q->where('deleted_at', null);
+                        })
                         ->with([
                             'user:id,name,avatar,google_avatar'
                         ]);
@@ -776,6 +784,10 @@ class YouTubeVideo extends Model
                 $q->limit(4)
                     ->orderBy('created_at', 'DESC')
                     ->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at')
+                    ->whereHas('user', function ($q) {
+                        $q->select('id', 'deleted_at');
+                        $q->where('deleted_at', null);
+                    })
                     ->with([
                         'user:id,name,avatar,google_avatar'
                     ]);

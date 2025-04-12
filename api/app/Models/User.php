@@ -7,16 +7,19 @@ namespace App\Models;
 use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, MediaCardTrait, DataTypeTrait;
+    use HasApiTokens, HasFactory, Notifiable, MediaCardTrait, DataTypeTrait, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -206,6 +209,28 @@ class User extends Authenticatable
             $user->favoriteVideos()->attach($video_id);
             return "Video with id: " . $video_id . " was added to favorites.";
         }
+    }
+
+    public static function handleApiDeleteAccount($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            throw new NotFoundHttpException('User not found.');
+        }
+    
+        if (Auth::id() !== $user->id) {
+            throw new HttpException(403, 'Unauthorized.');
+        }
+
+        Auth::guard('web')->logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        $user->delete();
+
+        return 'Your account has been deleted permanently.';
     }
 
     /**

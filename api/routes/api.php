@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Subscribers\StoreSubscriberController;
 use App\Http\Controllers\Api\User\GetUserProfileVideosController;
 use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
+use App\Http\Controllers\Api\User\UserDeleteAccountController;
 use App\Http\Controllers\Api\User\UserLikesVideoCommentController;
 use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
@@ -48,6 +49,7 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/update-password', [UserProfileUpdateController::class, 'updatePassword']);
         Route::post('/update-avatar', UserAvatarUpdateController::class);
         Route::post('/add-video-to-profile', UserProfileVideosController::class);
+        Route::post('/delete-account', UserDeleteAccountController::class);
     }); 
 
     Route::prefix('feedback')->group(function () {
