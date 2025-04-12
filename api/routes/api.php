@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\User\GetUserProfileVideosController;
 use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
 use App\Http\Controllers\Api\User\UserDeleteAccountController;
+use App\Http\Controllers\Api\User\UserFollowsUserController;
 use App\Http\Controllers\Api\User\UserLikesVideoCommentController;
 use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Api\User\UserProfileEditController;
 use App\Http\Controllers\Api\User\UserProfileGuestController;
 use App\Http\Controllers\Api\User\UserProfileUpdateController;
 use App\Http\Controllers\Api\User\UserProfileVideosController;
+use App\Http\Controllers\Api\User\UserUnfollowsUserController;
 use App\Http\Controllers\Api\Videos\GetSingleVideoController;
 use App\Http\Controllers\Api\Videos\GetUsersFavoriteVideosController;
 use App\Http\Controllers\Api\Videos\GetVideosByUserTasteController;
@@ -50,6 +52,8 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/update-avatar', UserAvatarUpdateController::class);
         Route::post('/add-video-to-profile', UserProfileVideosController::class);
         Route::post('/delete-account', UserDeleteAccountController::class);
+        Route::post('/follow-user', UserFollowsUserController::class);
+        Route::post('/unfollow-user', UserUnfollowsUserController::class);
     }); 
 
     Route::prefix('feedback')->group(function () {

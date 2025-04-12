@@ -218,7 +218,7 @@ class User extends Authenticatable
         if (!$user) {
             throw new NotFoundHttpException('User not found.');
         }
-    
+
         if (Auth::id() !== $user->id) {
             throw new HttpException(403, 'Unauthorized.');
         }
@@ -255,11 +255,25 @@ class User extends Authenticatable
             'created_at',
             'description'
         );
+
         $query->withCount('followingUsers');
         $query->withCount('followedByUsers');
+
         $user = $query->find($uid);
 
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $isFollowed = false;
+
+        if (Auth::check()) {
+            $authUser = Auth::user();
+            $isFollowed = $authUser->followingUsers()->where('followed_user_id', $uid)->exists();
+        }
+
         $response = self::buildProfileDetailsAsguestDataArray($user);
+        $response['is_followed'] = $isFollowed;
 
         return response()->json($response);
     }
@@ -294,6 +308,48 @@ class User extends Authenticatable
         $response = self::buildUserProfileDetailsDataArray($user);
 
         return response()->json($response);
+    }
+
+    public static function handleApiFollowUsers($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        if ($id == $user->id) {
+            throw new \Exception("You cannot follow yourself.");
+        }
+
+        if (!User::find($id)) {
+            throw new \Exception("User not found.");
+        }
+
+        $user->followingUsers()->syncWithoutDetaching([$id]);
+
+        return 'Success. User is followed by you.';
+    }
+
+    public static function handleApiUnfollowUsers($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        if ($id == $user->id) {
+            throw new \Exception("You cannot unfollow yourself.");
+        }
+
+        if (!User::find($id)) {
+            throw new \Exception("User not found.");
+        }
+
+        $user->followingUsers()->detach($id);
+
+        return 'Success. User has been unfollowed.';
     }
 
     public function likedVideos()
