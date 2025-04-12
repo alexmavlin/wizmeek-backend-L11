@@ -7,16 +7,19 @@ namespace App\Models;
 use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, MediaCardTrait, DataTypeTrait;
+    use HasApiTokens, HasFactory, Notifiable, MediaCardTrait, DataTypeTrait, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -208,6 +211,28 @@ class User extends Authenticatable
         }
     }
 
+    public static function handleApiDeleteAccount($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            throw new NotFoundHttpException('User not found.');
+        }
+
+        if (Auth::id() !== $user->id) {
+            throw new HttpException(403, 'Unauthorized.');
+        }
+
+        Auth::guard('web')->logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        $user->delete();
+
+        return 'Your account has been deleted permanently.';
+    }
+
     /**
      * Retrieve profile details for a guest user.
      *
@@ -230,11 +255,25 @@ class User extends Authenticatable
             'created_at',
             'description'
         );
+
         $query->withCount('followingUsers');
         $query->withCount('followedByUsers');
+
         $user = $query->find($uid);
 
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $isFollowed = false;
+
+        if (Auth::check()) {
+            $authUser = Auth::user();
+            $isFollowed = $authUser->followingUsers()->where('followed_user_id', $uid)->exists();
+        }
+
         $response = self::buildProfileDetailsAsguestDataArray($user);
+        $response['is_followed'] = $isFollowed;
 
         return response()->json($response);
     }
@@ -269,6 +308,48 @@ class User extends Authenticatable
         $response = self::buildUserProfileDetailsDataArray($user);
 
         return response()->json($response);
+    }
+
+    public static function handleApiFollowUsers($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        if ($id == $user->id) {
+            throw new \Exception("You cannot follow yourself.");
+        }
+
+        if (!User::find($id)) {
+            throw new \Exception("User not found.");
+        }
+
+        $user->followingUsers()->syncWithoutDetaching([$id]);
+
+        return 'Success. User is followed by you.';
+    }
+
+    public static function handleApiUnfollowUsers($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        if ($id == $user->id) {
+            throw new \Exception("You cannot unfollow yourself.");
+        }
+
+        if (!User::find($id)) {
+            throw new \Exception("User not found.");
+        }
+
+        $user->followingUsers()->detach($id);
+
+        return 'Success. User has been unfollowed.';
     }
 
     public function likedVideos()

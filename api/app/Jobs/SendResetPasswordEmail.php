@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Mail\ResetPasswordMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,8 +25,6 @@ class SendResetPasswordEmail implements ShouldQueue
 
     public function handle()
     {
-        Mail::send('emails.forgot-password', ['resetLink' => $this->resetLink], function ($message) {
-            $message->to($this->email)->subject('Wizmeek - Password Reset Request');
-        });
+        Mail::mailer('mailjet')->to($this->email)->send(new ResetPasswordMail($this->resetLink));
     }
 }
