@@ -2,13 +2,13 @@
 
 @section('content')
     <section class="artists__header">
-        <h1>Videos</h1>
-        <form action="{{ route('admin_youtube_video_index') }}" method="GET" class="full_width">
+        <h1>Draft Videos</h1>
+        <form action="{{ route('admin_youtube_videos_drafts') }}" method="GET" class="full_width">
             <div class="form__row">
                 <div class="form__group">
                     <label for="genre">Genre: </label>
                     <select name="genre" id="genre">
-                        <option value="">Select Genre</option>
+                        <option value="">All</option>
                         @foreach ($data['genres'] as $genre)
                             <option value="{{ $genre->id }}" {{ request('genre') == $genre->id ? 'selected' : '' }}>{{ $genre->genre }}</option>
                         @endforeach
@@ -17,7 +17,7 @@
                 <div class="form__group">
                     <label for="country">Country:</label>
                     <select name="country" id="country">
-                        <option value="">Select Country</option>
+                        <option value="">All</option>
                         @foreach ($data['countries'] as $country)
                             <option value="{{ $country->id }}" {{ request('country') == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
                         @endforeach
@@ -42,24 +42,6 @@
                 </div>
             </div>
         </form>
-        <a href="{{ route('admin_submit_youtube_video') }}">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/>
-            </svg>
-            Submit Video
-        </a>
-        <a href="{{ route('admin_youtube_videos_drafts') }}">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                <path d="M469.3 19.3l23.4 23.4c25 25 25 65.5 0 90.5l-56.4 56.4L322.3 75.7l56.4-56.4c25-25 65.5-25 90.5 0zM44.9 353.2L299.7 98.3 413.7 212.3 158.8 467.1c-6.7 6.7-15.1 11.6-24.2 14.2l-104 29.7c-8.4 2.4-17.4 .1-23.6-6.1s-8.5-15.2-6.1-23.6l29.7-104c2.6-9.2 7.5-17.5 14.2-24.2zM249.4 103.4L103.4 249.4 16 161.9c-18.7-18.7-18.7-49.1 0-67.9L94.1 16c18.7-18.7 49.1-18.7 67.9 0l19.8 19.8c-.3 .3-.7 .6-1 .9l-64 64c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l64-64c.3-.3 .6-.7 .9-1l45.1 45.1zM408.6 262.6l45.1 45.1c-.3 .3-.7 .6-1 .9l-64 64c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0l64-64c.3-.3 .6-.7 .9-1L496 350.1c18.7 18.7 18.7 49.1 0 67.9L417.9 496c-18.7 18.7-49.1 18.7-67.9 0l-87.4-87.4L408.6 262.6z"/>
-            </svg>
-            Drafts
-        </a>
-        <a href="{{ route('admin_youtube_videos_deleted') }}">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                <path d="M170.5 51.6L151.5 80l145 0-19-28.4c-1.5-2.2-4-3.6-6.7-3.6l-93.7 0c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80 368 80l48 0 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-8 0 0 304c0 44.2-35.8 80-80 80l-224 0c-44.2 0-80-35.8-80-80l0-304-8 0c-13.3 0-24-10.7-24-24S10.7 80 24 80l8 0 48 0 13.8 0 36.7-55.1C140.9 9.4 158.4 0 177.1 0l93.7 0c18.7 0 36.2 9.4 46.6 24.9zM80 128l0 304c0 17.7 14.3 32 32 32l224 0c17.7 0 32-14.3 32-32l0-304L80 128zm80 64l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16z"/>
-            </svg>
-            Deleted Videos
-        </a>
     </section>  
     <section class="artists__list">
         @foreach ($data["videos"] as $video)
@@ -109,11 +91,6 @@
                         </svg>    
                     </span></p>
                     <p>Throwback: <span class="{{ $video->throwback ? 'active' : '' }}">
-                        <svg class="checkbox__check" width="24" height="24">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>    
-                    </span></p>
-                    <p>Draft: <span class="{{ $video->is_draft ? 'active' : '' }}">
                         <svg class="checkbox__check" width="24" height="24">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>    

@@ -77,7 +77,7 @@ class Genre extends Model
     public static function getUsersTaste()
     {
         $query = self::query();
-        $query->select('id', 'genre', 'color');
+        $query->select('id', 'genre', 'color', 'img_link');
         $genres = $query->get();
 
         $user = Auth::user();
@@ -95,6 +95,7 @@ class Genre extends Model
                 'id' => $genre->id,
                 'genre' => $genre->genre,
                 'color' => $genre->color,
+                'image' => asset($genre->img_link),
                 'isGenreTasty' => in_array($genre->id, $userTastyGenres)
             ];
         })->toArray();
@@ -124,13 +125,14 @@ class Genre extends Model
     public static function getForApi(): array
     {
         $query = self::query();
-        $query->select('id', 'genre', 'color');
+        $query->select('id', 'genre', 'color', 'img_link');
 
         return $query->get()->map(function ($genre) {
             return [
                 'id' => $genre->id,
                 'label' => $genre->genre,
-                'color' => $genre->color
+                'color' => $genre->color,
+                'image' => asset($genre->img_link)
             ];
         })->toArray();
     }
