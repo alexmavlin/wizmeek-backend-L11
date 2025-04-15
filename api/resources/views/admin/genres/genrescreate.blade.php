@@ -3,7 +3,7 @@
 @section('content')
     <h1>Create new Genre</h1>
     <section class="create_form">
-        <form action="{{ route('admin_genres_store') }}" method="POST">
+        <form action="{{ route('admin_genres_store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('post')
 
@@ -35,6 +35,21 @@
                 </div>
             </div>
             {{-- // Genre Color Input --}}
+
+            {{-- Image Input --}}
+            <div class="form__row">
+                <div class="form__froup">
+                    <input type="file" placeholder="" id="image" name="image">
+                    <label for="image">
+                        @error('image')
+                            <span class="danger">{{ $message }}</span>
+                        @else
+                            <span>Choose an image</span>
+                        @enderror
+                    </label>
+                </div>
+            </div>
+            {{-- // Image Input --}}
 
             {{-- Submit Button --}}
             <div class="form__row">

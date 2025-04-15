@@ -10,16 +10,28 @@ use Illuminate\Http\Request;
 class GenresStoreController extends Controller
 {
     public function __invoke(GenresCreateRequest $request)
-    {    
+    {
         try {
-            $artist = Genre::create([
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+
+                $filename = uniqid('genre_') . '.' . $image->getClientOriginalExtension();
+
+                $image->move(public_path('genres'), $filename);
+
+                $imagePath = 'genres/' . $filename;
+            }
+
+            $genre = Genre::create([
                 'genre' => $request->input('genre'),
-                'color' => $request->input('color')
+                'color' => $request->input('color'),
+                'img_link' => $imagePath,
             ]);
         } catch (\Exception $error) {
-            return redirect()->back()->with('error', 'An error has occured during an attempt to store a genre. Error: ' . $error->getMessage());
+            return redirect()->back()->with('error', 'An error has occurred while trying to store a genre. Error: ' . $error->getMessage());
         }
-    
+
         return redirect()->route('admin_genres_index')->with('success', 'Genre created successfully.');
     }
 }

@@ -18,6 +18,7 @@
     </section>
     <section class="artist">
         <div class="artist__main">
+            <img src="{{ asset($data["genre"]->img_link) }}" alt="{{ $data["genre"]->genre }}" width="150" height="150">
             <p>{{ $data["genre"]->genre }}</p>
         </div>
     </section>
