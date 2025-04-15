@@ -413,6 +413,75 @@ class YouTubeVideo extends Model
         return self::getHighlightedDatatype($videos);
     }
 
+    public static function getDrafts()
+    {
+        $query = self::query();
+
+        $title = request('title');
+        $genre = request('genre');
+        $country = request('country');
+        $flag = request('flags');
+        /* $contentType = request('content_type'); */
+
+        // Apply filters conditionally
+        $query->when($title, function ($q, $title) {
+            return $q->where('title', 'like', '%' . $title . '%');
+        });
+
+        $query->when($genre, function ($q, $genre) {
+            return $q->where('genre_id', $genre);
+        });
+
+        $query->when($country, function ($q, $country) {
+            return $q->where('country_id', $country);
+        });
+
+        $query->when($flag, function ($q, $flag) {
+            if ($flag === 'new') {
+                return $q->where('new', 1);
+            } elseif ($flag === 'editors_pick') {
+                return $q->where('editors_pick', 1);
+            } elseif ($flag === 'throwback') {
+                return $q->where('throwback', 1);
+            }
+        });
+
+        $query->where('is_draft', 1);
+
+        $query->select(
+            'id',
+            'content_type_id',
+            'artist_id',
+            'title',
+            'release_date',
+            'thumbnail',
+            'genre_id',
+            'country_id',
+            'editors_pick',
+            'new',
+            'throwback'
+        );
+
+        $query->with([
+            'artist' => function ($q) {
+                $q->withTrashed();
+                $q->select('id', 'name');
+            },
+            'genre' => function ($q) {
+                $q->withTrashed();
+                $q->select('id', 'genre', 'color');
+            },
+            'country' => function ($q) {
+                $q->withTrashed();
+                $q->select('id', 'flag', 'name');
+            }
+        ]);
+
+        $videos = $query->orderBy('created_at', 'DESC')->paginate(10);
+        // dd($videos);
+        return $videos;
+    }
+
     public static function getDeleted()
     {
         $query = self::query();

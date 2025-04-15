@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\Videos\SubmitYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDeleteController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDeletedIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDestroyController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoDraftIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoRestoreController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
@@ -111,6 +112,7 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
         Route::put('/update/{video}', YouTubeVideoUpdateController::class)->name('admin_youtube_video_update');
         Route::post('/delete/{video}', YouTubeVideoDeleteController::class)->name('admin_youtube_video_delete');
         Route::get('/deleted-videos', YouTubeVideoDeletedIndexController::class)->name('admin_youtube_videos_deleted');
+        Route::get('/draft-videos', YouTubeVideoDraftIndexController::class)->name('admin_youtube_videos_drafts');
         Route::post('/destroy/{id}', YouTubeVideoDestroyController::class)->name('admin_destroy_youtube_video');
         Route::post('/restore/{id}', YouTubeVideoRestoreController::class)->name('admin_restore_youtube_video');
     });
