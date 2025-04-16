@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\DataTransferObjects\Api\GenresDTO\GenreIndexDTO;
+use App\DataTransferObjects\Api\GenresDTO\GenreTasteDTO;
+use App\QueryFilters\Api\Genres\AddGenreTastyFlag;
+use App\QueryFilters\Api\Genres\GenreSelectFilter;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 
 class Genre extends Model
@@ -32,6 +37,22 @@ class Genre extends Model
         $query->select('id', 'genre');
 
         return $query->paginate(10);
+    }
+
+    /**
+     * Retrieves a list of all genres for selection purposes.
+     *
+     * This method fetches all records containing their ID and genre name, 
+     * which can be used in dropdowns or selection lists.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection The collection of genres containing ID and genre name.
+     */
+    public static function getForSelect()
+    {
+        $query = self::query();
+
+        $query->select('id', 'genre');
+        return $query->get();
     }
 
     /**
@@ -68,78 +89,63 @@ class Genre extends Model
     /**
      * Retrieves the user's taste preferences for music genres.
      *
-     * This method fetches all available genres and checks whether each genre 
-     * is part of the authenticated user's preferred genres. The result includes 
-     * the genre's ID, name, color, and whether the user likes it.
+     * This method uses a pipeline to filter and enrich the list of available genres.
+     * It selects essential genre attributes and determines whether each genre is
+     * part of the authenticated user's preferred genres. The result is transformed
+     * into a standardized DTO format for API consumption.
      *
-     * @return array An array of genres with user preference information.
+     * Pipeline filters used:
+     * - GenreSelectFilter: selects relevant fields from the genres table.
+     * - AddGenreTastyFlag: adds a boolean flag indicating user's preference.
+     *
+     * @return array An array of genres with ID, name, color, image, and a 
+     *               'isGenreTasty' flag indicating user preference.
      */
-    public static function getUsersTaste()
+    public static function getUsersTaste(): array
     {
-        $query = self::query();
-        $query->select('id', 'genre', 'color', 'img_link');
-        $genres = $query->get();
+        $genres = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                GenreSelectFilter::class,
+                AddGenreTastyFlag::class
+            ])
+            ->thenReturn();
 
-        $user = Auth::user();
-
-        $user->load([
-            'genreTaste' => function ($q) {
-                $q->select('genres.id');
-            }
-        ]);
-
-        $userTastyGenres = $user->genreTaste->pluck('id')->toArray();
-
-        return $genres->map(function ($genre) use ($userTastyGenres) {
-            return [
-                'id' => $genre->id,
-                'genre' => $genre->genre,
-                'color' => $genre->color,
-                'image' => asset($genre->img_link),
-                'isGenreTasty' => in_array($genre->id, $userTastyGenres)
-            ];
-        })->toArray();
+        return GenreTasteDTO::fromCollection($genres);
     }
 
     /**
-     * Retrieves a list of all genres for selection purposes.
+     * Retrieves a list of music genres formatted for API response.
      *
-     * This method fetches all records containing their ID and genre name, 
-     * which can be used in dropdowns or selection lists.
+     * This method uses a pipeline to filter the genres query, selecting only the
+     * necessary fields required for the API. The filtered data is then transformed
+     * into a standardized DTO (Data Transfer Object) format for consistent frontend consumption.
      *
-     * @return \Illuminate\Database\Eloquent\Collection The collection of genres containing ID and genre name.
-     */
-    public static function getForSelect()
-    {
-        $query = self::query();
-
-        $query->select('id', 'genre');
-        return $query->get();
-    }
-
-    /**
-     * Retrieve genres for API response.
+     * Pipeline filters used:
+     * - GenreSelectFilter: selects essential genre fields (e.g., id, name, color, image).
      *
-     * @return array The list of genres formatted for API response.
+     * @return array An array of genres, each containing attributes such as ID, name, color, and image URL.
      */
     public static function getForApi(): array
     {
-        $query = self::query();
-        $query->select('id', 'genre', 'color', 'img_link');
+        $genres = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                GenreSelectFilter::class
+            ])
+            ->thenReturn()
+            ->get();
 
-        return $query->get()->map(function ($genre) {
-            return [
-                'id' => $genre->id,
-                'label' => $genre->genre,
-                'color' => $genre->color,
-                'image' => asset($genre->img_link)
-            ];
-        })->toArray();
+        return GenreIndexDTO::fromCollection($genres);
     }
 
     public function youTubeVideos()
     {
-        return $this->hasMany(YouTubeVideo::class, 'genre_id', 'id');
+        return $this->hasMany(
+            YouTubeVideo::class, 
+            'genre_id', 
+            'id'
+        );
     }
 
     public function tasteUsers()
