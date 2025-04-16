@@ -8,7 +8,7 @@ class ArtistsGetByGenreFilter {
 
     public function handle($query, Closure $next)
     {
-        $genreId = request()->header('X-Genre');
+        $genreId = (string) request()->header('X-Genre') ?: (string) '';
 
         if ((int) $genreId) {
             $query->whereHas('genres', function ($q) use ($genreId) {

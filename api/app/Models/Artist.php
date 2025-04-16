@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use App\DataTransferObjects\Api\ArtistsDTO\ArtistIndexDTO;
+use App\DataTransferObjects\Api\ArtistsDTO\ArtistSearchDTO;
 use App\QueryFilters\Api\Artists\ArtistsGetByGenreFilter;
+use App\QueryFilters\Api\Artists\ArtistsSearchFilter;
+use App\QueryFilters\Api\Artists\ArtistsSearchSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsVisibleFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithGenreFilter;
@@ -43,35 +47,6 @@ class Artist extends Model
     }
 
     /**
-     * Retrieves a list of visible artists formatted for API response.
-     *
-     * This method fetches artists from the database who are marked as visible (`is_visible = 1`),
-     * along with their genres. It then formats the data into an array suitable for API responses.
-     *
-     * @return array The list of artists with formatted attributes including ID, name, avatar, short description, and genres.
-     */
-    public static function getForApi(): array
-    {
-        $genreId = (string) request()->header('X-Genre') ?: (string) '0';
-        $cacheKey = 'artists_for_api_by_genre' . $genreId;
-
-        $artists = Cache::remember($cacheKey, now()->addMinutes(20), function () {
-            return app(Pipeline::class)
-                ->send(self::query())
-                ->through([
-                    ArtistsSelectFilter::class,
-                    ArtistsVisibleFilter::class,
-                    ArtistsGetByGenreFilter::class,
-                    ArtistsWithGenreFilter::class
-                ])
-                ->thenReturn()
-                ->get();
-        });
-
-        return self::getApiArtistsIndexDatatype($artists);
-    }
-
-    /**
      * Deletes an artist and their associated YouTube videos.
      *
      * This method retrieves the artist by ID along with their YouTube videos.
@@ -104,34 +79,67 @@ class Artist extends Model
     }
 
     /**
+     * Retrieves a cached list of visible artists filtered by genre, formatted for API response.
+     *
+     * This method extracts the genre ID from the `X-Genre` request header, applies caching based
+     * on that genre, and processes the artist query through a series of pipeline filters:
+     * selection, visibility, genre filtering, and genre relationship loading.
+     * 
+     * The resulting artist collection is then transformed into a structured API response
+     * using the `ArtistIndexDTO`.
+     *
+     * @return array The formatted array of artists, including ID, name, avatar, description,
+     *               genre types, and external profile/share links.
+     */
+    public static function getForApi(): array
+    {
+        $genreId = (string) request()->header('X-Genre') ?: (string) 'all';
+        $cacheKey = 'api_artists_index_genre_' . $genreId;
+
+        $artists = Cache::remember($cacheKey, now()->addMinutes(60), function () {
+            return app(Pipeline::class)
+                ->send(self::query())
+                ->through([
+                    ArtistsSelectFilter::class,
+                    ArtistsVisibleFilter::class,
+                    ArtistsGetByGenreFilter::class,
+                    ArtistsWithGenreFilter::class
+                ])
+                ->thenReturn()
+                ->get();
+        });
+
+        return ArtistIndexDTO::fromCollection($artists);
+    }
+
+    /**
      * Searches for artists by name with caching for optimized performance.
      *
-     * This method retrieves artists whose names match the given search string,
-     * limiting the results to three. The results are cached for 10 minutes (600 seconds)
-     * to reduce database load.
+     * This method retrieves up to three visible artists whose names match the given
+     * search string. It uses a pipeline with filters for search, visibility, and selection.
+     * Results are cached for 10 minutes to reduce database load and improve response times.
      *
      * @param string $searchString The search query for artist names.
-     * @return \Illuminate\Support\Collection A collection of artists with their ID, name, and avatar URL.
+     * @return array An array of artist data transformed by ArtistSearchDTO, including ID, name, and avatar URL.
      */
-    public static function apiSearch($searchString)
+    public static function apiSearch($searchString): array
     {
-        $query = Cache::remember("apiArtistSearch:$searchString", 600, function () use ($searchString) {
-            return self::where('name', 'like', '%' . $searchString . '%')
-                ->where('is_visible', 1)
-                ->select('id', 'name', 'avatar', 'is_visible')
+        $cacheKey = 'api_artists_search_' . $searchString;
+
+        $artists = Cache::remember($cacheKey, now()->addMinutes(60), function () use ($searchString) {
+            return app(Pipeline::class)
+                ->send(self::query())
+                ->through([
+                    new ArtistsSearchFilter($searchString),
+                    ArtistsVisibleFilter::class,
+                    ArtistsSearchSelectFilter::class
+                ])
+                ->thenReturn()
                 ->limit(3)
                 ->get();
         });
 
-        $response = $query->map(function ($artist) {
-            return [
-                'id' => $artist->id,
-                'name' => $artist->name,
-                'avatar' => asset($artist->avatar),
-            ];
-        });
-
-        return $response;
+        return ArtistSearchDTO::fromCollection($artists);
     }
 
     public function genres()
