@@ -900,7 +900,7 @@ class YouTubeVideo extends Model
 
     public function highlightItems()
     {
-        return $this->hasMany(HiglighVideo::class, 'video_id');
+        return $this->hasMany(HighlightVideo::class, 'video_id');
     }
 
     public function likedByUsers()

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\HomePage;
 
 use App\Http\Controllers\Controller;
-use App\Models\HiglighVideo;
+use App\Models\HighlightVideo;
 use Illuminate\Http\Request;
 
 class HomePageController extends Controller
@@ -11,9 +11,9 @@ class HomePageController extends Controller
     public function __invoke()
     {
         try {
-            $editors_pick = HiglighVideo::getHighlightedForAdmin('editors_pick');
-            $new = HiglighVideo::getHighlightedForAdmin('new');
-            $throwback = HiglighVideo::getHighlightedForAdmin('throwback');
+            $editors_pick = HighlightVideo::getHighlightedForAdmin('editors_pick');
+            $new = HighlightVideo::getHighlightedForAdmin('new');
+            $throwback = HighlightVideo::getHighlightedForAdmin('throwback');
         } catch (\Exception $error) {
             return redirect()->back()->with('error', 'An error has occured during an attempt to load Home Page Videos. Error: ' . $error->getMessage());
         }
