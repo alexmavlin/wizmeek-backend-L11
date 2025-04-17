@@ -24,7 +24,7 @@ class GenresUpdateRequest extends FormRequest
         return [
             "genre" => "required|string|max:100",
             "color" => "nullable|string|max:7|regex:/^#[0-9a-fA-F]{6}$/",
-            "image" => "nullable|image|mimes:jpg,jpeg,gif,png,heif,heic|max:5120"
+            "image" => "nullable|image|mimes:jpg,jpeg,gif,png,heif,heic,webp|max:5120"
         ];
     }
 
@@ -40,7 +40,7 @@ class GenresUpdateRequest extends FormRequest
             'color.regex' => 'The color must be a valid hex code (e.g. #FF00FF).',
 
             'image.image' => 'The file must be an image.',
-            'image.mimes' => 'The image must be a file of type: jpg, jpeg, gif, png, heif, or heic.',
+            'image.mimes' => 'The image must be a file of type: jpg, jpeg, gif, png, heif, webp, or heic.',
             'image.max' => 'The image may not be greater than 5MB.',
         ];
     }
