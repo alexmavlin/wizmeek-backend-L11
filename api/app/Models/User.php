@@ -4,12 +4,20 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\DataTransferObjects\Api\UsersDTO\UserProfileDataDTO;
+use App\DataTransferObjects\Api\UsersDTO\UserProfileDataForVisitorsDTO;
+use App\QueryFilters\Api\Users\UserAddIsFollowedFlagFilter;
+use App\QueryFilters\Api\Users\UserFollowDataFilter;
+use App\QueryFilters\Api\Users\UserGetByIdFilter;
+use App\QueryFilters\Api\Users\UserProfileSelectFilter;
+use App\QueryFilters\Api\Users\UserVisitorSelectFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -234,82 +242,77 @@ class User extends Authenticatable
     }
 
     /**
-     * Retrieve profile details for a guest user.
+     * Retrieve profile details for a guest user using pipeline processing and DTO transformation.
      *
-     * This method fetches the profile details of a user based on the given user ID.
-     * It includes basic user information such as name, avatar, and description,
-     * as well as the count of followers and following users.
+     * This method uses a pipeline to filter and retrieve the profile details of a user
+     * by the given user ID. The pipeline applies selection, follow data augmentation, and
+     * additional flags such as "isFollowed". The final result is transformed into a DTO
+     * and returned as a JSON response.
      *
      * @param int $uid The ID of the user whose profile is being requested.
      * @return \Illuminate\Http\JsonResponse The profile details formatted as a JSON response.
      */
     public static function getProfileDetailsAsGuest($uid)
     {
-        $query = self::query();
+        $user = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                UserVisitorSelectFilter::class,
+                UserFollowDataFilter::class,
+                new UserGetByIdFilter($uid),
+                new UserAddIsFollowedFlagFilter($uid)
+            ])
+            ->thenReturn();
 
-        $query->select(
-            'id',
-            'name',
-            'avatar',
-            'google_avatar',
-            'created_at',
-            'description'
-        );
-
-        $query->withCount('followingUsers');
-        $query->withCount('followedByUsers');
-
-        $user = $query->find($uid);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
-
-        $isFollowed = false;
-
-        if (Auth::check()) {
-            $authUser = Auth::user();
-            $isFollowed = $authUser->followingUsers()->where('followed_user_id', $uid)->exists();
-        }
-
-        $response = self::buildProfileDetailsAsguestDataArray($user);
-        $response['is_followed'] = $isFollowed;
+        $response = UserProfileDataForVisitorsDTO::fromModel($user);
 
         return response()->json($response);
     }
 
     /**
-     * Retrieve the authenticated user's profile details.
+     * Retrieve the authenticated user's profile details using pipeline processing and DTO transformation.
      *
-     * This method fetches the profile details of the currently authenticated user,
-     * including personal information, avatar details, and follow counts.
+     * This method uses a pipeline to fetch and filter the profile data of the currently authenticated user.
+     * It applies filters to include personal details, follow data, and other relevant fields. The result is 
+     * transformed into a DTO and returned as a JSON response.
      *
-     * @return \Illuminate\Http\JsonResponse The user's profile details formatted as a JSON response.
+     * @return \Illuminate\Http\JsonResponse The authenticated user's profile details formatted as a JSON response.
      */
     public static function getProfileDetails()
     {
         $authUserId = Auth::user()->id;
 
-        $query = self::query();
-        $query->select(
-            'id',
-            'name',
-            'email',
-            'nickname',
-            'avatar',
-            'google_avatar',
-            'created_at',
-            'description'
-        );
-        $query->withCount('followingUsers');
-        $query->withCount('followedByUsers');
-        $user = $query->find($authUserId);
+        $user = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                UserProfileSelectFilter::class,
+                UserFollowDataFilter::class,
+                new UserGetByIdFilter($authUserId)
+            ])
+            ->thenReturn();
 
-        $response = self::buildUserProfileDetailsDataArray($user);
+        $response = UserProfileDataDTO::fromModel($user);
 
         return response()->json($response);
     }
 
+    /**
+     * Handle the follow action for the authenticated user via API.
+     *
+     * This method allows the authenticated user to follow another user by their ID.
+     * It performs several validation checks:
+     * - Ensures the user is authenticated.
+     * - Prevents a user from following themselves.
+     * - Verifies the existence of the target user.
+     * 
+     * If all checks pass, the target user is added to the authenticated user's following list
+     * using `syncWithoutDetaching` to avoid duplication.
+     *
+     * @param int $id The ID of the user to follow.
+     * @return string A success message upon successful follow.
+     *
+     * @throws \Exception If the user is unauthenticated, attempts to follow themselves, or if the target user does not exist.
+     */
     public static function handleApiFollowUsers($id)
     {
         $user = Auth::user();
@@ -331,6 +334,23 @@ class User extends Authenticatable
         return 'Success. User is followed by you.';
     }
 
+    /**
+     * Handle the unfollow action for the authenticated user via API.
+     *
+     * This method allows the authenticated user to unfollow another user by their ID.
+     * It performs several validation checks:
+     * - Ensures the user is authenticated.
+     * - Prevents a user from unfollowing themselves.
+     * - Verifies the existence of the target user.
+     * 
+     * If all checks pass, the target user is removed from the authenticated user's following list
+     * using `detach` to remove the relationship.
+     *
+     * @param int $id The ID of the user to unfollow.
+     * @return string A success message upon successful unfollow.
+     *
+     * @throws \Exception If the user is unauthenticated, attempts to unfollow themselves, or if the target user does not exist.
+     */
     public static function handleApiUnfollowUsers($id)
     {
         $user = Auth::user();
@@ -384,22 +404,41 @@ class User extends Authenticatable
 
     public function comments()
     {
-        return $this->hasMany(VideoComment::class, 'user_id', 'id');
+        return $this->hasMany(
+            VideoComment::class, 
+            'user_id', 
+            'id'
+        );
     }
 
     public function commentLikes()
     {
-        return $this->belongsToMany(VideoComment::class, 'users_video_comments', 'user_id', 'video_comment_id');
+        return $this->belongsToMany(
+            VideoComment::class, 
+            'users_video_comments', 
+            'user_id', 
+            'video_comment_id'
+        );
     }
 
     public function followingUsers()
     {
-        return $this->belongsToMany(User::class, 'users_follow_users', 'follower_user_id', 'followed_user_id');
+        return $this->belongsToMany(
+            User::class, 
+            'users_follow_users', 
+            'follower_user_id', 
+            'followed_user_id'
+        );
     }
 
     public function followedByUsers()
     {
-        return $this->belongsToMany(User::class, 'users_follow_users', 'followed_user_id', 'follower_user_id');
+        return $this->belongsToMany(
+            User::class, 
+            'users_follow_users', 
+            'followed_user_id', 
+            'follower_user_id'
+        );
     }
 
     public function videosInProfile()
