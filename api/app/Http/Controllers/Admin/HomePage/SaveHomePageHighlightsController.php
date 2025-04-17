@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\HomePage;
 
 use App\Http\Controllers\Controller;
-use App\Models\HiglighVideo;
+use App\Models\HighlightVideo;
 use Illuminate\Http\Request;
 
 class SaveHomePageHighlightsController extends Controller
@@ -13,9 +13,9 @@ class SaveHomePageHighlightsController extends Controller
         // dd("save");
         $request = $request->all();
         // dd($request);
-        $currentEditorsPickVideos = HiglighVideo::where('flag', 'editors_pick')->orderBy('id', 'ASC')->get();
-        $currentNewVideos = HiglighVideo::where('flag', 'new')->orderBy('id', 'ASC')->get();
-        $currentThrowbackVideos = HiglighVideo::where('flag', 'throwback')->orderBy('id', 'ASC')->get();
+        $currentEditorsPickVideos = HighlightVideo::where('flag', 'editors_pick')->orderBy('id', 'ASC')->get();
+        $currentNewVideos = HighlightVideo::where('flag', 'new')->orderBy('id', 'ASC')->get();
+        $currentThrowbackVideos = HighlightVideo::where('flag', 'throwback')->orderBy('id', 'ASC')->get();
 
         $areChangesProvidedForEditorsPickVideos = false;
         $areChangesProvidedForNewVideos = false;
@@ -76,7 +76,7 @@ class SaveHomePageHighlightsController extends Controller
             }
             for ($i = 1; $i <= 5; $i++) {
                 if (isset($request["editors_pick_video_id_$i"])) {
-                    HiglighVideo::create([
+                    HighlightVideo::create([
                         'video_id' => $request["editors_pick_video_id_$i"],
                         'flag' => 'editors_pick'
                     ]);
@@ -90,7 +90,7 @@ class SaveHomePageHighlightsController extends Controller
             }
             for ($i = 1; $i <= 5; $i++) {
                 if (isset($request["new_video_id_$i"])) {
-                    HiglighVideo::create([
+                    HighlightVideo::create([
                         'video_id' => $request["new_video_id_$i"],
                         'flag' => 'new'
                     ]);
@@ -104,7 +104,7 @@ class SaveHomePageHighlightsController extends Controller
             }
             for ($i = 1; $i <= 5; $i++) {
                 if (isset($request["throwback_video_id_$i"])) {
-                    HiglighVideo::create([
+                    HighlightVideo::create([
                         'video_id' => $request["throwback_video_id_$i"],
                         'flag' => 'throwback'
                     ]);

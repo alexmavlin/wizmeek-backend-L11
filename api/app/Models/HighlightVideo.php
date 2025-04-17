@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\DataTransferObjects\Api\HighLights\HighlightedVideosDTO;
+use App\QueryFilters\Api\HighLights\HighlightedVideosFilter;
 use App\Traits\DataTypeTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\Cache;
 
-class HiglighVideo extends Model
+class HighlightVideo extends Model
 {
     use HasFactory, DataTypeTrait;
 
@@ -83,71 +87,40 @@ class HiglighVideo extends Model
     }
 
     /**
-     * Retrieve highlighted video categories for the API.
+     * Retrieve highlighted video categories for the API with caching.
      *
-     * @return array An array containing highlights for 'new', 'throwback', and 'editors_pick' categories.
+     * This method uses a cache key (`api_highlighted_videos`) to store the
+     * results for 60 minutes, reducing database load. If the data is not
+     * cached, it performs a single query through the `HighlightedVideosFilter`
+     * pipeline to retrieve all highlighted videos. The results are then grouped
+     * by their `flag` (e.g., 'new', 'throwback', 'editors_pick') and transformed
+     * into an API-friendly format using a DTO.
+     *
+     * @return array An associative array of highlighted videos grouped by flag.
      */
     public static function getHighlightsApi(): array
     {
-        return [
-            self::queryForHighlightsApi('new'),
-            self::queryForHighlightsApi('throwback'),
-            self::queryForHighlightsApi('editors_pick')
-        ];
-    }
+        $cacheKey = 'api_highlighted_videos';
 
-    /**
-     * Query and retrieve highlighted videos for a given flag.
-     *
-     * @param string $flag The flag used to filter highlighted videos (e.g., 'new', 'throwback', 'editors_pick').
-     * @return array An array containing the flag and corresponding highlighted videos.
-     */
-    private static function queryForHighlightsApi($flag): array
-    {
-        $items = self::where('flag', $flag)
-            ->select('id', 'video_id', 'flag')
-            ->with([
-                "video" => function ($query) {
-                    $query->select(
-                        'id',
-                        'country_id',
-                        'content_type_id',
-                        'genre_id',
-                        'artist_id',
-                        'youtube_id',
-                        'thumbnail',
-                        'editors_pick',
-                        'new',
-                        'throwback',
-                        'title',
-                        'release_date'
-                    );
-                    $query->with([
-                        'country' => function ($q) {
-                            $q->select('id', 'flag');
-                        },
-                        'genre' => function ($q) {
-                            $q->select('id', 'genre', 'color');
-                        },
-                        'artist' => function ($q) {
-                            $q->select('id', 'name');
-                        },
-                    ]);
-                    $query->withCount('likedByUsers');
-                }
-            ])
-            ->get();
+        $highlights = Cache::remember($cacheKey, now()->addMinutes(60), function () {
+            return app(Pipeline::class)
+                ->send(self::query())
+                ->through([
+                    HighlightedVideosFilter::class
+                ])
+                ->thenReturn()
+                ->get()
+                ->groupBy('flag');
+        });
 
-        $data = [
-            "flag" => $flag,
-            "items" => self::buildHighlightsInstanceDataArray($items)
-        ];
-
-        return $data;
+        return HighlightedVideosDTO::fromGroupedCollection($highlights);
     }
 
     public function video()
     {
-        return $this->belongsTo(YouTubeVideo::class, 'video_id');
+        return $this->belongsTo(
+            YouTubeVideo::class, 
+            'video_id'
+        );
     }
 }

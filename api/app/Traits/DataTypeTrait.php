@@ -26,40 +26,6 @@ trait DataTypeTrait
     }
 
     /**
-     * Transforms a collection of artists into an API-friendly data structure.
-     *
-     * This method maps artist data to a structured array format for API responses,
-     * including:
-     * - Unique artist ID (`_id`)
-     * - Static number of fans (`nFan`)
-     * - Profile share link (`shareLink`)
-     * - Artist avatar (`cover`)
-     * - Name (`name`)
-     * - Short biography (`bio`)
-     * - Genres (`type`, merged genre names)
-     *
-     * @param \Illuminate\Support\Collection $artists Collection of artist models.
-     * @return array Structured artist data array.
-     */
-    private static function getApiArtistsIndexDatatype($artists): array
-    {
-        return $artists->map(function ($artist) {
-            return [
-                '_id' => $artist->id,
-                'nFan' => 250,
-                'shareLink' => "https://example.com/profile/1",
-                'cover' => asset($artist->avatar),
-                'name' => $artist->name,
-                'bio' => $artist->short_description,
-                'type' => self::mergeGenreNames($artist->genres),
-                'spotify_link' => $artist->spotify_link,
-                'apple_music_link' => $artist->apple_music_link,
-                'instagram_link' => $artist->instagram_link
-            ];
-        })->toArray();
-    }
-
-    /**
      * Build an array of highlight video data instances.
      *
      * @param \Illuminate\Support\Collection $instances Collection of video highlight instances.
