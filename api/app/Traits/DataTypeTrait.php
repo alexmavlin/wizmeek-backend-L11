@@ -93,28 +93,6 @@ trait DataTypeTrait
     }
 
     /**
-     * Build the profile details array for a guest user.
-     *
-     * This method formats the profile details of a user when viewed as a guest,
-     * including their avatar, description, and follow statistics.
-     *
-     * @param \App\Models\User $user The user whose profile details are being retrieved.
-     * @return array The formatted profile details.
-     */
-    private static function buildProfileDetailsAsguestDataArray($user): array
-    {
-        return [
-            'id' => $user->id,
-            'name' => $user->name,
-            'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
-            'description' => $user->description,
-            'joined' => date('M Y', strtotime($user->created_at)),
-            'following' => $user->following_users_count,
-            'followed_by' => $user->followed_by_users_count
-        ];
-    }
-
-    /**
      * Build the profile details array for an authenticated user.
      *
      * This method formats the profile details of a logged-in user,
