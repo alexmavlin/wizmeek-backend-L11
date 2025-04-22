@@ -6,8 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Genre;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddIsfavoriteFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddIsLikedFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddLikesCountFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoArtistFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoDraftFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoExcludeCurrentFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoFlagFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoGenreFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoGetRelatedFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoGetRelationsFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoIncludeCommentsFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoMediaCardSelectFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoPaginateFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoProfileAttachedFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoSortingModeFilter;
+use App\QueryFilters\Api\YouTubeVideos\YoutubeVideoTypeFilter;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoUsertasteFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -161,226 +179,57 @@ class YouTubeVideo extends Model
 
     public static function queryVideosForMediaCardByUserTaste($request, $preQuery = null)
     {
-        $limit = $request->header('X-Limit', 10);
-        $mode = $request->header('X-Mode', 'latest');
-        $genre = $request->header('X-Genre');
-        $videoType = $request->header('X-Video-Type');
-        $flag = $request->header('X-Video-Flag');
-        $artistId = $request->header('X-Artist');
-
         $query = $preQuery ? $preQuery : self::query();
 
-        if ($genre && strtolower($genre) != 'all') {
-            $query->whereHas('genre', function ($q) use ($genre) {
-                $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'genre' is the column in genres table
-            });
-        }
+        $videos = app(Pipeline::class)
+            ->send($query)
+            ->through([
+                YouTubeVideoMediaCardSelectFilter::class,
+                YouTubeVideoDraftFilter::class,
+                YouTubeVideoGenreFilter::class,
+                YoutubeVideoTypeFilter::class,
+                YouTubeVideoFlagFilter::class,
+                YouTubeVideoArtistFilter::class,
+                YouTubeVideoGetRelationsFilter::class,
+                YouTubeVideoAddIsLikedFilter::class,
+                YouTubeVideoAddIsfavoriteFilter::class,
+                // YouTubeVideoProfileAttachedFilter::class,
+                YouTubeVideoAddLikesCountFilter::class,
+                YouTubeVideoIncludeCommentsFilter::class,
+                YouTubeVideoUsertasteFilter::class,
+                YouTubeVideoSortingModeFilter::class,
+                YouTubeVideoPaginateFilter::class
+            ])
+            ->thenReturn();
 
-        if ($videoType) {
-            $query->whereHas('contentType', function ($q) use ($videoType) {
-                $q->where('name', 'like', '%' . $videoType . '%');
-            });
-        }
-
-        if ($flag) {
-            if (strtolower($flag) === 'new') {
-                $query->where('new', 1);
-            } elseif (strtolower($flag) === 'throwback') {
-                $query->where('throwback', 1);
-            }
-        }
-
-        if ($artistId) {
-            $query->where('artist_id', $artistId);
-        }
-
-        $query->select(
-            'id',
-            'apple_music_link',
-            'country_id',
-            'content_type_id',
-            'genre_id',
-            'artist_id',
-            'youtube_id',
-            'thumbnail',
-            'editors_pick',
-            'new',
-            'spotify_link',
-            'throwback',
-            'title',
-            'release_date',
-            'is_draft'
-        );
-
-        $query->where('is_draft', 0);
-
-        $user_id = Auth::user()->id;
-        $query->whereHas('genre', function ($query) use ($user_id) {
-            $query->whereHas('tasteUsers', function ($subQuery) use ($user_id) {
-                $subQuery->where('users.id', $user_id); // Correct table alias
-            });
-        });
-
-        $query->with([
-            'country' => function ($q) {
-                $q->select('id', 'flag');
-            },
-            'genre' => function ($q) {
-                $q->select('id', 'genre', 'color');
-            },
-            'artist' => function ($q) {
-                $q->select('id', 'name');
-            },
-        ]);
-
-        if (Auth::check()) {
-            $query->with([
-                'likedByUsers' => function ($q) {
-                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
-                    $q->select('youtube_videos_likes.id');
-                }
-            ]);
-            $query->with([
-                'favoriteByUser' => function ($q) {
-                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
-                    $q->select('youtube_videos_favorites.id');
-                }
-            ]);
-        }
-
-        $query->withCount('likedByUsers');
-
-        $query->with([
-            'comments' => function ($q) {
-                $q->limit(4);
-                $q->orderBy('created_at', 'DESC');
-                $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
-                $q->whereHas('user', function ($q) {
-                    $q->select('id', 'deleted_at');
-                    $q->where('deleted_at', null);
-                });
-                $q->with([
-                    'user' => function ($q) {
-                        $q->select('id', 'name', 'avatar', 'google_avatar');
-                    }
-                ]);
-
-                if (Auth::check()) {
-                    $q->with([
-                        'userLikes' => function ($q) {
-                            $q->where('user_id', Auth::user()->id);
-                            $q->select('users_video_comments.id');
-                        }
-                    ]);
-                }
-                $q->withCount('userLikes');
-            }
-        ]);
-
-        // Handle sorting based on mode
-        switch ($mode) {
-            case 'random':
-                $query->inRandomOrder();
-                break;
-            case 'latest':
-            default:
-                $query->orderBy('updated_at', 'DESC');
-                break;
-        }
-
-        // dd($query->paginate($limit));
-        $paginatedVideos =  $query->paginate($limit);
-        return self::getMediaCardsData($paginatedVideos);
+        return self::getMediaCardsData($videos);
     }
 
     private static function queryVideosForMediaCard($request, $preQuery = null)
     {
-        $limit = $request->header('X-Limit', 10);
-        $mode = $request->header('X-Mode', 'latest');
-        $genre = $request->header('X-Genre');
-        $videoType = $request->header('X-Video-Type');
-        $flag = $request->header('X-Video-Flag');
-        $artistId = $request->header('X-Artist');
-        $withProfileAttached = $request->header('X-With-Profile-Attached');
-
         $query = $preQuery ? $preQuery : self::query();
 
-        if ($genre && strtolower($genre) != 'all') {
-            $query->whereHas('genre', function ($q) use ($genre) {
-                $q->where('genre', 'like', '%' . $genre . '%'); // assuming 'genre' is the column in genres table
-            });
-        }
+        $videos = app(Pipeline::class)
+            ->send($query)
+            ->through([
+                YouTubeVideoMediaCardSelectFilter::class,
+                YouTubeVideoDraftFilter::class,
+                YouTubeVideoGenreFilter::class,
+                YoutubeVideoTypeFilter::class,
+                YouTubeVideoFlagFilter::class,
+                YouTubeVideoArtistFilter::class,
+                YouTubeVideoGetRelationsFilter::class,
+                YouTubeVideoAddIsLikedFilter::class,
+                YouTubeVideoAddIsfavoriteFilter::class,
+                YouTubeVideoProfileAttachedFilter::class,
+                YouTubeVideoAddLikesCountFilter::class,
+                YouTubeVideoIncludeCommentsFilter::class,
+                YouTubeVideoSortingModeFilter::class,
+                YouTubeVideoPaginateFilter::class
+            ])
+            ->thenReturn();
 
-        if ($videoType) {
-            $query->whereHas('contentType', function ($q) use ($videoType) {
-                $q->where('name', 'like', '%' . $videoType . '%');
-            });
-        }
-
-        if ($flag) {
-            if (strtolower($flag) === 'new') {
-                $query->where('new', 1);
-            } elseif (strtolower($flag) === 'throwback') {
-                $query->where('throwback', 1);
-            }
-        }
-
-        if ($artistId) {
-            $query->where('artist_id', $artistId);
-        }
-
-        /* Select columns */
-        self::selectColumns($query);
-        /* // Select columns */
-
-        $query->where('is_draft', 0);
-
-        /* Get relations */
-        self::queryForRelations($query);
-        /* // Get relations */
-
-        if (Auth::check()) {
-            $query->with([
-                'likedByUsers' => function ($q) {
-                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
-                    $q->select('youtube_videos_likes.id');
-                }
-            ]);
-            $query->with([
-                'favoriteByUser' => function ($q) {
-                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
-                    $q->select('youtube_videos_favorites.id');
-                }
-            ]);
-        }
-
-        if ($withProfileAttached && Auth::check()) {
-            $query->withExists([
-                'inUserProfile' => function ($q) {
-                    $q->where('user_id', Auth::user()->id);
-                }
-            ]);
-        }
-
-        $query->withCount('likedByUsers');
-
-        /* Get Comments */
-        self::queryForVideoComments($query);
-        /* // Get Comments */
-
-        // Handle sorting based on mode
-        switch ($mode) {
-            case 'random':
-                $query->inRandomOrder();
-                break;
-            case 'latest':
-            default:
-                $query->orderBy('updated_at', 'DESC');
-                break;
-        }
-
-        // dd($query->paginate($limit));
-        return $query->paginate($limit);
+        return $videos;
     }
 
     /**
@@ -712,92 +561,26 @@ class YouTubeVideo extends Model
 
     public static function getRelatedForSingle($youtube_id, $request)
     {
-        $page = $request->input('page', 1); // Get the current page, default to 1
+        $page = $request->input('page', 1);
 
-        $cacheKey = "singleYouTubeVideoRelated:$youtube_id:page:$page"; // Different cache per page
+        $cacheKey = "singleYouTubeVideoRelated:$youtube_id:page:$page";
 
-        $relatedVideosPaginated = Cache::remember($cacheKey, 3600, function () use ($youtube_id, $page) {
-            $query = self::query();
-
-            $query->where('youtube_id', '!=', $youtube_id) // Exclude the current video
-                ->where(function ($q) use ($youtube_id) {
-                    $q->whereHas('artist', function ($q) use ($youtube_id) {
-                        $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
-                            $q->where('youtube_id', $youtube_id);
-                        });
-                    })
-                        ->orWhereHas('genre', function ($q) use ($youtube_id) {
-                            $q->whereHas('youTubeVideos', function ($q) use ($youtube_id) {
-                                $q->where('youtube_id', $youtube_id);
-                            });
-                        });
-                });
-
-            $query->select(
-                'id',
-                'apple_music_link',
-                'country_id',
-                'content_type_id',
-                'genre_id',
-                'artist_id',
-                'youtube_id',
-                'thumbnail',
-                'editors_pick',
-                'new',
-                'spotify_link',
-                'throwback',
-                'title',
-                'release_date',
-                'is_draft'
-            );
-
-            $query->with([
-                'country:id,flag',
-                'genre:id,genre,color',
-                'artist:id,name',
-            ]);
-
-            if (Auth::check()) {
-                $query->with([
-                    'likedByUsers' => function ($q) {
-                        $q->where('user_id', Auth::id())->select('youtube_videos_likes.id');
-                    },
-                    'favoriteByUser' => function ($q) {
-                        $q->where('user_id', Auth::id())->select('youtube_videos_favorites.id');
-                    }
-                ]);
-            }
-
-            $query->withCount('likedByUsers');
-
-            $query->with([
-                'comments' => function ($q) {
-                    $q->limit(4)
-                        ->orderBy('created_at', 'DESC')
-                        ->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at')
-                        ->whereHas('user', function ($q) {
-                            $q->select('id', 'deleted_at');
-                            $q->where('deleted_at', null);
-                        })
-                        ->with([
-                            'user:id,name,avatar,google_avatar'
-                        ]);
-                    $q->orderBy('created_at', 'ASC');
-
-                    if (Auth::check()) {
-                        $q->with([
-                            'userLikes' => function ($q) {
-                                $q->where('user_id', Auth::id())->select('users_video_comments.id');
-                            }
-                        ]);
-                    }
-                    $q->withCount('userLikes');
-                }
-            ]);
-
-            $query->orderBy('views', 'DESC');
-
-            return $query->paginate(3); // Paginate properly
+        $relatedVideosPaginated = Cache::remember($cacheKey, 3600, function () use ($youtube_id) {
+            return app(Pipeline::class)
+                ->send(self::query())
+                ->through([
+                    YouTubeVideoMediaCardSelectFilter::class,
+                    YouTubeVideoGetRelationsFilter::class,
+                    YouTubeVideoAddIsLikedFilter::class,
+                    YouTubeVideoAddIsfavoriteFilter::class,
+                    YouTubeVideoAddLikesCountFilter::class,
+                    YouTubeVideoIncludeCommentsFilter::class,
+                    new YouTubeVideoExcludeCurrentFilter($youtube_id),
+                    new YouTubeVideoGetRelatedFilter($youtube_id),
+                    YouTubeVideoSortingModeFilter::class,
+                    YouTubeVideoPaginateFilter::class
+                ])
+                ->thenReturn();
         });
 
         return self::getMediaCardsData($relatedVideosPaginated);
@@ -880,27 +663,45 @@ class YouTubeVideo extends Model
 
     public function artist()
     {
-        return $this->belongsTo(Artist::class, 'artist_id', 'id');
+        return $this->belongsTo(
+            Artist::class,
+            'artist_id',
+            'id'
+        );
     }
 
     public function genre()
     {
-        return $this->belongsTo(Genre::class, 'genre_id', 'id');
+        return $this->belongsTo(
+            Genre::class,
+            'genre_id',
+            'id'
+        );
     }
 
     public function country()
     {
-        return $this->belongsTo(Country::class, 'country_id', 'id');
+        return $this->belongsTo(
+            Country::class,
+            'country_id',
+            'id'
+        );
     }
 
     public function landingItems()
     {
-        return $this->hasMany(LandingPageVideo::class, 'video_id');
+        return $this->hasMany(
+            LandingPageVideo::class,
+            'video_id'
+        );
     }
 
     public function highlightItems()
     {
-        return $this->hasMany(HighlightVideo::class, 'video_id');
+        return $this->hasMany(
+            HighlightVideo::class,
+            'video_id'
+        );
     }
 
     public function likedByUsers()
@@ -925,12 +726,20 @@ class YouTubeVideo extends Model
 
     public function contentType()
     {
-        return $this->belongsTo(ContentType::class, 'content_type_id', 'id');
+        return $this->belongsTo(
+            ContentType::class,
+            'content_type_id',
+            'id'
+        );
     }
 
     public function comments()
     {
-        return $this->hasMany(VideoComment::class, 'youtube_video_id', 'id');
+        return $this->hasMany(
+            VideoComment::class,
+            'youtube_video_id',
+            'id'
+        );
     }
 
     public function inUserProfile()
