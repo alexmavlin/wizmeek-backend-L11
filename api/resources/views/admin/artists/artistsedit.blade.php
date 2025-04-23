@@ -97,7 +97,7 @@
                         @error('countries')
                             <span class="selected-options-label danger">{{ $message }}</span>
                         @else
-                            <span class="selected-options-label">Genres*</span>
+                            <span class="selected-options-label">Countries*</span>
                         @enderror
                         <div class="selected-options" id="selected-options">
                             @if (old('countries'))
