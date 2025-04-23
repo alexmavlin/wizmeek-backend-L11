@@ -16,6 +16,8 @@ export default defineConfig({
                 'resources/scss/admin/parts/linearPreloader.scss',
                 // JS Files
                 'resources/js/app.js',
+                'resources/js/alerts.js',
+                'resources/js/admin/forms.js',
                 'resources/js/admin/popup.js',
                 'resources/js/admin/youtubeGetVideoData.js',
                 'resources/js/admin/loaders/landing/fetchVideoResults.js',

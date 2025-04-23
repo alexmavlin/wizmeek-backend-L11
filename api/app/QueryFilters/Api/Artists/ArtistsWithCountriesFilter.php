@@ -4,13 +4,13 @@ namespace App\QueryFilters\Api\Artists;
 
 use Closure;
 
-class ArtistsWithGenreFilter {
+class ArtistsWithCountriesFilter {
 
     public function handle($query, Closure $next)
     {
         $query->with([
-            "genres" => function ($query) {
-                $query->select('id', 'genre');
+            "countries" => function ($query) {
+                $query->select('id', 'name', 'code', 'flag');
             }
         ]);
 

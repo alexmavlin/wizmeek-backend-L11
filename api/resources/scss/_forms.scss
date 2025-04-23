@@ -1,4 +1,4 @@
-@import './vars';
+@import "./vars";
 
 form {
     .alert {
@@ -56,15 +56,11 @@ section.login {
         flex-direction: row;
         justify-content: flex-start;
         gap: 40px;
-        .form__group {
-            width: unset !important;
-            flex-grow: unset !important;
-        }
     }
     &--label {
         position: absolute;
         padding: 3px 10px;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         font-size: 26px !important;
         line-height: 20px;
         font-weight: 600;
@@ -88,7 +84,7 @@ section.login {
         outline-width: 1px;
         outline-offset: 5px;
         outline-color: $outlineTransparent;
-        transition: outline-color .3s ease-in-out;
+        transition: outline-color 0.3s ease-in-out;
         &:focus {
             outline-color: $outlineVizible;
         }
@@ -113,10 +109,10 @@ section.login {
         overflow: hidden;
         min-height: 36px;
         z-index: 100;
-        background-color: #FFF;
+        background-color: #fff;
         opacity: 0;
         pointer-events: none;
-        transition: opacity .3s ease-in-out;
+        transition: opacity 0.3s ease-in-out;
         &.active {
             opacity: 1;
             pointer-events: all;
@@ -133,7 +129,7 @@ section.login {
                 border-radius: 5px;
                 padding-right: 10px;
                 background-color: rgba($color: #000000, $alpha: 0);
-                transition: background-color .3s ease-in-out;
+                transition: background-color 0.3s ease-in-out;
                 &:hover {
                     background-color: rgba($color: #000000, $alpha: 0.3);
                 }
@@ -150,8 +146,8 @@ section.login {
             }
         }
     }
-    input[type=text],
-    input[type=password]{
+    input[type="text"],
+    input[type="password"] {
         width: 100%;
         font-size: 16px;
         line-height: 20px;
@@ -160,7 +156,7 @@ section.login {
         outline-width: 1px;
         outline-offset: 5px;
         outline-color: $outlineTransparent;
-        transition: outline-color .3s ease-in-out;
+        transition: outline-color 0.3s ease-in-out;
         &.with_btn {
             padding-right: 60px;
         }
@@ -172,7 +168,7 @@ section.login {
             padding: 4px 8px;
             pointer-events: none;
             background-color: $accentWhite;
-            transition: top .3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
             span {
                 font-size: 16px;
                 line-height: 20px;
@@ -194,7 +190,7 @@ section.login {
             }
         }
     }
-    input[type=file] {
+    input[type="file"] {
         & + label {
             span {
                 font-size: 16px;
@@ -217,7 +213,7 @@ section.login {
         resize: none;
         height: 150px;
         outline-color: $outlineTransparent;
-        transition: outline-color .3s ease-in-out;
+        transition: outline-color 0.3s ease-in-out;
         & + label {
             position: absolute;
             top: 10px;
@@ -227,7 +223,7 @@ section.login {
             pointer-events: none;
             background-color: $accentWhite;
             transform: translateY(0);
-            transition: top .3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.4);
             span {
                 font-size: 16px;
                 line-height: 20px;
@@ -251,7 +247,7 @@ section.login {
             }
         }
     }
-    button[type=submit].inside_input {
+    button[type="submit"].inside_input {
         position: absolute;
         right: 1px;
         top: 1px;
@@ -286,8 +282,8 @@ section.login {
         margin-left: auto;
     }
 
-    input[type=checkbox],
-    input[type=radio] {
+    input[type="checkbox"],
+    input[type="radio"] {
         appearance: none;
         & + label {
             position: relative;
@@ -329,7 +325,102 @@ section.login {
             }
         }
     }
-    button[type=submit] {
+    .custom-multiselect {
+        font-family: sans-serif;
+        position: relative;
+
+        span.selected-options-label {
+            margin-top: 0;
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            padding: 4px 8px;
+            background-color: #fff;
+            font-size: 16px;
+            transform: translateY(-50%);
+            transition: top .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .selected-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 10px 20px;
+            border: 2px solid #000;
+            border-radius: 23px;
+            outline-width: 1px;
+            outline-offset: 5px;
+            outline-color: $outlineTransparent;
+            transition: outline-color 0.3s ease-in-out;
+            min-height: 46px;
+            cursor: pointer;
+
+            .tag {
+                background: #e0e0e0;
+                border-radius: 10px;
+                font-size: 12px;
+                line-height: 12px;
+                padding: 5px 15px 5px 10px;
+                display: flex;
+                align-items: center;
+                position: relative;
+
+                .remove {
+                    margin-left: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    position: absolute;
+                    top: -10px;
+                    right: 5px;
+                }
+            }
+        }
+
+        .dropdown {
+            border: 1px solid #ccc;
+            border-top: none;
+            display: none;
+            background: white;
+            position: absolute;
+            z-index: 100;
+            width: 100%;
+            top: 100%;
+            overflow: hidden;
+
+            input[type="text"] {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 8px 10px;
+                border: none;
+                border-bottom: 1px solid #eee;
+                outline: none;
+            }
+
+            .options {
+                max-height: 100px;
+                overflow-y: auto;
+
+                .option {
+                    padding: 8px 12px;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: #f0f0f0;
+                    }
+                }
+            }
+        }
+
+        &.open .dropdown {
+            display: block;
+        }
+
+        &.focused span.selected-options-label {
+            top: 0%;
+        }
+    }
+
+    button[type="submit"] {
         max-width: 150px;
         padding: 6px 26px;
         font-size: 22px;
@@ -339,7 +430,7 @@ section.login {
         outline-width: 1px;
         outline-offset: 4px;
         outline-color: $outlineTransparent;
-        transition: outline-color .3s ease-in-out;
+        transition: outline-color 0.3s ease-in-out;
         background-color: $accentGreen;
         border-radius: 8px;
         cursor: pointer;

@@ -21,14 +21,17 @@ class ArtistsUpdateController extends Controller
             }
 
             $artist->name = $request->input('name');
-            $artist->short_description = $request->input('short_description');
-            $artist->full_description = $request->input('full_description');
-            $artist->is_visible = $request->input('is_visible') ? 1 : 0;
-            $artist->spotify_link = $request->input('spotify_link', '');
-            $artist->apple_music_link = $request->input('apple_music_link', '');
-            $artist->instagram_link = $request->input('instagram_link', '');
+            $artist->short_description = $request->input('short_description') ?? '';
+            $artist->full_description = $request->input('full_description') ?? '';
+            $artist->is_visible = $request->input('is_visible') ? 1 : 0 ?? '';
+            $artist->spotify_link = $request->input('spotify_link', '') ?? '';
+            $artist->apple_music_link = $request->input('apple_music_link', '') ?? '';
+            $artist->instagram_link = $request->input('instagram_link', '') ?? '';
     
             $artist->save();
+
+            $artist->genres()->sync($request->genres);
+            $artist->countries()->sync($request->countries);
         } catch (\Exception $error) {
             return redirect()->back()->with('error', 'An error has occured during an attempt to update an artist. Error: ' . $error->getMessage());
         }
