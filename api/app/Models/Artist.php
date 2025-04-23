@@ -9,6 +9,7 @@ use App\QueryFilters\Api\Artists\ArtistsSearchFilter;
 use App\QueryFilters\Api\Artists\ArtistsSearchSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsVisibleFilter;
+use App\QueryFilters\Api\Artists\ArtistsWithCountriesFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithGenreFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\GenreTrait;
@@ -78,6 +79,34 @@ class Artist extends Model
         return $artist->delete();
     }
 
+    public static function getForAdminEdit ($id)
+    {
+        $query = self::query();
+
+        $query->select(
+            'id',
+            'name',
+            'is_visible',
+            'avatar',
+            'short_description',
+            'full_description',
+            'spotify_link',
+            'apple_music_link',
+            'instagram_link'
+        );
+
+        $query->with([
+            'genres' => function ($q) {
+                $q->select('id', 'genre');
+            },
+            'countries' => function ($q) {
+                $q->select('id', 'name');
+            }
+        ]);
+
+        return $query->findOrFail($id);
+    }
+
     /**
      * Retrieves a cached list of visible artists filtered by genre, formatted for API response.
      *
@@ -103,7 +132,8 @@ class Artist extends Model
                     ArtistsSelectFilter::class,
                     ArtistsVisibleFilter::class,
                     ArtistsGetByGenreFilter::class,
-                    ArtistsWithGenreFilter::class
+                    ArtistsWithGenreFilter::class,
+                    ArtistsWithCountriesFilter::class
                 ])
                 ->thenReturn()
                 ->get();
@@ -142,7 +172,7 @@ class Artist extends Model
         return ArtistSearchDTO::fromCollection($artists);
     }
 
-    public function genres()
+    /* public function genres()
     {
         return $this->hasManyThrough(
             Genre::class,
@@ -152,7 +182,7 @@ class Artist extends Model
             'id',
             'genre_id'
         );
-    }
+    } */
 
     public function youTubeVideos()
     {
@@ -160,6 +190,26 @@ class Artist extends Model
             YouTubeVideo::class,
             'artist_id',
             'id'
+        );
+    }
+
+    public function genres()
+    {
+        return $this->belongsToMany(
+            Genre::class,
+            'artists_genres',
+            'artist_id',
+            'genre_id'
+        );
+    }
+
+    public function countries()
+    {
+        return $this->belongsToMany(
+            Country::class,
+            'artists_countries',
+            'artist_id',
+            'country_id'
         );
     }
 }

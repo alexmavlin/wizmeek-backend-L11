@@ -28,4 +28,14 @@ class Country extends Model
         // Paginate the results with 10 records per page
         return $query->get();
     }
+
+    public function artists()
+    {
+        return $this->belongsToMany(
+            Artist::class,
+            'artists_countries',
+            'country_id',
+            'artist_id'
+        );
+    }
 }

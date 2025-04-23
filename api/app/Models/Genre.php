@@ -157,4 +157,14 @@ class Genre extends Model
             'user_id'
         );
     }
+
+    public function artists ()
+    {
+        return $this->belongsToMany(
+            Artist::class,
+            'artists_genres',
+            'genre_id',
+            'artist_id'
+        );
+    }
 }
