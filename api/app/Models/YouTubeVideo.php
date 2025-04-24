@@ -566,7 +566,7 @@ class YouTubeVideo extends Model
         $cacheKey = "singleYouTubeVideoRelated:$youtube_id:page:$page";
 
         $relatedVideosPaginated = Cache::remember($cacheKey, 3600, function () use ($youtube_id) {
-            return app(Pipeline::class)
+            $videos = app(Pipeline::class)
                 ->send(self::query())
                 ->through([
                     YouTubeVideoMediaCardSelectFilter::class,
@@ -581,6 +581,15 @@ class YouTubeVideo extends Model
                     YouTubeVideoPaginateFilter::class
                 ])
                 ->thenReturn();
+
+            $videos->getCollection()->each(function ($video) {
+                $video->setRelation(
+                    'comments',
+                    $video->comments->sortByDesc('created_at')
+                );
+            });
+
+            return $videos;
         });
 
         return self::getMediaCardsData($relatedVideosPaginated);
