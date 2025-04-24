@@ -93,14 +93,12 @@
                             Artists
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('admin_landing_index') }}"
                             class="{{ Route::is('admin_landing_index') ? 'active' : '' }}">
                             Landing Page
                         </a>
-                    </li>
-                    <li><a href="#">Feedback</a></li>
-                    <li><a href="#">About Us</a></li>
+                    </li> --}}
                     <li><a href="#">Users</a></li>
                     <li>
                         <a href="{{ route('admin_subscribers_index') }}"
