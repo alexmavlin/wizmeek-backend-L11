@@ -59,19 +59,23 @@ class HighlightVideo extends Model
      * @param string|null $searchString An optional search term to filter videos by title or artist name.
      * @return array The filtered and formatted list of highlighted videos, including ID, title, thumbnail, and artist name.
      */
-    public static function getHighlightedForLoader($flag, $searchString): array
+    public static function getHighlightedForLoader($flag, $searchString)
     {
         $query = YouTubeVideo::query();
 
         $query->select('id', 'title', 'thumbnail', 'artist_id', 'editors_pick');
         $query->where("$flag", '1');
         if ($searchString) {
-            $query->where(function ($q) use ($searchString) {
+            $query->where('title', 'like', '%' . $searchString . '%');
+            $query->orWhereHas('artist', function ($q) use ($searchString) {
+                $q->where('name', 'like', '%' . $searchString . '%');
+            });
+            /* $query->where(function ($q) use ($searchString) {
                 $q->where('title', 'like', '%' . $searchString . '%')
                     ->orWhereHas('artist', function ($q) use ($searchString) {
                         $q->where('name', 'like', '%' . $searchString . '%');
                     });
-            });
+            }); */
         }
         $query->with([
             'artist' => function ($q) {
@@ -83,7 +87,8 @@ class HighlightVideo extends Model
 
         $videos = $query->get();
 
-        return self::getHighlightedDatatype($videos);
+        // return $videos;
+        return self::getHighlightedDatatypeForLoader($videos);
     }
 
     /**
@@ -119,7 +124,7 @@ class HighlightVideo extends Model
     public function video()
     {
         return $this->belongsTo(
-            YouTubeVideo::class, 
+            YouTubeVideo::class,
             'video_id'
         );
     }

@@ -10,17 +10,17 @@ use Illuminate\Http\Request;
 class SearchHighlightedVideosController extends Controller
 {
     public function editorsPickVideos(SearchHighlightedVideosRequest $request) {
-        $videos = HighlightVideo::getHighlightedForAdmin('editors_pick', $request->searchString);
+        $videos = HighlightVideo::getHighlightedForLoader('editors_pick', $request->searchString);
         return response()->json($videos);
     }
 
     public function newVideos(Request $request) {
-        $videos = HighlightVideo::getHighlightedForAdmin('new', $request->searchString);
+        $videos = HighlightVideo::getHighlightedForLoader('new', $request->searchString);
         return response()->json($videos);
     }
 
     public function throwbackVideos(Request $request) {
-        $videos = HighlightVideo::getHighlightedForAdmin('throwback', $request->searchString);
+        $videos = HighlightVideo::getHighlightedForLoader('throwback', $request->searchString);
         return response()->json($videos);
     }
 }
