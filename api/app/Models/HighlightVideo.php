@@ -63,19 +63,21 @@ class HighlightVideo extends Model
     {
         $query = YouTubeVideo::query();
 
-        $query->select('id', 'title', 'thumbnail', 'artist_id', 'editors_pick');
+        $query->select(
+            'id', 
+            'title', 
+            'thumbnail', 
+            'artist_id', 
+            'editors_pick'
+        );
         $query->where("$flag", '1');
         if ($searchString) {
-            $query->where('title', 'like', '%' . $searchString . '%');
-            $query->orWhereHas('artist', function ($q) use ($searchString) {
-                $q->where('name', 'like', '%' . $searchString . '%');
-            });
-            /* $query->where(function ($q) use ($searchString) {
+            $query->where(function ($q) use ($searchString) {
                 $q->where('title', 'like', '%' . $searchString . '%')
                     ->orWhereHas('artist', function ($q) use ($searchString) {
                         $q->where('name', 'like', '%' . $searchString . '%');
                     });
-            }); */
+            });
         }
         $query->with([
             'artist' => function ($q) {
