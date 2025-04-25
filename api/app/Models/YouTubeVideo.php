@@ -108,7 +108,8 @@ class YouTubeVideo extends Model
             'editors_pick',
             'new',
             'throwback',
-            'is_draft'
+            'is_draft',
+            'youtube_id'
         );
 
         // Return paginated results ordered by creation date
@@ -472,9 +473,11 @@ class YouTubeVideo extends Model
         return $response;
     }
 
-    public static function getSingle($youtube_id): array
+    public static function getSingle($youtube_id, bool $withStats = false): array
     {
-        $video = Cache::remember("singleYoutubeVideo:$youtube_id", 3600, function () use ($youtube_id) {
+        $cacheKey = "singleYoutubeVideo:$youtube_id" . "_withStats:$withStats";
+        
+        $video = Cache::remember($cacheKey, 3600, function () use ($youtube_id, $withStats) {
             $query = self::query();
             $query->where('youtube_id', $youtube_id);
             $query->select(
@@ -492,7 +495,8 @@ class YouTubeVideo extends Model
                 'throwback',
                 'title',
                 'release_date',
-                'is_draft'
+                'is_draft',
+                'views'
             );
 
             $query->with([
@@ -523,17 +527,26 @@ class YouTubeVideo extends Model
             }
             $query->withCount('likedByUsers');
 
+            if ($withStats) {
+                $query->withCount([
+                    'favoriteByUser',
+                    'inUserProfile'
+                ]);
+            }
+
             return $query->first();
         });
 
         // dd($video);
-        $sessionKey = 'viewed_video_' . $youtube_id;
-
-        if (!session()->has($sessionKey)) {
-            $video->timestamps = false;
-            $video->increment('views');
-            $video->timestamps = true;
-            session([$sessionKey => true]);
+        if (!$withStats) {
+            $sessionKey = 'viewed_video_' . $youtube_id;
+    
+            if (!session()->has($sessionKey)) {
+                $video->timestamps = false;
+                $video->increment('views');
+                $video->timestamps = true;
+                session([$sessionKey => true]);
+            }
         }
 
         return [
@@ -543,8 +556,10 @@ class YouTubeVideo extends Model
             'country_flag' => asset($video->country->flag),
             'comments' => [],
             'editors_pick' => $video->editors_pick ? true : false,
+            'favorite_by_user_count' => $video->favorite_by_user_count ?? '',
             'genre' => $video->genre ? $video->genre->genre : "NaN",
             'genre_color' => $video->genre->color,
+            'in_user_profile_count' => $video->in_user_profile_count ?? '',
             'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
             'isLiked' => count($video->likedByUsers) > 0 ? true : false,
             'new' => $video->new ? true : false,
@@ -555,6 +570,7 @@ class YouTubeVideo extends Model
             'throwback' => $video->throwback ? true : false,
             'thumbnail' => $video->thumbnail,
             'title' => $video->title,
+            'views' => $video->views ?? '',
             'youtube_id' => $video->youtube_id,
         ];
     }

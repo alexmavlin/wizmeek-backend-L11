@@ -9,6 +9,7 @@ use App\QueryFilters\Api\Comments\CommentGetByIdFilter;
 use App\QueryFilters\Api\Comments\CommentGetByVideoIdFilter;
 use App\QueryFilters\Api\Comments\CommentGetUserFilter;
 use App\QueryFilters\Api\Comments\CommentOrderByCreationDateFilter;
+use App\QueryFilters\Api\Comments\CommentSearchFilter;
 use App\QueryFilters\Api\Comments\CommentSelectFilter;
 use App\QueryFilters\Api\Comments\CommentWithLikesCountFilter;
 use App\Traits\MediaCardTrait;
@@ -88,6 +89,27 @@ class VideoComment extends Model
             ->sortBy('created_at', SORT_REGULAR);
 
         return CommentDTO::fromCollection($comments);
+    }
+
+    public static function getForAdminSingleVideo($video_id)
+    {
+        $commentSearchString = request('comment_search', '');
+        // dd($commentSearchString);
+        $comments = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                CommentSelectFilter::class,
+                CommentExcludeWhereUserDeletedFilter::class,
+                new CommentGetByVideoIdFilter($video_id),
+                new CommentSearchFilter($commentSearchString),
+                CommentGetUserFilter::class,
+                CommentOrderByCreationDateFilter::class,
+                CommentWithLikesCountFilter::class
+            ])
+            ->thenReturn()
+            ->paginate(10);
+        // dd($comments);
+        return $comments;
     }
 
     public function getContent()

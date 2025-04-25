@@ -16,6 +16,9 @@ class CommentGetByVideoIdFilter
     public function handle ($query, Closure $next)
     {
         $query->where('youtube_video_id', $this->video_id);
+        $query->orWhereHas('youtubeVideo', function ($query) {
+            $query->where('youtube_id', $this->video_id);
+        });
 
         return $next($query);
     }

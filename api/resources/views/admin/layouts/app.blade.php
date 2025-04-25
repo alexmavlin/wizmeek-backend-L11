@@ -65,7 +65,8 @@
                             class="{{ Route::is('admin_youtube_video_index') ||
                             Route::is('admin_youtube_video_edit') ||
                             Route::is('admin_youtube_videos_deleted') ||
-                            Route::is('admin_youtube_videos_drafts')
+                            Route::is('admin_youtube_videos_drafts') ||
+                            Route::is('admin_show_youtube_video')
                                 ? 'active'
                                 : '' }}">
                             All Videos
