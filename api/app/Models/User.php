@@ -13,6 +13,7 @@ use App\QueryFilters\Api\Users\UserProfileSelectFilter;
 use App\QueryFilters\Api\Users\UserVisitorSelectFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\MediaCardTrait;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -81,6 +82,45 @@ class User extends Authenticatable
     public static function getTodayRegisteredUsers(): int
     {
         return self::whereDate('created_at', Carbon::today())->count();
+    }
+
+    public static function getForAdmin()
+    {
+        $query = self::query();
+
+        $searchString = request('search_user', '');
+        //dd($searchString);
+        if ($searchString) {
+            $query->where('name', 'like', '%' . $searchString . '%');
+            $query->orWhere('email', 'like', '%' . $searchString . '%');
+        }
+
+        $query->select(
+            'id',
+            'name',
+            'avatar',
+            'email',
+            'google_avatar',
+            'role',
+            'created_at'
+        );
+
+        $users = $query->paginate(10);
+
+        return $users;
+    }
+
+    public static function deleteWithRelations ($user_id): void
+    {
+        if ($user_id === Auth::user()->id) {
+            throw new Exception("You cannot delete yourself");
+        }
+        $query = self::query();
+
+        $user = $query->findOrFail($user_id);
+
+        $user->comments()->delete();
+        $user->forceDelete();
     }
 
     /**

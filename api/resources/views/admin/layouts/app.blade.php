@@ -100,7 +100,12 @@
                             Landing Page
                         </a>
                     </li> --}}
-                    <li><a href="#">Users</a></li>
+                    <li>
+                        <a href="{{ route('admin_users_index') }}"
+                            class="{{ Route::is('admin_users_index') ? 'active' : '' }}">
+                            Users
+                        </a>
+                    </li>
                     {{-- <li>
                         <a href="{{ route('admin_subscribers_index') }}"
                             class="{{ Route::is('admin_subscribers_index') ? 'active' : '' }}">
