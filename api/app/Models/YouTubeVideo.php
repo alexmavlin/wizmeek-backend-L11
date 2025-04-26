@@ -446,7 +446,18 @@ class YouTubeVideo extends Model
     {
         $query = Cache::remember("apiMediaSearch:$searchString", 600, function () use ($searchString) {
             return self::where('title', 'like', '%' . $searchString . '%')
-                ->select('id', 'youtube_id', 'title', 'thumbnail', 'content_type_id', 'artist_id')
+                ->orWhereHas('artist', function ($subQuery) use ($searchString) {
+                    $subQuery->where('name', 'like', '%' . $searchString . '%');
+                })
+                ->select(
+                    'id', 
+                    'youtube_id', 
+                    'title', 
+                    'thumbnail', 
+                    'content_type_id', 
+                    'artist_id',
+                    'views'
+                )
                 ->with([
                     'artist' => function ($q) {
                         $q->select('id', 'name');
@@ -456,6 +467,7 @@ class YouTubeVideo extends Model
                     }
                 ])
                 ->limit(3)
+                ->orderBy('views', 'DESC')
                 ->get();
         });
 

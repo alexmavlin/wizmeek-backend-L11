@@ -15,13 +15,13 @@ class YouTubeVideoSortingModeFilter
                 $query->inRandomOrder();
                 break;
             case 'latest':
-                $query->orderBy('updated_at', 'DESC');
+                $query->orderBy('created_at', 'DESC');
                 break;
             case 'views':
                 $query->orderBy('views', 'DESC');
                 break;
             default:
-                $query->orderBy('updated_at', 'DESC');
+                $query->orderBy('created_at', 'DESC');
                 break;
         }
 
