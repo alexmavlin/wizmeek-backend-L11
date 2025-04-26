@@ -101,12 +101,12 @@
                         </a>
                     </li> --}}
                     <li><a href="#">Users</a></li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('admin_subscribers_index') }}"
                             class="{{ Route::is('admin_subscribers_index') ? 'active' : '' }}">
                             Subscribers
                         </a>
-                    </li>
+                    </li> --}}
                     <li style="margin-top: 30px">
                         <a href="{{ route('admin_logout') }}">
                             Logout
