@@ -1,0 +1,192 @@
+@import "./../../vars";
+
+.video {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+
+    iframe {
+        border-radius: 1rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: scale(1.02);
+        }
+    }
+
+    .video_stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3rem;
+        width: 100%;
+        max-width: 1100px;
+        padding: 1rem;
+
+        .video_stats_section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex: 1 1 400px;
+            background-color: #f9f9f9;
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: #fff;
+            }
+
+            .video_stats_section_row {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                font-size: 1.1rem;
+                color: #333;
+                transition: color 0.3s ease;
+
+                &:hover {
+                    color: #000;
+                }
+
+                svg {
+                    width: 24px;
+                    height: 24px;
+                    fill: #555;
+                    transition: fill 0.3s ease;
+
+                    &:hover {
+                        fill: #000;
+                    }
+                }
+
+                span:first-of-type {
+                    font-weight: bold;
+                    color: #222;
+                }
+
+                span:last-of-type {
+                    color: #666;
+                }
+            }
+        }
+    }
+}
+
+$bg-header: #f8f9fa;
+$border-color: #e2e8f0;
+$row-hover: #f1f5f9;
+$text-color: #2d3748;
+$text-muted: #4a5568;
+$danger-color: #e53e3e;
+
+.comments {
+    padding: 1.5rem;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    .comments_search {
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: flex-end;
+
+        form {
+            display: flex;
+            gap: 0.5rem;
+
+            input {
+                padding: 0.5rem 1rem;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 0.95rem;
+                width: 250px;
+                transition: border-color 0.2s;
+
+                &:focus {
+                    border-color: #007bff;
+                    outline: none;
+                }
+            }
+
+            button {
+                padding: 0.5rem 1.2rem;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background-color 0.2s;
+
+                &:hover {
+                    background-color: #0056b3;
+                }
+            }
+        }
+    }
+
+    .comments_table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 0.5rem;
+        overflow: hidden;
+
+        thead {
+            background-color: $bg-header;
+            text-align: left;
+
+            th {
+                color: $text-muted;
+                font-weight: 600;
+                font-size: 0.9rem;
+                padding: 1rem;
+                border-bottom: 1px solid $border-color;
+                vertical-align: middle;
+            }
+        }
+
+        tbody {
+            tr {
+                &:hover {
+                    background-color: $row-hover;
+                }
+
+                td {
+                    padding: 1rem;
+                    border-bottom: 1px solid $border-color;
+                    vertical-align: middle;
+                    font-size: 0.9rem;
+                    color: $text-color;
+
+                    &:last-child  a {
+                        color: $danger-color;
+                        cursor: pointer;
+                        font-weight: bold;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+
+                    img {
+                        border-radius: 50%;
+                        margin-right: 0.5rem;
+                        vertical-align: middle;
+                        object-fit: cover;
+                    }
+
+                    p {
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin: 0;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+}

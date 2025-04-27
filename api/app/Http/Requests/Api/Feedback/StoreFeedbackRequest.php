@@ -24,7 +24,8 @@ class StoreFeedbackRequest extends FormRequest
         return [
             'subject' => 'required|string|max:250',
             'message' => 'required|string|max:10000',
-            'files.*' => 'file|mimes:jpg,jpeg,png,gif,svg,pdf,doc,docx,mp4,mov,avi|max:20480'
+            'files.*' => 'file|mimes:jpg,jpeg,png,gif,svg,pdf,doc,docx,mp4,mov,avi|max:20480',
+            'rating' => 'required|numeric'
         ];
     }
 
@@ -41,7 +42,10 @@ class StoreFeedbackRequest extends FormRequest
 
             'files.*.file' => 'Each uploaded item must be a file.',
             'files.*.mimes' => 'Only images (JPG, PNG, GIF, SVG), documents (PDF, DOC, DOCX), and videos (MP4, MOV, AVI) are allowed.',
-            'files.*.max' => 'Each file should not be larger than 20MB.'
+            'files.*.max' => 'Each file should not be larger than 20MB.',
+
+            'rating.required' => 'Please provide a rating.',
+            'rating.numeric' => 'The rating must be a number.',
         ];
     }
 }

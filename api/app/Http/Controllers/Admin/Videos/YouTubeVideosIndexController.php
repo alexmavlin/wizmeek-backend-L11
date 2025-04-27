@@ -16,22 +16,22 @@ class YouTubeVideosIndexController extends Controller
             $videos = YouTubeVideo::getVideosForIndex();
             $genres = Genre::getForSelect();
             $countries = Country::getForSelect();
+        
+            $data = [
+                "scss" => [
+                    'resources/scss/admin/artists/artists_index.scss'
+                ],
+                "js" => [
+    
+                ],
+                "videos" => $videos,
+                "genres" => $genres,
+                "countries" => $countries,
+            ];
+    
+            return view('admin.videos.youtubevideosindex', compact('data'));
         } catch (\Exception $error) {
             return redirect()->back()->with('error', 'An error has occured during an attempt to load videos and data. Error: ' . $error->getMessage());
         }
-        
-        $data = [
-            "scss" => [
-                'resources/scss/admin/artists/artists_index.scss'
-            ],
-            "js" => [
-
-            ],
-            "videos" => $videos,
-            "genres" => $genres,
-            "countries" => $countries,
-        ];
-
-        return view('admin.videos.youtubevideosindex', compact('data'));
     }
 }

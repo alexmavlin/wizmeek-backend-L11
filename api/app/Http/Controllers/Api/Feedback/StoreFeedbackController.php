@@ -37,7 +37,8 @@ class StoreFeedbackController extends Controller
                 'user_id' => Auth::user()->id,
                 'subject' => $request->subject,
                 'message' => $request->message,
-                'files' => json_encode($storedFiles)
+                'files' => json_encode($storedFiles),
+                'rating' => $request->rating
             ]);
             return response()->json([
                 'success' => $result,

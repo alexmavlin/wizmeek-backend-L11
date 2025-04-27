@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Artists\ArtistsStoreController;
 use App\Http\Controllers\Admin\Artists\ArtistsUpdateController;
 use App\Http\Controllers\Admin\Artists\ArtistsViewController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
+use App\Http\Controllers\Admin\Comments\CommentDeleteController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Feedback\FeedbackDeleteController;
 use App\Http\Controllers\Admin\Feedback\FeedbackIndexController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Admin\Landing\SearchVideosController;
 use App\Http\Controllers\Admin\Subscribers\EditGlobalEmailController;
 use App\Http\Controllers\Admin\Subscribers\SendGlobalEmailController;
 use App\Http\Controllers\Admin\Subscribers\SubscribersIndexController;
+use App\Http\Controllers\Admin\Users\UsersDeleteController;
+use App\Http\Controllers\Admin\Users\UsersViewController;
 use App\Http\Controllers\Admin\Videos\GetYouTubeVideoDataController;
 use App\Http\Controllers\Admin\Videos\StoreYouTubeVideoController;
 use App\Http\Controllers\Admin\Videos\SubmitYouTubeVideoController;
@@ -39,6 +42,7 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoDestroyController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDraftIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoRestoreController;
+use App\Http\Controllers\Admin\Videos\YouTubeVideoShowController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use App\Http\Controllers\Api\Authentication\LoginController;
@@ -115,12 +119,22 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
         Route::get('/draft-videos', YouTubeVideoDraftIndexController::class)->name('admin_youtube_videos_drafts');
         Route::post('/destroy/{id}', YouTubeVideoDestroyController::class)->name('admin_destroy_youtube_video');
         Route::post('/restore/{id}', YouTubeVideoRestoreController::class)->name('admin_restore_youtube_video');
+        Route::get('/show/{id}', YouTubeVideoShowController::class)->name('admin_show_youtube_video');
+    });
+
+    Route::prefix('comments')->group(function () {
+        Route::post('/delete/{comment}', CommentDeleteController::class)->name('admin_delete_comment');
     });
 
     Route::prefix('subscribers')->group(function () {
         Route::get('/', SubscribersIndexController::class)->name('admin_subscribers_index');
         Route::get('/global-email', EditGlobalEmailController::class)->name('admin_subscribers_editglobalemail');
         Route::post('/send-global-email', SendGlobalEmailController::class)->name('admin_subscribers_sendglobalemail');
+    });
+
+    Route::prefix('users')->group(function () {
+        Route::get('/', UsersViewController::class)->name('admin_users_index');
+        Route::post('/delete/{id}', UsersDeleteController::class)->name('admin_users_destroy');
     });
 
     Route::prefix('service')->group(function () {

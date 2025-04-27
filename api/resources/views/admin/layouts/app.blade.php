@@ -65,7 +65,8 @@
                             class="{{ Route::is('admin_youtube_video_index') ||
                             Route::is('admin_youtube_video_edit') ||
                             Route::is('admin_youtube_videos_deleted') ||
-                            Route::is('admin_youtube_videos_drafts')
+                            Route::is('admin_youtube_videos_drafts') ||
+                            Route::is('admin_show_youtube_video')
                                 ? 'active'
                                 : '' }}">
                             All Videos
@@ -93,21 +94,24 @@
                             Artists
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('admin_landing_index') }}"
                             class="{{ Route::is('admin_landing_index') ? 'active' : '' }}">
                             Landing Page
                         </a>
-                    </li>
-                    <li><a href="#">Feedback</a></li>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Users</a></li>
+                    </li> --}}
                     <li>
+                        <a href="{{ route('admin_users_index') }}"
+                            class="{{ Route::is('admin_users_index') ? 'active' : '' }}">
+                            Users
+                        </a>
+                    </li>
+                    {{-- <li>
                         <a href="{{ route('admin_subscribers_index') }}"
                             class="{{ Route::is('admin_subscribers_index') ? 'active' : '' }}">
                             Subscribers
                         </a>
-                    </li>
+                    </li> --}}
                     <li style="margin-top: 30px">
                         <a href="{{ route('admin_logout') }}">
                             Logout

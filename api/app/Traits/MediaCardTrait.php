@@ -70,8 +70,9 @@ trait MediaCardTrait
      */
     private static function getCommentsData($comments)
     {
+        $reversedComments = $comments->sortBy('created_at', SORT_REGULAR);
         $data = [];
-        foreach ($comments as $comment) {
+        foreach ($reversedComments as $comment) {
             array_push($data, [
                 "_id" => $comment->id,
                 "content" => $comment->content,

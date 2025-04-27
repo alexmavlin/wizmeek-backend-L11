@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     for (const btn of popUpBtns) {
-        btn.addEventListener("click", function() {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault();
             const popUpFormAction = btn.dataset.formAction; // Use dot notation
             const popUpText = btn.dataset.text; // Use dot notation
             const popUpDescription = btn.dataset.description;

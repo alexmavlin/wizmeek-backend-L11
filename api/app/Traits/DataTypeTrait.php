@@ -25,6 +25,18 @@ trait DataTypeTrait
         })->toArray();
     }
 
+    private static function getHighlightedDatatypeForLoader($videos): array
+    {
+        return $videos->map(function ($video) {
+            return [
+                "id" => $video->id,
+                "title" => $video->title,
+                "thumbnail" => $video->thumbnail,
+                "artist" => $video->artist->name
+            ];
+        })->toArray();
+    }
+
     /**
      * Build an array of highlight video data instances.
      *
