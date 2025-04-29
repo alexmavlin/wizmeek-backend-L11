@@ -4,6 +4,10 @@ namespace App\Models;
 
 use App\DataTransferObjects\Api\ArtistsDTO\ArtistIndexDTO;
 use App\DataTransferObjects\Api\ArtistsDTO\ArtistSearchDTO;
+use App\QueryFilters\Admin\Artists\ArtistEditSelectFilter;
+use App\QueryFilters\Admin\Artists\ArtistsLoadRelationsFilter;
+use App\QueryFilters\Admin\Artists\GetFilteredSelectFilter;
+use App\QueryFilters\Admin\Artists\WithYouTubeVideosFilter;
 use App\QueryFilters\Api\Artists\ArtistsGetByGenreFilter;
 use App\QueryFilters\Api\Artists\ArtistsSearchFilter;
 use App\QueryFilters\Api\Artists\ArtistsSearchSelectFilter;
@@ -11,6 +15,9 @@ use App\QueryFilters\Api\Artists\ArtistsSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsVisibleFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithCountriesFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithGenreFilter;
+use App\QueryFilters\CommonFindFilter;
+use App\QueryFilters\CommonPaginatorFilter;
+use App\QueryFilters\CommonSearchFilter;
 use App\Traits\DataTypeTrait;
 use App\Traits\GenreTrait;
 use Exception;
@@ -29,82 +36,92 @@ class Artist extends Model
     protected $guarded = [];
 
     /**
-     * Get paginated artists with optional filtering.
+     * Get paginated artists with optional filtering via pipeline.
      *
-     * @param string $filterExpression
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * This method applies a sequence of filters to the Artist query using Laravel's Pipeline:
+     * - CommonSearchFilter: applies a basic search filter on the 'name' field.
+     * - GetFilteredSelectFilter: applies additional filtering logic (e.g., by selected criteria).
+     * - CommonPaginatorFilter: paginates the result with a limit of 10 per page.
+     *
+     * @param string $filterExpression The search keyword to filter artist names.
+     * @return \Illuminate\Pagination\LengthAwarePaginator Paginated collection of filtered artists.
      */
     public static function getFiltered($filterExpression = ''): LengthAwarePaginator
     {
-        $query = self::query();
+        $artists = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                new CommonSearchFilter($filterExpression, 'name'),
+                GetFilteredSelectFilter::class,
+                new CommonPaginatorFilter(10),
+            ])
+            ->thenReturn();
 
-        if (!empty($filterExpression)) {
-            $query->where('name', 'like', '%' . $filterExpression . '%');
-        }
-
-        $query->select('id', 'name', 'is_visible', 'avatar');
-
-        return $query->paginate(10);
+        return $artists;
     }
 
     /**
-     * Deletes an artist and their associated YouTube videos.
+     * Deletes an artist and their associated YouTube videos using a pipeline.
      *
-     * This method retrieves the artist by ID along with their YouTube videos.
-     * If the artist exists, all associated YouTube videos are deleted before deleting the artist.
+     * This method retrieves the artist by ID through a pipeline that applies:
+     * - WithYouTubeVideosFilter: eager loads the artist's YouTube videos.
+     * - CommonFindFilter: finds the artist by the given ID.
+     *
+     * If the artist exists, it deletes the artist. The associated YouTube videos are expected
+     * to be deleted automatically via a `onDelete('cascade')` constraint on the relationship.
      * If the artist is not found, an exception is thrown.
      *
      * @param int $id The ID of the artist to be deleted.
      * @throws \Exception If the artist is not found.
      * @return bool|null Returns `true` if the deletion was successful, `false` if it failed, or `null` if no deletion occurred.
      */
+
     public static function deleteArtist($id)
     {
-        $query = self::query();
-
-        $artist = $query->with([
-            'youTubeVideos' => function ($q) {
-                $q->select('id', 'artist_id');
-            }
-        ])->find($id);
+        $artist = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                WithYouTubeVideosFilter::class,
+                new CommonFindFilter($id)
+            ])
+            ->thenReturn();
 
         if (!$artist) {
             throw new Exception('The specified artist was not found.');
         }
 
-        foreach ($artist->youTubeVideos as $video) {
-            $video->delete();
-        }
+        // $artist->youTubeVideos()->delete();
+        // Check later if it has onDelete('cascade') in a relationship
 
         return $artist->delete();
     }
 
-    public static function getForAdminEdit ($id)
+    /**
+     * Retrieves an artist for admin editing using a pipeline.
+     *
+     * This method applies the following filters in sequence via Laravel's Pipeline:
+     * - ArtistEditSelectFilter: selects specific fields required for editing.
+     * - ArtistsLoadRelationsFilter: eager loads related data necessary for admin view/edit.
+     * - CommonFindFilter: retrieves the artist by the provided ID.
+     *
+     * @param int $id The ID of the artist to retrieve.
+     * @throws \Exception If the artist is not found (handled inside CommonFindFilter).
+     * @return \App\Models\Artist|null The artist model with selected fields and relations loaded, or null if not found.
+     */
+
+    public static function getForAdminEdit($id)
     {
+        $artist = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                ArtistEditSelectFilter::class,
+                ArtistsLoadRelationsFilter::class,
+                new CommonFindFilter($id)
+            ])
+            ->thenReturn();
         $query = self::query();
 
-        $query->select(
-            'id',
-            'name',
-            'is_visible',
-            'avatar',
-            'short_description',
-            'full_description',
-            'spotify_link',
-            'apple_music_link',
-            'instagram_link'
-        );
-
-        $query->with([
-            'genres' => function ($q) {
-                $q->select('id', 'genre');
-            },
-            'countries' => function ($q) {
-                $q->select('id', 'name');
-            }
-        ]);
-
-        return $query->findOrFail($id);
+        return $artist;
     }
 
     /**
