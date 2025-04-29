@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\DataTransferObjects\Api\GenresDTO\GenreIndexDTO;
 use App\DataTransferObjects\Api\GenresDTO\GenreTasteDTO;
+use App\QueryFilters\Admin\Genres\GetFilteredSelectFilter;
 use App\QueryFilters\Api\Genres\AddGenreTastyFlag;
 use App\QueryFilters\Api\Genres\GenreSelectFilter;
+use App\QueryFilters\CommonPaginatorFilter;
+use App\QueryFilters\CommonSearchFilter;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,22 +24,29 @@ class Genre extends Model
     protected $guarded = false;
 
     /**
-     * Get paginated genres with optional filtering.
+     * Get paginated genres with optional filtering using a pipeline.
      *
-     * @param string $filterExpression
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * This method builds a query for genres and passes it through a Laravel Pipeline with the following filters:
+     * - CommonSearchFilter: filters genres by a search term on the 'genre' field.
+     * - GetFilteredSelectFilter: applies additional selection logic (e.g., selected fields or ordering).
+     * - CommonPaginatorFilter: paginates the results with a default limit of 10 items per page.
+     *
+     * @param string $filterExpression Optional search string to filter genres by name.
+     * @return \Illuminate\Pagination\LengthAwarePaginator Paginated and filtered collection of genres.
      */
+
     public static function getFiltered($filterExpression = '')
     {
-        $query = self::query();
+        $genres = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                new CommonSearchFilter($filterExpression, 'genre'),
+                GetFilteredSelectFilter::class,
+                new CommonPaginatorFilter(10)
+            ])
+            ->thenReturn();
 
-        if (!empty($filterExpression)) {
-            $query->where('genre', 'like', '%' . $filterExpression . '%');
-        }
-
-        $query->select('id', 'genre');
-
-        return $query->paginate(10);
+        return $genres;
     }
 
     /**
@@ -142,8 +152,8 @@ class Genre extends Model
     public function youTubeVideos()
     {
         return $this->hasMany(
-            YouTubeVideo::class, 
-            'genre_id', 
+            YouTubeVideo::class,
+            'genre_id',
             'id'
         );
     }
@@ -158,7 +168,7 @@ class Genre extends Model
         );
     }
 
-    public function artists ()
+    public function artists()
     {
         return $this->belongsToMany(
             Artist::class,
