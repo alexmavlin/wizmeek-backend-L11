@@ -248,10 +248,17 @@ class User extends Authenticatable
     {
         $user = self::find(Auth::user()->id);
 
-        $isLiked = $user->favoriteVideos()->where('video_id', $video_id)->exists();
+        $isFavorite = $user->favoriteVideos()->where('video_id', $video_id)->exists();
 
-        if ($isLiked) {
+        if ($isFavorite) {
             $user->favoriteVideos()->detach($video_id);
+
+            $isInProfile = $user->videosInProfile()->where('video_id', $video_id)->exists();
+
+            if ($isInProfile) {
+                $user->videosInProfile()->detach($video_id);
+            }
+
             return "Video with id: " . $video_id . " was removed from favorites.";
         } else {
             $user->favoriteVideos()->attach($video_id);
