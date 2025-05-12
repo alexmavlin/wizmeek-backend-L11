@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\DataTransferObjects\Api\HighLights\HighlightedVideosDTO;
+use App\QueryFilters\Admin\HighlightedVideos\GetHighlightedForAdminSelectFilter;
+use App\QueryFilters\Admin\HighlightedVideos\GetHighlightedVideoRelationsFilter;
+use App\QueryFilters\Admin\HighlightedVideos\GetHighlightedVideosByFlagFilter;
 use App\QueryFilters\Api\HighLights\HighlightedVideosFilter;
 use App\Traits\DataTypeTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,32 +21,32 @@ class HighlightVideo extends Model
     protected $guarded = ['id'];
 
     /**
-     * Retrieves a list of highlighted videos for the admin panel based on a given flag.
+     * Retrieves a list of highlighted videos for the admin panel based on a given flag using a pipeline.
      *
-     * This method fetches videos that match the specified flag, including their related 
-     * video details such as title, artist, and thumbnail. The results are then formatted 
-     * using the `getHighlightedDatatype` method.
+     * This method processes a video query through a Laravel Pipeline with the following stages:
+     * - GetHighlightedForAdminSelectFilter: selects the required fields for the admin view.
+     * - GetHighlightedVideosByFlagFilter: filters videos by the specified highlight flag (e.g., 'new', 'editors_pick').
+     * - GetHighlightedVideoRelationsFilter: eager loads related models such as artist, title, and thumbnail.
      *
-     * @param string $flag The flag used to filter highlighted videos.
-     * @return array The list of highlighted videos, including their ID, artist name, title, and thumbnail.
+     * After filtering and loading relations, the results are ordered by ID in ascending order,
+     * retrieved from the database, and passed to `getHighlightedDatatype` for formatting.
+     *
+     * @param string $flag The flag used to filter highlighted videos (e.g., 'new', 'throwback', 'editors_pick').
+     * @return array The formatted list of highlighted videos, each including ID, artist name, title, and thumbnail URL.
      */
+
     public static function getHighlightedForAdmin($flag): array
     {
-        $query = self::query();
-        $query->select('id', 'video_id', 'flag');
-        $query->where('flag', $flag);
-        $query->with([
-            'video' => function ($query) {
-                $query->select('id', 'title', 'artist_id', 'thumbnail');
-                $query->with([
-                    'artist' => function ($query) {
-                        $query->select('id', 'name');
-                    }
-                ]);
-            }
-        ]);
-        $query->orderBy('id', 'ASC');
-        $videos = $query->get();
+        $videos = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                GetHighlightedForAdminSelectFilter::class,
+                new GetHighlightedVideosByFlagFilter($flag),
+                GetHighlightedVideoRelationsFilter::class,
+            ])
+            ->thenReturn()
+            ->orderBy('id', 'ASC')
+            ->get();
 
         return self::getHighlightedDatatype($videos);
     }
@@ -64,10 +67,10 @@ class HighlightVideo extends Model
         $query = YouTubeVideo::query();
 
         $query->select(
-            'id', 
-            'title', 
-            'thumbnail', 
-            'artist_id', 
+            'id',
+            'title',
+            'thumbnail',
+            'artist_id',
             'editors_pick'
         );
         $query->where("$flag", '1');

@@ -110,7 +110,7 @@ class User extends Authenticatable
         return $users;
     }
 
-    public static function deleteWithRelations ($user_id): void
+    public static function deleteWithRelations($user_id): void
     {
         if ($user_id === Auth::user()->id) {
             throw new Exception("You cannot delete yourself");
@@ -248,10 +248,17 @@ class User extends Authenticatable
     {
         $user = self::find(Auth::user()->id);
 
-        $isLiked = $user->favoriteVideos()->where('video_id', $video_id)->exists();
+        $isFavorite = $user->favoriteVideos()->where('video_id', $video_id)->exists();
 
-        if ($isLiked) {
+        if ($isFavorite) {
             $user->favoriteVideos()->detach($video_id);
+
+            $isInProfile = $user->videosInProfile()->where('video_id', $video_id)->exists();
+
+            if ($isInProfile) {
+                $user->videosInProfile()->detach($video_id);
+            }
+
             return "Video with id: " . $video_id . " was removed from favorites.";
         } else {
             $user->favoriteVideos()->attach($video_id);
@@ -412,6 +419,120 @@ class User extends Authenticatable
         return 'Success. User has been unfollowed.';
     }
 
+    /**
+     * Retrieves the list of followers for the authenticated user.
+     *
+     * This method checks if the user is authenticated, then loads their followers using
+     * the `followedByUsers` relationship. It maps the follower data into a structured format,
+     * resolving the avatar path based on local files or fallback to Google avatar or a default image.
+     *
+     * Each follower in the returned array contains:
+     * - `id`: The follower's user ID.
+     * - `avatar`: The resolved avatar URL (local file, Google avatar, or fallback).
+     * - `google_avatar`: The Google avatar URL (if any).
+     * - `name`: The follower's display name.
+     * - `description`: The follower's description.
+     *
+     * @throws \Exception If the user is not authenticated.
+     * @return array An array of mapped follower data with resolved avatar URLs.
+     */
+    public static function getFollowers($uid)
+    {
+        $user = self::findOrFail($uid);
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        $followers = $user->followedByUsers()
+            ->select(
+                'users.id',
+                'users.avatar',
+                'users.google_avatar',
+                'users.name',
+                'users.description'
+            )
+            ->withCount('followedByUsers')
+            ->withCount('followingUsers')
+            ->paginate(10); // you can change per-page count
+
+        // Map the paginated items
+        $followers->getCollection()->transform(function ($follower) {
+            $avatarPath = public_path('img/avatars/' . $follower->avatar);
+
+            $avatarUrl = ($follower->avatar && file_exists($avatarPath))
+                ? asset('img/avatars/' . $follower->avatar)
+                : ($follower->google_avatar ?: asset('img/avatars/noAvatar.webp'));
+
+            return [
+                'id' => $follower->id,
+                'avatar' => $avatarUrl,
+                'name' => $follower->name,
+                'description' => $follower->description ?: '',
+                'followed_by_count' => $follower->followed_by_users_count,
+                'follows_count' => $follower->following_users_count
+            ];
+        });
+
+        return $followers;
+    }
+
+    /**
+     * Retrieves the list of users followed by the currently authenticated user.
+     *
+     * This method fetches the users that the authenticated user is following by querying the
+     * `users_follow_users` pivot table. It loads relevant user data such as avatar, name, and description.
+     * If a local avatar file exists, its URL is returned; otherwise, the Google avatar or a default placeholder is used.
+     *
+     * @throws \Exception If the user is not authenticated.
+     *
+     * @return array An array of followed users, each including:
+     *               - id (int): User ID.
+     *               - avatar (string): URL to the user's avatar.
+     *               - name (string|null): The name of the followed user.
+     *               - description (string|null): The description of the followed user.
+     */
+    public static function getFollowed($uid)
+    {
+        $user = self::findOrFail($uid);
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        $followers = $user->followingUsers()
+            ->select(
+                'users.id',
+                'users.avatar',
+                'users.google_avatar',
+                'users.name',
+                'users.description'
+            )
+            ->withCount('followedByUsers')
+            ->withCount('followingUsers')
+            ->paginate(10); // you can change per-page count
+
+        // Map the paginated items
+        $followers->getCollection()->transform(function ($follower) {
+            $avatarPath = public_path('img/avatars/' . $follower->avatar);
+
+            $avatarUrl = ($follower->avatar && file_exists($avatarPath))
+                ? asset('img/avatars/' . $follower->avatar)
+                : ($follower->google_avatar ?: asset('img/avatars/noAvatar.webp'));
+
+            return [
+                'id' => $follower->id,
+                'avatar' => $avatarUrl,
+                'name' => $follower->name,
+                'description' => $follower->description ?: '',
+                'followed_by_count' => $follower->followed_by_users_count,
+                'follows_count' => $follower->following_users_count
+            ];
+        });
+
+        return $followers;
+    }
+
     public function likedVideos()
     {
         return $this->belongsToMany(
@@ -445,8 +566,8 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(
-            VideoComment::class, 
-            'user_id', 
+            VideoComment::class,
+            'user_id',
             'id'
         );
     }
@@ -454,9 +575,9 @@ class User extends Authenticatable
     public function commentLikes()
     {
         return $this->belongsToMany(
-            VideoComment::class, 
-            'users_video_comments', 
-            'user_id', 
+            VideoComment::class,
+            'users_video_comments',
+            'user_id',
             'video_comment_id'
         );
     }
@@ -464,9 +585,9 @@ class User extends Authenticatable
     public function followingUsers()
     {
         return $this->belongsToMany(
-            User::class, 
-            'users_follow_users', 
-            'follower_user_id', 
+            User::class,
+            'users_follow_users',
+            'follower_user_id',
             'followed_user_id'
         );
     }
@@ -474,9 +595,9 @@ class User extends Authenticatable
     public function followedByUsers()
     {
         return $this->belongsToMany(
-            User::class, 
-            'users_follow_users', 
-            'followed_user_id', 
+            User::class,
+            'users_follow_users',
+            'followed_user_id',
             'follower_user_id'
         );
     }

@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\User\UserAvatarUpdateController;
 use App\Http\Controllers\Api\User\UserClicksFavoriteOnVideoController;
 use App\Http\Controllers\Api\User\UserDeleteAccountController;
 use App\Http\Controllers\Api\User\UserFollowsUserController;
+use App\Http\Controllers\Api\User\UserGetFollowedUsersController;
+use App\Http\Controllers\Api\User\UserGetFollowersController;
 use App\Http\Controllers\Api\User\UserLikesVideoCommentController;
 use App\Http\Controllers\Api\User\UserLikesVideoController;
 use App\Http\Controllers\Api\User\UserNavDetailsController;
@@ -105,6 +107,8 @@ Route::prefix('genres')->group(function () {
 Route::prefix('user')->group(function () {
     Route::get('/get-as-guest/{uid}', UserProfileGuestController::class);
     Route::get('/get-profile-videos/{uid}', GetUserProfileVideosController::class);
+    Route::get('/get-followers/{uid}', UserGetFollowersController::class);
+    Route::get('/get-followed/{uid}', UserGetFollowedUsersController::class);
 });
 
 Route::prefix('comments')->group(function () {
