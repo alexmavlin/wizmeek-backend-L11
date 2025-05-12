@@ -46,6 +46,7 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoShowController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
 use App\Http\Controllers\Api\Authentication\LoginController;
+use App\Http\Controllers\Api\Authentication\LogoutController;
 use App\Http\Controllers\Api\Authentication\RegisterController;
 use App\Http\Middleware\AuthenticateAdmin;
 use Illuminate\Support\Facades\Artisan;
@@ -61,6 +62,7 @@ Route::get('/admin-logout', [AdminLoginController::class, 'logout'])->name('admi
 
 Route::post('/api-login', LoginController::class);
 Route::post('/api-register', RegisterController::class);
+Route::post('/api-logout', LogoutController::class)->middleware('api');
 
 Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('admin_dashboard');
