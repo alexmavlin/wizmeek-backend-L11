@@ -96,3 +96,32 @@
         }
     }
 }
+
+.star-rating {
+    display: inline-block;
+    position: relative;
+    font-size: 24px; // Adjust size as needed
+    line-height: 1;
+  
+    .stars-outer {
+      display: flex;
+      position: relative;
+      color: #ccc; // Gray stars
+      &::before {
+        content: '★★★★★';
+      }
+    }
+  
+    .stars-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      color: #ffc107; // Yellow stars
+      &::before {
+        content: '★★★★★';
+      }
+    }
+  }
+  

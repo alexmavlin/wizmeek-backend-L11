@@ -23,12 +23,13 @@ trait MediaCardTrait
                 'id' => $video->id,
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
+                'country_name' => $video->country->name,
                 'country_flag' => asset($video->country->flag),
                 'comments' => $video->comments ? self::getCommentsData($video->comments) : [],
                 'isVideo' => $video->contentType?->name === 'Music Video',
                 'isAudio' => $video->contentType?->name === 'Music Audio',
                 'editors_pick' => $video->editors_pick ? true : false,
-                'genre' => $video->genre ? $video->genre->genre : "NaN",
+                'genre' => $video->genre ? $video->genre->genre : "",
                 'genre_color' => $video->genre->color,
                 'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
                 'isInProfile' => $video->in_user_profile_exists ? true : false,
@@ -82,7 +83,7 @@ trait MediaCardTrait
                 "user" => [
                     "id" => $comment->user->id,
                     "name" => $comment->user->name,
-                    "avatar" => $comment->user->avatar ? asset('img/avatars/' . $comment->user->avatar) : ($comment->user->google_avatar ? $comment->user->google_avatar : asset('img/artists/avatars/noAvatar.webp'))
+                    "avatar" => $comment->user->avatar ? asset('img/avatars/' . $comment->user->avatar) : ($comment->user->google_avatar ? $comment->user->google_avatar : asset('img/avatars/noAvatar.webp'))
                 ]
             ]);
         }
