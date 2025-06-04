@@ -175,6 +175,8 @@ class YouTubeVideo extends Model
     {
         $paginatedVideos = self::queryVideosForMediaCard($request);
 
+        // return $paginatedVideos;
+
         return self::getMediaCardsData($paginatedVideos);
     }
 

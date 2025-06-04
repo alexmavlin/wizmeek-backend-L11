@@ -13,7 +13,7 @@ class YouTubeVideoAddIsfavoriteFilter
         if (Auth::check()) {
             $query->with([
                 'favoriteByUser' => function ($q) {
-                    $q->where('user_id', Auth::user()->id); // Filter for the logged-in user
+                    $q->where('user_id', Auth::user()->id);
                     $q->select('youtube_videos_favorites.id');
                 }
             ]);

@@ -21,6 +21,7 @@ trait MediaCardTrait
         $response = $paginatedVideos->getCollection()->map(function ($video) {
             return [
                 'id' => $video->id,
+                'auth' => Auth::check(),
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
                 'country_name' => $video->country->name,
@@ -31,9 +32,11 @@ trait MediaCardTrait
                 'editors_pick' => $video->editors_pick ? true : false,
                 'genre' => $video->genre ? $video->genre->genre : "",
                 'genre_color' => $video->genre->color,
-                'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
+                // 'isFavorite' => count($video->favoriteByUser) > 0 ? true : false,
+                'isFavorite' => $video->relationLoaded('favoriteByUser') ? $video->likedByUsers->isNotEmpty() : false,
                 'isInProfile' => $video->in_user_profile_exists ? true : false,
-                'isLiked' => count($video->likedByUsers) > 0 ? true : false,
+                // 'isLiked' => (count($video->likedByUsers) && $video->likedByUsers != null) > 0 ? true : false,
+                'isLiked' => $video->relationLoaded('likedByUsers') ? $video->likedByUsers->isNotEmpty() : false,
                 'new' => $video->new ? true : false,
                 'nLikes' => $video->liked_by_users_count,
                 'nLike' => $video->liked_by_users_count,
