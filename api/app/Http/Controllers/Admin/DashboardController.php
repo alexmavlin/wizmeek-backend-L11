@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Feedback;
 use App\Models\User;
 use App\Models\Genre;
 use Carbon\Carbon;
@@ -68,6 +69,11 @@ class DashboardController extends Controller
             ];
         }
 
+        $average = Feedback::avg('rating');
+
+        // Ceil to 1 decimal place
+        $averageCeil = ceil($average * 10) / 10;
+
         $data = [
             "scss" => [
                 "resources/scss/admin/dashboard.scss"
@@ -77,7 +83,8 @@ class DashboardController extends Controller
                 "total_users" => User::getTotalUsers(),
                 "today_registered_users" => User::getTodayRegisteredUsers()
             ],
-            "media_stats" => $mediaStats
+            "media_stats" => $mediaStats,
+            "average_rating" => $averageCeil
         ];
 
         // dd($data);

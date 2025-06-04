@@ -17,6 +17,23 @@
         </div>
     </section>
 
+    <section class="userStats rating">
+        <div class="userStats_item">
+            @php
+                $averageRating = $data['average_rating'] ?? 3.6;
+                $percentage = ($averageRating / 5) * 100;
+            @endphp
+
+            <p>Average rating</p>
+            <div class="star-rating">
+                <div class="stars-outer">
+                    <div class="stars-inner" style="width: {{ $percentage }}%"></div>
+                </div>
+                <span>{{ $averageRating }}</span>
+            </div>
+        </div>
+    </section>
+
     <section class="media-statistics">
         <h2>All Media Statistics</h2>
         <div class="stats-table">

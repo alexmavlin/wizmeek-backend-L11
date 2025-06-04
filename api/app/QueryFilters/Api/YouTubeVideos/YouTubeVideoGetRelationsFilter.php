@@ -10,7 +10,7 @@ class YouTubeVideoGetRelationsFilter
     {
         $query->with([
             'artist:id,name',
-            'country:id,flag',
+            'country:id,flag,name',
             'genre:id,genre,color',
             'contentType:id,name'
         ]);
