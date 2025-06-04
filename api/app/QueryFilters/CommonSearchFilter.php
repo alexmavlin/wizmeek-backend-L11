@@ -10,7 +10,7 @@ class CommonSearchFilter
     private string $column;
     private array $relations;
 
-    public function __construct(string $filterExpression, string $column, array $relations = [])
+    public function __construct(string $filterExpression = "", string $column = "", array $relations = [])
     {
         $this->filterExpression = $filterExpression;
         $this->column = $column;
