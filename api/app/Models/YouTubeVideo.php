@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Genre;
+use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddCommentsCountFilter;
 use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddIsfavoriteFilter;
 use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddIsLikedFilter;
 use App\QueryFilters\Api\YouTubeVideos\YouTubeVideoAddLikesCountFilter;
@@ -226,6 +227,7 @@ class YouTubeVideo extends Model
                 YouTubeVideoAddIsfavoriteFilter::class,
                 YouTubeVideoProfileAttachedFilter::class,
                 YouTubeVideoAddLikesCountFilter::class,
+                YouTubeVideoAddCommentsCountFilter::class,
                 YouTubeVideoIncludeCommentsFilter::class,
                 YouTubeVideoSortingModeFilter::class,
                 YouTubeVideoPaginateFilter::class
@@ -525,6 +527,8 @@ class YouTubeVideo extends Model
                 },
             ]);
 
+            $query->withCount('comments');
+
             if (Auth::check()) {
                 $query->with([
                     'likedByUsers' => function ($q) {
@@ -570,6 +574,7 @@ class YouTubeVideo extends Model
             'country_flag' => asset($video->country->flag),
             'country_name' => $video->country->name,
             'comments' => [],
+            'comments_count' => $video->comments_count,
             'editors_pick' => $video->editors_pick ? true : false,
             'favorite_by_user_count' => $video->favorite_by_user_count ?? '',
             'genre' => $video->genre ? $video->genre->genre : "NaN",
@@ -670,6 +675,7 @@ class YouTubeVideo extends Model
         }
 
         $query->withCount('likedByUsers');
+        $query->withCount('comments');
 
         $query->with([
             'comments' => function ($q) {

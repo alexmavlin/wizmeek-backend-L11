@@ -27,6 +27,7 @@ trait MediaCardTrait
                 'country_name' => $video->country->name,
                 'country_flag' => asset($video->country->flag),
                 'comments' => $video->comments ? self::getCommentsData($video->comments) : [],
+                'comments_count' => $video->comments_count,
                 'isVideo' => $video->contentType?->name === 'Music Video',
                 'isAudio' => $video->contentType?->name === 'Music Audio',
                 'editors_pick' => $video->editors_pick ? true : false,
