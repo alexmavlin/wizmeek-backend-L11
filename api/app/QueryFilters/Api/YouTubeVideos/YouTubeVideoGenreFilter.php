@@ -10,7 +10,9 @@ class YouTubeVideoGenreFilter
     {
         $genre = request()->header('X-Genre');
 
-        if ($genre && is_numeric($genre)) {
+        // dd($genre);
+
+        if ($genre && $genre !== 'All') {
             $query->whereHas('genre', function ($q) use ($genre) {
                 $q->where('genre', 'like', '%' . $genre . '%');
             });
