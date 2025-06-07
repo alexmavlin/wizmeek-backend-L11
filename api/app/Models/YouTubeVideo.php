@@ -515,7 +515,7 @@ class YouTubeVideo extends Model
 
             $query->with([
                 'country' => function ($q) {
-                    $q->select('id', 'flag');
+                    $q->select('id', 'flag', 'name');
                 },
                 'genre' => function ($q) {
                     $q->select('id', 'genre', 'color');
@@ -568,6 +568,7 @@ class YouTubeVideo extends Model
             'artist' => $video->artist->name,
             'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
             'country_flag' => asset($video->country->flag),
+            'country_name' => $video->country->name,
             'comments' => [],
             'editors_pick' => $video->editors_pick ? true : false,
             'favorite_by_user_count' => $video->favorite_by_user_count ?? '',
