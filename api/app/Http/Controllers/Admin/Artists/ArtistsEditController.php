@@ -13,6 +13,7 @@ class ArtistsEditController extends Controller
 {
     public function __invoke($artist)
     {
+        // dd($artist);
         try {
             $data = [
                 "scss" => [
@@ -28,7 +29,7 @@ class ArtistsEditController extends Controller
             // dd($data);
             return view('admin.artists.artistsedit', compact('data'));
         } catch (Exception $error) {
-            $message = 'An error has occured during an attempt to load data while accessing ' . route('admin_artists_edit') . '.<br><br>Error: ' . $error->getMessage();
+            $message = 'An error has occured during an attempt to load data while accessing ' . route('admin_artists_edit', $artist) . '.<br><br>Error: ' . $error->getMessage();
             Log::error($message);
             return redirect()->back()->with('error', $message . '<br><br>The error has been logged.');
         }
