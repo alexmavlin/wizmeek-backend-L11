@@ -46,5 +46,6 @@ services:
       - 8102:80
     environment:
       - PMA_ARBITRARY=1
+      - UPLOAD_LIMIT=100M
     container_name: phpmyadmin
     
