@@ -14,7 +14,9 @@ use App\QueryFilters\Api\Artists\ArtistsSearchSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsSelectFilter;
 use App\QueryFilters\Api\Artists\ArtistsVisibleFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithCountriesFilter;
+use App\QueryFilters\Api\Artists\ArtistsWithFollowersCountFilter;
 use App\QueryFilters\Api\Artists\ArtistsWithGenreFilter;
+use App\QueryFilters\Api\Artists\IsArtistFollowedByUserFilter;
 use App\QueryFilters\CommonFindFilter;
 use App\QueryFilters\CommonPaginatorFilter;
 use App\QueryFilters\CommonSearchFilter;
@@ -26,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class Artist extends Model
@@ -137,24 +140,21 @@ class Artist extends Model
      * @return array The formatted array of artists, including ID, name, avatar, description,
      *               genre types, and external profile/share links.
      */
-    public static function getForApi(): array
+    public static function getForApi($user): array
     {
-        $genreId = (string) request()->header('X-Genre') ?: (string) 'all';
-        $cacheKey = 'api_artists_index_genre_' . $genreId;
-
-        $artists = Cache::remember($cacheKey, now()->addMinutes(60), function () {
-            return app(Pipeline::class)
-                ->send(self::query())
-                ->through([
-                    ArtistsSelectFilter::class,
-                    ArtistsVisibleFilter::class,
-                    ArtistsGetByGenreFilter::class,
-                    ArtistsWithGenreFilter::class,
-                    ArtistsWithCountriesFilter::class
-                ])
-                ->thenReturn()
-                ->get();
-        });
+        $artists = app(Pipeline::class)
+            ->send(self::query())
+            ->through([
+                ArtistsSelectFilter::class,
+                ArtistsVisibleFilter::class,
+                ArtistsGetByGenreFilter::class,
+                ArtistsWithGenreFilter::class,
+                ArtistsWithCountriesFilter::class,
+                ArtistsWithFollowersCountFilter::class,
+                new IsArtistFollowedByUserFilter(Auth::user() ?: null)
+            ])
+            ->thenReturn()
+            ->get();
 
         return ArtistIndexDTO::fromCollection($artists);
     }
@@ -228,5 +228,15 @@ class Artist extends Model
             'artist_id',
             'country_id'
         );
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'users_follow_artists',
+            'artist_id',
+            'user_id'
+        )->withTimestamps();
     }
 }

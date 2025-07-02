@@ -44,6 +44,10 @@ Route::post('/forgot-password', ForgotPasswordController::class);
 Route::post('/reset-password', ResetPasswordController::class);
 
 Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
+    Route::prefix('artists')->group(function () {
+        Route::get('/get', GetArtistsListController::class);
+    });
+    
     Route::prefix('user')->group(function () {
         Route::get('/get-header', UserNavDetailsController::class);
         Route::get('/profile', UserProfileController::class);
@@ -56,7 +60,9 @@ Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('/delete-account', UserDeleteAccountController::class);
         Route::post('/follow-user', UserFollowsUserController::class);
         Route::post('/unfollow-user', UserUnfollowsUserController::class);
-    }); 
+        Route::post('/follow-artist', [\App\Http\Controllers\Api\User\UserFollowsArtistController::class, '__invoke']);
+        Route::post('/unfollow-artist', [\App\Http\Controllers\Api\User\UserUnfollowArtistController::class, '__invoke']);
+    });
 
     Route::prefix('feedback')->group(function () {
         Route::post('/store', StoreFeedbackController::class);
@@ -96,7 +102,7 @@ Route::prefix('highlights')->group(function () {
     Route::get('/get', HomePageHighlightsController::class);
 });
 
-Route::prefix('artists')->group(function() {
+Route::prefix('artists')->group(function () {
     Route::get('/get', GetArtistsListController::class);
 });
 
@@ -114,4 +120,3 @@ Route::prefix('user')->group(function () {
 Route::prefix('comments')->group(function () {
     Route::get('/get-for-a-single-video/{video_id}', GetSingleVideoCommentsController::class);
 });
-

@@ -382,6 +382,37 @@ class User extends Authenticatable
     }
 
     /**
+     * Handles the API request to follow one or more artists.
+     *
+     * This function processes the incoming request to follow artists, validates the input,
+     * performs the follow operation for the authenticated user, and returns an appropriate response.
+     *
+     * @param Request $request The HTTP request instance containing artist IDs to follow.
+     * @return JsonResponse Returns a JSON response indicating success or failure of the follow operation.
+     *
+     * @throws ValidationException If the request data is invalid.
+     * @throws AuthenticationException If the user is not authenticated.
+     */
+    public static function handleApiFollowArtists($artist_id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        // dd($artist_id);
+
+        if (!Artist::find($artist_id)) {
+            throw new \Exception("Artist not found.");
+        }
+
+        $user->artists()->syncWithoutDetaching([$artist_id]);
+
+        return 'Success. Artist is followed by you.';
+    }
+
+    /**
      * Handle the unfollow action for the authenticated user via API.
      *
      * This method allows the authenticated user to unfollow another user by their ID.
@@ -417,6 +448,36 @@ class User extends Authenticatable
         $user->followingUsers()->detach($id);
 
         return 'Success. User has been unfollowed.';
+    }
+
+    /**
+     * Handles the API request to unfollow one or more artists for the authenticated user.
+     *
+     * This function processes the incoming request, validates the provided artist IDs,
+     * and removes the specified artists from the user's followed list. It returns an
+     * appropriate response indicating the success or failure of the operation.
+     *
+     * @param Request $request The HTTP request instance containing artist IDs to unfollow.
+     * @return JsonResponse The response indicating the result of the unfollow operation.
+     *
+     * @throws ValidationException If the provided artist IDs are invalid.
+     * @throws AuthenticationException If the user is not authenticated.
+     */
+    public static function handleApiUnfollowArtists($artist_id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            throw new \Exception("Unauthorized.");
+        }
+
+        if (!Artist::find($artist_id)) {
+            throw new \Exception("Artist not found.");
+        }
+
+        $user->artists()->detach($artist_id);
+
+        return 'Success. Artist has been unfollowed.';
     }
 
     /**
@@ -610,5 +671,15 @@ class User extends Authenticatable
             'user_id',
             'video_id'
         );
+    }
+
+    public function artists()
+    {
+        return $this->belongsToMany(
+            Artist::class,
+            'users_follow_artists',
+            'user_id',
+            'artist_id'
+        )->withTimestamps();
     }
 }

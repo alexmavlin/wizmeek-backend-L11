@@ -13,9 +13,11 @@ class ArtistIndexDTO
 
     public static function fromModel($artist): array
     {
+        // dd($artist);
         return [
             '_id' => $artist->id,
-            'nFan' => 250,
+            'nFan' => $artist->followers_count,
+            'isFan' => $artist->is_followed_by_user ? true : false,
             'shareLink' => "https://wizmeek.com/dashboard/artist/{$artist->id}",
             'cover' => asset($artist->avatar),
             'countries' => self::prepareCountries($artist->countries),
