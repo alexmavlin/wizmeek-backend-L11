@@ -19,7 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost', 'http://localhost:5000', 'http://127.0.0.1', 'https://dev-app.wizmeek.com', 'https://wizmeek.com'],
+    'allowed_origins' => [
+        'http://localhost', 
+        'http://localhost:5000', 
+        'http://127.0.0.1', 
+        'https://dev-app.wizmeek.com', 
+        'https://wizmeek.com',
+        'https://app.wizmeek.com'],
 
     'allowed_origins_patterns' => [],
 

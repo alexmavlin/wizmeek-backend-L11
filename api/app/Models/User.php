@@ -161,7 +161,7 @@ class User extends Authenticatable
             return [
                 'id' => $user->id,
                 'name' => $user->name,
-                'avatar' => asset($user->avatar) ? asset("img/avatars/$user->avatar") : $user->google_avatar,
+                'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/avatars/noAvatar.webp')),
             ];
         });
 
