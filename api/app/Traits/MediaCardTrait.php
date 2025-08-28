@@ -27,6 +27,7 @@ trait MediaCardTrait
                 'country_name' => $video->country->name,
                 'country_flag' => asset($video->country->flag),
                 'comments' => $video->comments ? self::getCommentsData($video->comments) : [],
+                'comments_count' => $video->comments_count,
                 'isVideo' => $video->contentType?->name === 'Music Video',
                 'isAudio' => $video->contentType?->name === 'Music Audio',
                 'editors_pick' => $video->editors_pick ? true : false,
@@ -65,8 +66,8 @@ trait MediaCardTrait
     /**
      * Format comment data into an array structure.
      *
-     * This method processes a collection of comments, formatting each comment into 
-     * a structured array with details including content, timestamp, like status, 
+     * This method processes a collection of comments, formatting each comment into
+     * a structured array with details including content, timestamp, like status,
      * and user information.
      *
      * @param \Illuminate\Database\Eloquent\Collection|array $comments Collection or array of comment objects.
@@ -96,8 +97,8 @@ trait MediaCardTrait
     /**
      * Modify a query to include related video comments and associated user data.
      *
-     * This method appends comment-related data to a query, including the latest 
-     * four comments, associated users, like counts, and whether the authenticated 
+     * This method appends comment-related data to a query, including the latest
+     * four comments, associated users, like counts, and whether the authenticated
      * user has liked a comment.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
@@ -136,7 +137,7 @@ trait MediaCardTrait
     /**
      * Select specific columns for the video query.
      *
-     * This method modifies the given query by selecting only the necessary 
+     * This method modifies the given query by selecting only the necessary
      * columns from the database to optimize performance.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
@@ -166,7 +167,7 @@ trait MediaCardTrait
     /**
      * Load relationships for the video query.
      *
-     * This method optimizes the query by specifying the necessary related 
+     * This method optimizes the query by specifying the necessary related
      * models and selecting only essential columns to improve performance.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.

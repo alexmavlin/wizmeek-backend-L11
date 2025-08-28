@@ -119,7 +119,7 @@ class YouTubeVideo extends Model
     /**
      * Remove related selections for the current model instance.
      *
-     * This method loads and deletes all related landing page items 
+     * This method loads and deletes all related landing page items
      * and highlight items associated with the model.
      *
      * @return void
@@ -196,7 +196,7 @@ class YouTubeVideo extends Model
                 YouTubeVideoGetRelationsFilter::class,
                 YouTubeVideoAddIsLikedFilter::class,
                 YouTubeVideoAddIsfavoriteFilter::class,
-                // YouTubeVideoProfileAttachedFilter::class,
+                    // YouTubeVideoProfileAttachedFilter::class,
                 YouTubeVideoAddLikesCountFilter::class,
                 YouTubeVideoIncludeCommentsFilter::class,
                 YouTubeVideoUsertasteFilter::class,
@@ -232,14 +232,16 @@ class YouTubeVideo extends Model
             ])
             ->thenReturn();
 
+        // dd($videos);
+
         return $videos;
     }
 
     /**
      * Retrieves a list of videos based on a search string.
      *
-     * This method fetches videos whose title matches the provided search string or whose associated 
-     * artist's name matches the search string. The results include the video ID, title, thumbnail, 
+     * This method fetches videos whose title matches the provided search string or whose associated
+     * artist's name matches the search string. The results include the video ID, title, thumbnail,
      * and artist details. The data is then formatted using the `getHighlightedDatatype` method.
      *
      * @param string $searchString The search term used to filter videos by title or artist name.
@@ -452,11 +454,11 @@ class YouTubeVideo extends Model
                     $subQuery->where('name', 'like', '%' . $searchString . '%');
                 })
                 ->select(
-                    'id', 
-                    'youtube_id', 
-                    'title', 
-                    'thumbnail', 
-                    'content_type_id', 
+                    'id',
+                    'youtube_id',
+                    'title',
+                    'thumbnail',
+                    'content_type_id',
                     'artist_id',
                     'views'
                 )
@@ -490,7 +492,7 @@ class YouTubeVideo extends Model
     public static function getSingle($youtube_id, bool $withStats = false): array
     {
         $cacheKey = "singleYoutubeVideo:$youtube_id" . "_withStats:$withStats";
-        
+
         $video = Cache::remember($cacheKey, 3600, function () use ($youtube_id, $withStats) {
             $query = self::query();
             $query->where('youtube_id', $youtube_id);
@@ -539,7 +541,36 @@ class YouTubeVideo extends Model
                     }
                 ]);
             }
+
+            $query->with([
+                'comments' => function ($q) {
+                    $q->limit(4);
+                    $q->orderBy('created_at', 'DESC');
+                    $q->select('id', 'content', 'user_id', 'youtube_video_id', 'created_at');
+                    $q->whereHas('user', function ($q) {
+                        $q->select('id', 'deleted_at');
+                        $q->where('deleted_at', null);
+                    });
+                    $q->with([
+                        'user' => function ($q) {
+                            $q->select('id', 'name', 'avatar', 'google_avatar');
+                        }
+                    ]);
+
+                    if (Auth::check()) {
+                        $q->with([
+                            'userLikes' => function ($q) {
+                                $q->where('user_id', Auth::user()->id);
+                                $q->select('users_video_comments.id');
+                            }
+                        ]);
+                    }
+                    $q->withCount('userLikes');
+                }
+            ]);
+
             $query->withCount('likedByUsers');
+            $query->withCount('comments');
 
             if ($withStats) {
                 $query->withCount([
@@ -554,7 +585,7 @@ class YouTubeVideo extends Model
         // dd($video);
         if (!$withStats) {
             $sessionKey = 'viewed_video_' . $youtube_id;
-    
+
             if (!session()->has($sessionKey)) {
                 $video->timestamps = false;
                 $video->increment('views');
@@ -568,7 +599,8 @@ class YouTubeVideo extends Model
             'artist' => $video->artist->name,
             'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
             'country_flag' => asset($video->country->flag),
-            'comments' => [],
+            'comments' => $video->comments,
+            'comments_count' => $video->comments_count,
             'editors_pick' => $video->editors_pick ? true : false,
             'favorite_by_user_count' => $video->favorite_by_user_count ?? '',
             'genre' => $video->genre ? $video->genre->genre : "NaN",

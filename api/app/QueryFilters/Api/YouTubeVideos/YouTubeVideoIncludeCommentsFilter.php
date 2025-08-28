@@ -36,6 +36,8 @@ class YouTubeVideoIncludeCommentsFilter
             }
         ]);
 
+        $query->withCount('comments');
+
         return $next($query);
     }
 }
