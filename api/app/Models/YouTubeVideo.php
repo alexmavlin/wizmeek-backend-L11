@@ -491,7 +491,7 @@ class YouTubeVideo extends Model
 
     public static function getSingle($youtube_id, bool $withStats = false): array
     {
-        $cacheKey = "singleYoutubeVideo:$youtube_id" . "_withStats:$withStats";
+        $cacheKey = "singleYoutubeVideo:$youtube_id" . "_withStats:$withStats" . "_v2";
 
         $video = Cache::remember($cacheKey, 3600, function () use ($youtube_id, $withStats) {
             $query = self::query();
@@ -517,7 +517,7 @@ class YouTubeVideo extends Model
 
             $query->with([
                 'country' => function ($q) {
-                    $q->select('id', 'flag');
+                    $q->select('id', 'flag', 'name');
                 },
                 'genre' => function ($q) {
                     $q->select('id', 'genre', 'color');
@@ -598,7 +598,8 @@ class YouTubeVideo extends Model
             'id' => $video->id,
             'artist' => $video->artist->name,
             'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
-            'country_flag' => asset($video->country->flag),
+            'country_flag' => $video->country ? asset($video->country->flag) : "",
+            'country_name' => $video->country ? $video->country->name : "",
             'comments' => $video->comments,
             'comments_count' => $video->comments_count,
             'editors_pick' => $video->editors_pick ? true : false,
@@ -684,7 +685,7 @@ class YouTubeVideo extends Model
         );
 
         $query->with([
-            'country:id,flag',
+            'country:id,flag,name',
             'genre:id,genre,color',
             'artist:id,name',
         ]);

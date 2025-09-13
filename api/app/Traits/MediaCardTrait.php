@@ -24,8 +24,8 @@ trait MediaCardTrait
                 'auth' => Auth::check(),
                 'artist' => $video->artist->name,
                 'apple_music_link' => $video->apple_music_link ? $video->apple_music_link : "",
-                'country_name' => $video->country->name,
-                'country_flag' => asset($video->country->flag),
+                'country_name' => $video->country ? $video->country->name : "",
+                'country_flag' => $video->country ? asset($video->country->flag) : "",
                 'comments' => $video->comments ? self::getCommentsData($video->comments) : [],
                 'comments_count' => $video->comments_count,
                 'isVideo' => $video->contentType?->name === 'Music Video',
@@ -177,7 +177,7 @@ trait MediaCardTrait
     {
         $query->with([
             'artist:id,name',
-            'country:id,flag',
+            'country:id,flag,name,code',
             'genre:id,genre,color',
             'contentType:id,name'
         ]);
