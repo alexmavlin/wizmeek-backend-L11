@@ -20,4 +20,4 @@ jobs:
         username: backend@wizmeek.com
         password: eFNZuakAk6P
         local-dir: ./api/
-        server-dir: /dev-app.wizmeek.com
+        server-dir: /dev-app.wizmeek.com/
