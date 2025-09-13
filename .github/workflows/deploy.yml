@@ -1,0 +1,29 @@
+name: Deploy Laravel to cPanel
+
+on:
+  push:
+    branches:
+      - production
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Deploy via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_HOST }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: api/
+        server-dir: ${{ secrets.SERVER_DIR }}
+        exclude: |
+          **/.git*
+          **/.env
+          **/node_modules/**
+          **/tests/**
