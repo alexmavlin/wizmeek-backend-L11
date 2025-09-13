@@ -1,30 +1,23 @@
-name: Deploy Laravel to cPanel
+name: Deploy Laravel to Namecheap Backend
 
 on:
   push:
     branches:
       - production
-      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Debug secrets (remove after testing)
-      run: |
-        echo "FTP_HOST is set: ${{ secrets.FTP_HOST != '' }}"
-        echo "FTP_USER is set: ${{ secrets.FTP_USER != '' }}"
-        echo "SERVER_DIR is set: ${{ secrets.SERVER_DIR != '' }}"
+      uses: actions/checkout@v3
 
     - name: Deploy via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
+        server: ${{ secrets.APP_FTP_HOST }}
+        username: ${{ secrets.APP_FTP_USER }}
+        password: ${{ secrets.APP_FTP_PSWD }}
         local-dir: ./api/
-        server-dir: ${{ secrets.SERVER_DIR || '/' }}
+        server-dir: /
