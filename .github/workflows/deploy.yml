@@ -16,8 +16,8 @@ jobs:
     - name: Deploy via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: ${{ secrets.APP_FTP_HOST }}
-        username: ${{ secrets.APP_FTP_USER }}
-        password: ${{ secrets.APP_FTP_PSWD }}
+        server: 23.187.248.15
+        username: backend@wizmeek.com
+        password: eFNZuakAk6P
         local-dir: ./api/
         server-dir: /
