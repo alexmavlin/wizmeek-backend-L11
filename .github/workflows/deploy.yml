@@ -14,16 +14,17 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Debug secrets (remove after testing)
+      run: |
+        echo "FTP_HOST is set: ${{ secrets.FTP_HOST != '' }}"
+        echo "FTP_USER is set: ${{ secrets.FTP_USER != '' }}"
+        echo "SERVER_DIR is set: ${{ secrets.SERVER_DIR != '' }}"
+
     - name: Deploy via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_HOST }}
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: api/
-        server-dir: ${{ secrets.SERVER_DIR }}
-        exclude: |
-          **/.git*
-          **/.env
-          **/node_modules/**
-          **/tests/**
+        local-dir: ./api/
+        server-dir: ${{ secrets.SERVER_DIR || '/' }}
