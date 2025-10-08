@@ -7,6 +7,7 @@ use App\Http\Requests\Api\Authentication\RegisterRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -15,7 +16,10 @@ class RegisterController extends Controller
         $newUserData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'day' => $request->day,
+            'month' => $request->month,
+            'year' => $request->year,
         ];
 
         try {

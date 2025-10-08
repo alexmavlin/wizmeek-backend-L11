@@ -9,6 +9,7 @@ use App\Http\Requests\Api\User\UserPasswordUpdateRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserProfileUpdateController extends Controller
 {
@@ -62,11 +63,17 @@ class UserProfileUpdateController extends Controller
             $user = User::find(Auth::user()->id);
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->day = $request->day;
+            $user->month = $request->month;
+            $user->year = $request->year;
             $result = $user->save();
             return response()->json([
                 'success' => $result,
                 'user' => $user,
                 'description' => $request->description,
+                'day' => $request->day,
+                'month' => $request->month,
+                'year' => $request->year,
                 'message' => "User's data was updated successfuly.",
                 'error' => '',
                 'data' => []

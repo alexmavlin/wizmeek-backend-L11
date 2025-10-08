@@ -23,7 +23,10 @@ class UserNameEmailUpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:100',
-            'email' => 'required|email|max:150'
+            'email' => 'required|email|max:150',
+            'day' => 'required|string|max:10',
+            'month' => 'required|string|max:10',
+            'year' => 'required|string|max:10'
         ];
     }
 }

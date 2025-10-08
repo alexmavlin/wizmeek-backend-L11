@@ -21,7 +21,10 @@ class UserProfileController extends Controller
             'avatar',
             'google_avatar',
             'created_at',
-            'description'
+            'description',
+            'day',
+            'month',
+            'year'
         );
         $user = $query->first();
 
@@ -33,7 +36,10 @@ class UserProfileController extends Controller
             'description' => $user->description,
             'joined' => date('M Y', strtotime($user->created_at)),
             'following' => 15,
-            'followed_by' => 165
+            'followed_by' => 165,
+            'day' => $user->day,
+            'month' => $user->month,
+            'year' => $user->year
         ]);
     }
 }
