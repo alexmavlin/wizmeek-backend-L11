@@ -16,7 +16,10 @@ class UserProfileSelectFilter
             'avatar',
             'google_avatar',
             'created_at',
-            'description'
+            'description',
+            'day',
+            'month',
+            'year'
         );
 
         return $next($query);

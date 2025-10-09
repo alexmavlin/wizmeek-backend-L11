@@ -15,7 +15,10 @@ class UserProfileDataDTO
             'description' => $user->description,
             'joined' => date('M Y', strtotime($user->created_at)),
             'following' => $user->following_users_count,
-            'followed_by' => $user->followed_by_users_count
+            'followed_by' => $user->followed_by_users_count,
+            'day' => $user->day,
+            'month' => $user->month,
+            'year' => $user->year
         ];
     }
 }
