@@ -23,7 +23,7 @@ class Feedback extends Model
 
     public static function getForAdmin()
     {
-        $searchString = request('search_string');
+        $searchString = request('search_string') || '';
 
         $feedbacks = app(Pipeline::class)
             ->send(self::query())
@@ -35,7 +35,7 @@ class Feedback extends Model
                     ],
                     [
                         'name' => 'user',
-                        'column' => 'emial'
+                        'column' => 'email'
                     ]
                 ]),
                 GetForAdminSelectFilter::class,
