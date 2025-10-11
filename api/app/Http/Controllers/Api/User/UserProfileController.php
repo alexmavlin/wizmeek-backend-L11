@@ -26,6 +26,8 @@ class UserProfileController extends Controller
             // 'month',
             // 'year'
         );
+        $query->withCount('followingUsers');
+        $query->withCount('followedByUsers');
         $user = $query->first();
 
         return response()->json([
@@ -35,8 +37,8 @@ class UserProfileController extends Controller
             'avatar' => $user->avatar ? asset('img/avatars/' . $user->avatar) : ($user->google_avatar ? $user->google_avatar : asset('img/artists/avatars/noAvatar.webp')),
             'description' => $user->description,
             'joined' => date('M Y', strtotime($user->created_at)),
-            'following' => 15,
-            'followed_by' => 165,
+            'following' => $user->following_users_count, // 123
+            'followed_by' => $user->followed_by_users_count, // 165
             // 'day' => $user->day,
             // 'month' => $user->month,
             // 'year' => $user->year
