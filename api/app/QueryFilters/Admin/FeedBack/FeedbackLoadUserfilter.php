@@ -14,7 +14,8 @@ class FeedbackLoadUserfilter
                     'id',
                     'name',
                     'avatar',
-                    'google_avatar'
+                    'google_avatar',
+                    'email'
                 );
             }
         ]);
