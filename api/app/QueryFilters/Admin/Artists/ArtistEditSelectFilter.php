@@ -11,7 +11,7 @@ class ArtistEditSelectFilter
         $query->select(
             'id',
             'name',
-            'is-visible',
+            'is_visible',
             'avatar',
             'short_description',
             'full_description',
