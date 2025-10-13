@@ -150,3 +150,14 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
         });
     });
 });
+
+Route::prefix('database')->group(function () {
+    Route::get('/migrate', function () {
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+            dd('Database migrated successfuly.');
+        } catch (\Exception $error) {
+            dd('Error while migrating database: ' . $error);
+        }            
+    });
+});
