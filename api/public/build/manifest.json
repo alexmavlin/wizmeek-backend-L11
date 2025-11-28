@@ -1,0 +1,99 @@
+{
+  "_endpoints-BtUrNjjW.js": {
+    "file": "assets/endpoints-BtUrNjjW.js",
+    "name": "endpoints"
+  },
+  "resources/js/admin/forms.js": {
+    "file": "assets/forms-DtA8awor.js",
+    "name": "forms",
+    "src": "resources/js/admin/forms.js",
+    "isEntry": true
+  },
+  "resources/js/admin/functions/fetchVideosFolLoader.js": {
+    "file": "assets/fetchVideosFolLoader-gQqj92He.js",
+    "name": "fetchVideosFolLoader",
+    "src": "resources/js/admin/functions/fetchVideosFolLoader.js",
+    "isEntry": true,
+    "imports": [
+      "_endpoints-BtUrNjjW.js"
+    ]
+  },
+  "resources/js/admin/loaders/landing/fetchVideoResults.js": {
+    "file": "assets/fetchVideoResults-DCHi6fP2.js",
+    "name": "fetchVideoResults",
+    "src": "resources/js/admin/loaders/landing/fetchVideoResults.js",
+    "isEntry": true,
+    "imports": [
+      "_endpoints-BtUrNjjW.js"
+    ]
+  },
+  "resources/js/admin/popup.js": {
+    "file": "assets/popup-5XbVMb2R.js",
+    "name": "popup",
+    "src": "resources/js/admin/popup.js",
+    "isEntry": true
+  },
+  "resources/js/admin/youtubeGetVideoData.js": {
+    "file": "assets/youtubeGetVideoData-CWwYzYP_.js",
+    "name": "youtubeGetVideoData",
+    "src": "resources/js/admin/youtubeGetVideoData.js",
+    "isEntry": true
+  },
+  "resources/js/alerts.js": {
+    "file": "assets/alerts-CjAeb0AR.js",
+    "name": "alerts",
+    "src": "resources/js/alerts.js",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-MPTXr811.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/scss/admin/artists/artists_create.scss": {
+    "file": "assets/artists_create-CyIDv9kN.css",
+    "src": "resources/scss/admin/artists/artists_create.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/artists/artists_edit.scss": {
+    "file": "assets/artists_create-CyIDv9kN.css",
+    "src": "resources/scss/admin/artists/artists_create.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/artists/artists_index.scss": {
+    "file": "assets/artists_index-DfgGbrdv.css",
+    "src": "resources/scss/admin/artists/artists_index.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/artists/artists_view.scss": {
+    "file": "assets/artists_view-DkxLHdne.css",
+    "src": "resources/scss/admin/artists/artists_view.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/dashboard.scss": {
+    "file": "assets/dashboard-0JrqRE4q.css",
+    "src": "resources/scss/admin/dashboard.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/parts/linearPreloader.scss": {
+    "file": "assets/linearPreloader-DK7O-yl-.css",
+    "src": "resources/scss/admin/parts/linearPreloader.scss",
+    "isEntry": true
+  },
+  "resources/scss/admin/videos/video_view.scss": {
+    "file": "assets/video_view-BCXbYPzz.css",
+    "src": "resources/scss/admin/videos/video_view.scss",
+    "isEntry": true
+  },
+  "resources/scss/app.scss": {
+    "file": "assets/app-DBRWc2WS.css",
+    "src": "resources/scss/app.scss",
+    "isEntry": true
+  },
+  "resources/scss/popup.scss": {
+    "file": "assets/popup-C95-WQ-e.css",
+    "src": "resources/scss/popup.scss",
+    "isEntry": true
+  }
+}
