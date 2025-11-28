@@ -21,12 +21,14 @@ return [
 
     'allowed_origins' => [
         'http://localhost', 
-        'http://localhost:5000', 
+        'http://localhost:5000',
+        'http://localhost:5001', 
         'http://127.0.0.1', 
         'https://dev-app.wizmeek.com', 
         'https://wizmeek.com',
-        'https://app.wizmeek.com'],
-
+        'https://app.wizmeek.com',
+        'http://64.225.22.61:5000/',
+    ],
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
