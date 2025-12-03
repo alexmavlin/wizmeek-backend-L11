@@ -5,6 +5,18 @@
 
     RewriteEngine On
 
+    # CORS Headers
+    SetEnvIf Origin "^(http://localhost:5000|http://64.225.22.61:5000|https://dev-app.wizmeek.com|https://app.wizmeek.com|https://wizmeek.com)$" AccessControlAllowOrigin=$0
+    Header always set Access-Control-Allow-Origin "%{AccessControlAllowOrigin}e" env=AccessControlAllowOrigin
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+    Header always set Access-Control-Allow-Credentials "true"
+    Header always set Access-Control-Max-Age "3600"
+
+    # Handle OPTIONS preflight requests
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
