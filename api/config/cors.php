@@ -27,7 +27,7 @@ return [
         'https://dev-app.wizmeek.com', 
         'https://wizmeek.com',
         'https://app.wizmeek.com',
-        'http://64.225.22.61:5000/',
+        'http://64.225.22.61:5000',
     ],
     'allowed_origins_patterns' => [],
 
