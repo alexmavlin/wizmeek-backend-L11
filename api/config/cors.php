@@ -6,29 +6,18 @@ return [
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
-    |
-    | Here you may configure your settings for cross-origin resource sharing
-    | or "CORS". This determines what cross-origin operations may execute
-    | in web browsers. You are free to adjust these settings as needed.
-    |
-    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-    |
     */
 
-    'paths' => [],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'], // pastikan API routes termasuk
 
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://localhost', 
-        'http://localhost:5000',
-        'http://localhost:5001', 
-        'http://127.0.0.1', 
-        'https://dev-app.wizmeek.com', 
-        'https://wizmeek.com',
-        'https://app.wizmeek.com',
-        'http://64.225.22.61:5000',
+        'https://app.wizmeek.com',      // frontend production
+        'https://dev-app.wizmeek.com',  // frontend dev (opsional)
+        'http://localhost:3000',        // frontend local dev
     ],
+
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
@@ -37,6 +26,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
-
+    'supports_credentials' => true,  // jika memakai cookies / auth
 ];
