@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'], // pastikan API routes termasuk
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'api-login', 'api-register', 'api-logout'], // pastikan API routes termasuk
 
     'allowed_methods' => ['*'],
 
