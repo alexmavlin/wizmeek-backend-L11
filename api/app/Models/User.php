@@ -22,6 +22,7 @@ use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -118,12 +119,15 @@ class User extends Authenticatable
         if ($user_id === Auth::user()->id) {
             throw new Exception("You cannot delete yourself");
         }
-        $query = self::query();
 
-        $user = $query->findOrFail($user_id);
+        $user = self::query()->findOrFail($user_id);
 
-        $user->comments()->delete();
-        $user->forceDelete();
+        DB::transaction(function () use ($user) {
+            $user->videosInProfile()->detach();
+            Feedback::where('user_id', $user->id)->forceDelete();
+            $user->comments()->delete();
+            $user->forceDelete();
+        });
     }
 
     /**
