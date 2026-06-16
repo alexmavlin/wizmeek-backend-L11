@@ -520,8 +520,13 @@ class User extends Authenticatable
             ->withCount('followingUsers')
             ->paginate(10); // you can change per-page count
 
+        $authUserId = Auth::id();
+        $followingIds = $authUserId
+            ? Auth::user()->followingUsers()->pluck('users.id')->all()
+            : [];
+
         // Map the paginated items
-        $followers->getCollection()->transform(function ($follower) {
+        $followers->getCollection()->transform(function ($follower) use ($followingIds, $authUserId) {
             $avatarPath = public_path('img/avatars/' . $follower->avatar);
 
             $avatarUrl = ($follower->avatar && file_exists($avatarPath))
@@ -534,7 +539,9 @@ class User extends Authenticatable
                 'name' => $follower->name,
                 'description' => $follower->description ?: '',
                 'followed_by_count' => $follower->followed_by_users_count,
-                'follows_count' => $follower->following_users_count
+                'follows_count' => $follower->following_users_count,
+                'is_followed' => in_array($follower->id, $followingIds, true),
+                'is_self' => $authUserId === $follower->id,
             ];
         });
 
@@ -576,8 +583,13 @@ class User extends Authenticatable
             ->withCount('followingUsers')
             ->paginate(10); // you can change per-page count
 
+        $authUserId = Auth::id();
+        $followingIds = $authUserId
+            ? Auth::user()->followingUsers()->pluck('users.id')->all()
+            : [];
+
         // Map the paginated items
-        $followers->getCollection()->transform(function ($follower) {
+        $followers->getCollection()->transform(function ($follower) use ($followingIds, $authUserId) {
             $avatarPath = public_path('img/avatars/' . $follower->avatar);
 
             $avatarUrl = ($follower->avatar && file_exists($avatarPath))
@@ -590,7 +602,9 @@ class User extends Authenticatable
                 'name' => $follower->name,
                 'description' => $follower->description ?: '',
                 'followed_by_count' => $follower->followed_by_users_count,
-                'follows_count' => $follower->following_users_count
+                'follows_count' => $follower->following_users_count,
+                'is_followed' => in_array($follower->id, $followingIds, true),
+                'is_self' => $authUserId === $follower->id,
             ];
         });
 
