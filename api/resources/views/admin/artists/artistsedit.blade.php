@@ -7,10 +7,10 @@
             @csrf
             @method('post')
 
-            {{-- Name Input --}}
-            <div class="form__row">
+            {{-- Name, Genres, Countries --}}
+            <div class="form__row row">
                 <div class="form__froup">
-                    <input type="text" placeholder="" name="name" value="{{ old('name') ?: $data['artist']->name }}">
+                    <input type="text" placeholder="" name="name" value="{{ old('name', $data['artist']->name) }}">
                     <label for="">
                         @error('name')
                             <span class="danger">{{ $message }}</span>
@@ -22,47 +22,42 @@
 
                 {{-- Genre Selection --}}
                 <div class="form__group">
-                    <div class="custom-multiselect {{ old('genres') ? 'focused' : '' }}">
-                        @error('genres[]')
+                    <div class="custom-multiselect {{ old('genres') || $data['artist']->genres->isNotEmpty() ? 'focused' : '' }}">
+                        @error('genres')
                             <span class="selected-options-label danger">{{ $message }}</span>
                         @else
                             <span class="selected-options-label">Genres*</span>
                         @enderror
-                        <div class="selected-options" id="selected-options">
+                        <div class="selected-options">
                             @if (old('genres'))
                                 @foreach (old('genres') as $genreId)
                                     @php
-                                        $genre = collect($data['genres'])->firstWhere('id', $genreId);
+                                        $genre = $data['genres']->firstWhere('id', (int) $genreId);
                                     @endphp
                                     @if ($genre)
-                                        <div class="tag" data-id="{{ $genre['id'] }}"
-                                            data-label="{{ $genre['genre'] }}">
-                                            {{ $genre['genre'] }}
-                                            <span class="remove" data-id="{{ $genre['id'] }}">×</span>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @else
-                                @foreach ($data['artist']->genres as $item)
-                                    @php
-                                        $genre = collect($data['genres'])->firstWhere('id', $item->id);
-                                    @endphp
-                                    @if ($genre)
-                                        <div class="tag" data-id="{{ $genre->id }}"
-                                            data-label="{{ $genre->genre }}">
+                                        <div class="tag" data-id="{{ $genre->id }}" data-label="{{ $genre->genre }}">
                                             {{ $genre->genre }}
                                             <span class="remove" data-id="{{ $genre->id }}">×</span>
                                         </div>
                                     @endif
                                 @endforeach
+                            @else
+                                @foreach ($data['artist']->genres as $selectedGenre)
+                                    <div class="tag" data-id="{{ $selectedGenre->id }}"
+                                        data-label="{{ $selectedGenre->genre }}">
+                                        {{ $selectedGenre->genre }}
+                                        <span class="remove" data-id="{{ $selectedGenre->id }}">×</span>
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
-                        <div class="dropdown" id="dropdown">
+                        <div class="dropdown">
                             <input type="text" class="search-input" placeholder="Search..." />
-                            <div class="options options-list" id="options-list">
+                            <div class="options options-list">
                                 @foreach ($data['genres'] as $genre)
-                                    <div class="option" data-id="{{ $genre['id'] }}" data-label="{{ $genre['genre'] }}">
-                                        {{ $genre['genre'] }}</div>
+                                    <div class="option" data-id="{{ $genre->id }}" data-label="{{ $genre->genre }}">
+                                        {{ $genre->genre }}
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -70,20 +65,15 @@
                             @if (old('genres'))
                                 @foreach (old('genres') as $genreId)
                                     @php
-                                        $genre = collect($data['genres'])->firstWhere('id', $genreId);
-                                    @endphp
-                                    @if ($genre)
-                                        <option value="{{ $genre['id'] }}" selected>{{ $genre['genre'] }}</option>
-                                    @endif
-                                @endforeach
-                            @else
-                                @foreach ($data['artist']->genres as $genre)
-                                    @php
-                                        $genre = collect($data['genres'])->firstWhere('id', $genre->id);
+                                        $genre = $data['genres']->firstWhere('id', (int) $genreId);
                                     @endphp
                                     @if ($genre)
                                         <option value="{{ $genre->id }}" selected>{{ $genre->genre }}</option>
                                     @endif
+                                @endforeach
+                            @else
+                                @foreach ($data['artist']->genres as $selectedGenre)
+                                    <option value="{{ $selectedGenre->id }}" selected>{{ $selectedGenre->genre }}</option>
                                 @endforeach
                             @endif
                         </select>
@@ -93,30 +83,17 @@
 
                 {{-- Countries Selection --}}
                 <div class="form__group">
-                    <div class="custom-multiselect {{ old('countries') ? 'focused' : '' }}">
+                    <div class="custom-multiselect {{ old('countries') || $data['artist']->countries->isNotEmpty() ? 'focused' : '' }}">
                         @error('countries')
                             <span class="selected-options-label danger">{{ $message }}</span>
                         @else
                             <span class="selected-options-label">Countries*</span>
                         @enderror
-                        <div class="selected-options" id="selected-options">
+                        <div class="selected-options">
                             @if (old('countries'))
                                 @foreach (old('countries') as $countryId)
                                     @php
-                                        $country = collect($data['countries'])->firstWhere('id', $countryId);
-                                    @endphp
-                                    @if ($country)
-                                        <div class="tag" data-id="{{ $country['id'] }}"
-                                            data-label="{{ $country['name'] }}">
-                                            {{ $country['name'] }}
-                                            <span class="remove" data-id="{{ $country['id'] }}">×</span>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @else
-                                @foreach ($data['artist']->countries as $item)
-                                    @php
-                                        $country = collect($data['countries'])->firstWhere('id', $item->id);
+                                        $country = $data['countries']->firstWhere('id', (int) $countryId);
                                     @endphp
                                     @if ($country)
                                         <div class="tag" data-id="{{ $country->id }}"
@@ -126,14 +103,23 @@
                                         </div>
                                     @endif
                                 @endforeach
+                            @else
+                                @foreach ($data['artist']->countries as $selectedCountry)
+                                    <div class="tag" data-id="{{ $selectedCountry->id }}"
+                                        data-label="{{ $selectedCountry->name }}">
+                                        {{ $selectedCountry->name }}
+                                        <span class="remove" data-id="{{ $selectedCountry->id }}">×</span>
+                                    </div>
+                                @endforeach
                             @endif
                         </div>
-                        <div class="dropdown" id="dropdown">
+                        <div class="dropdown">
                             <input type="text" class="search-input" placeholder="Search..." />
-                            <div class="options options-list" id="options-list">
+                            <div class="options options-list">
                                 @foreach ($data['countries'] as $country)
-                                    <div class="option" data-id="{{ $country['id'] }}" data-label="{{ $country['name'] }}">
-                                        {{ $country['name'] }}</div>
+                                    <div class="option" data-id="{{ $country->id }}" data-label="{{ $country->name }}">
+                                        {{ $country->name }}
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -141,20 +127,15 @@
                             @if (old('countries'))
                                 @foreach (old('countries') as $countryId)
                                     @php
-                                        $country = collect($data['countries'])->firstWhere('id', $countryId);
-                                    @endphp
-                                    @if ($country)
-                                        <option value="{{ $country['id'] }}" selected>{{ $country['name'] }}</option>
-                                    @endif
-                                @endforeach
-                            @else
-                                @foreach ($data['artist']->countries as $country)
-                                    @php
-                                        $country = collect($data['countries'])->firstWhere('id', $country->id);
+                                        $country = $data['countries']->firstWhere('id', (int) $countryId);
                                     @endphp
                                     @if ($country)
                                         <option value="{{ $country->id }}" selected>{{ $country->name }}</option>
                                     @endif
+                                @endforeach
+                            @else
+                                @foreach ($data['artist']->countries as $selectedCountry)
+                                    <option value="{{ $selectedCountry->id }}" selected>{{ $selectedCountry->name }}</option>
                                 @endforeach
                             @endif
                         </select>
@@ -166,6 +147,10 @@
             {{-- Avatar Input --}}
             <div class="form__row">
                 <div class="form__froup">
+                    @if ($data['artist']->avatar)
+                        <img src="{{ asset($data['artist']->avatar) }}" alt="{{ $data['artist']->name }}" width="150"
+                            height="150" style="margin-bottom: 12px; border-radius: 8px;">
+                    @endif
                     <input type="file" name="avatar">
                     <label for="">
                         @error('avatar')
@@ -185,7 +170,7 @@
             {{-- Description Textareas --}}
             <div class="form__row">
                 <div class="form__froup">
-                    <textarea name="short_description" placeholder="">{{ old('short_description') ?: $data['artist']->short_description }}</textarea>
+                    <textarea name="short_description" placeholder="">{{ old('short_description', $data['artist']->short_description) }}</textarea>
                     <label for="">
                         @error('short_description')
                             <span class="danger">{{ $message }}</span>
@@ -196,7 +181,7 @@
                     <span>Supports basic HTML tags (h1-h6, span, p, br, strong) and inline styles*</span>
                 </div>
                 <div class="form__froup">
-                    <textarea name="full_description" placeholder="">{{ old('full_description') ?: $data['artist']->full_description }}</textarea>
+                    <textarea name="full_description" placeholder="">{{ old('full_description', $data['artist']->full_description) }}</textarea>
                     <label for="">
                         @error('full_description')
                             <span class="danger">{{ $message }}</span>
@@ -215,7 +200,7 @@
                 {{-- Spotify --}}
                 <div class="form__froup">
                     <input type="text" placeholder="" name="spotify_link" id="spotify_link"
-                        value="{{ old('spotify_link') ?: $data['artist']->spotify_link }}">
+                        value="{{ old('spotify_link', $data['artist']->spotify_link) }}">
                     <label for="spotify_link">
                         @error('spotify_link')
                             <span class="danger">{{ $message }}</span>
@@ -228,7 +213,7 @@
                 {{-- Apple Music --}}
                 <div class="form__froup">
                     <input type="text" placeholder="" name="apple_music_link" id="apple_music_link"
-                        value="{{ old('apple_music_link') ?: $data['artist']->apple_music_link }}">
+                        value="{{ old('apple_music_link', $data['artist']->apple_music_link) }}">
                     <label for="apple_music_link">
                         @error('apple_music_link')
                             <span class="danger">{{ $message }}</span>
@@ -241,7 +226,7 @@
                 {{-- Instagram --}}
                 <div class="form__froup">
                     <input type="text" placeholder="" name="instagram_link" id="instagram_link"
-                        value="{{ old('instagram_link') ?: $data['artist']->instagram_link }}">
+                        value="{{ old('instagram_link', $data['artist']->instagram_link) }}">
                     <label for="instagram_link">
                         @error('instagram_link')
                             <span class="danger">{{ $message }}</span>
@@ -256,8 +241,8 @@
             <div class="form__row labelled row">
                 <span class="form__row--label">Additional Settings</span>
                 <div class="form__group">
-                    <input type="checkbox" name="is_visible" id="is_visible"
-                        {{ old('is_visible') ? 'checked' : ($data['artist']->is_visible ? 'checked' : '') }}>
+                    <input type="checkbox" name="is_visible" id="is_visible" value="1"
+                        {{ old('is_visible', $data['artist']->is_visible) ? 'checked' : '' }}>
                     <label for="is_visible">
                         <div class="">
                             <svg class="checkbox__check" width="24" height="24">
