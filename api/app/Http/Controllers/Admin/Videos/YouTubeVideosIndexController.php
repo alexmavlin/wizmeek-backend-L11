@@ -22,7 +22,7 @@ class YouTubeVideosIndexController extends Controller
                     'resources/scss/admin/artists/artists_index.scss'
                 ],
                 "js" => [
-    
+                    'resources/js/admin/videos-reorder.js'
                 ],
                 "videos" => $videos,
                 "genres" => $genres,

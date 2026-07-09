@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Closure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -109,11 +110,13 @@ class YouTubeVideo extends Model
             'new',
             'throwback',
             'is_draft',
-            'youtube_id'
+            'youtube_id',
+            'sort_order'
         );
 
-        // Return paginated results ordered by creation date
-        return $query->orderBy('updated_at', 'DESC')->paginate(10);
+        // Load all videos ordered by the manual sort order so admins can
+        // drag-reorder the full list (the home guest feed uses this order).
+        return $query->orderBy('sort_order', 'ASC')->orderBy('created_at', 'DESC')->get();
     }
 
     /**
@@ -200,7 +203,11 @@ class YouTubeVideo extends Model
                 YouTubeVideoAddLikesCountFilter::class,
                 YouTubeVideoIncludeCommentsFilter::class,
                 YouTubeVideoUsertasteFilter::class,
-                YouTubeVideoSortingModeFilter::class,
+                // Keep the taste feed on newest-first ordering, independent of
+                // the manual sort_order used by the default/home guest feed.
+                function ($query, Closure $next) {
+                    return $next($query->orderBy('created_at', 'DESC'));
+                },
                 YouTubeVideoPaginateFilter::class
             ])
             ->thenReturn();

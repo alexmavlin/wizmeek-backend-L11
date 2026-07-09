@@ -61,9 +61,15 @@
             Deleted Videos
         </a>
     </section>  
-    <section class="artists__list">
+    <div class="reorder__status" id="reorderStatus" role="status" aria-live="polite"></div>
+    <section class="artists__list" id="videosSortable" data-reorder-url="{{ route('admin_reorder_youtube_videos') }}">
         @foreach ($data["videos"] as $video)
-            <div class="artists__list--row">
+            <div class="artists__list--row" data-video-id="{{ $video->id }}">
+                <span class="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="16" height="16">
+                        <path d="M40 352l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zm192 0l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM0 200c0-22.1 17.9-40 40-40l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48zM232 160l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40zM0 40C0 17.9 17.9 0 40 0L88 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40L40 128C17.9 128 0 110.1 0 88L0 40zM232 0l48 0c22.1 0 40 17.9 40 40l0 48c0 22.1-17.9 40-40 40l-48 0c-22.1 0-40-17.9-40-40l0-48c0-22.1 17.9-40 40-40z"/>
+                    </svg>
+                </span>
                 <img src="{{ asset($video->thumbnail) }}" class="quadrilateral" alt="{{ $video->title }}" width="100" height="100">
                 <div class="artists__name">
                     <p>{{ $video->title }}</p>
@@ -122,7 +128,5 @@
             </div>
         @endforeach
     </section>
-    <section class="pagination">
-        {{ $data["videos"]->onEachSide(1)->links('vendor.pagination.default') }}
-    </section>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 @endsection

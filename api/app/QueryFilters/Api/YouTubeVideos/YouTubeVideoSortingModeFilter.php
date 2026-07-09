@@ -15,13 +15,15 @@ class YouTubeVideoSortingModeFilter
                 $query->inRandomOrder();
                 break;
             case 'latest':
-                $query->orderBy('created_at', 'DESC');
+                // Manual admin-defined order (see /admin/youtube-videos).
+                // Lower sort_order is shown first; created_at breaks ties.
+                $query->orderBy('sort_order', 'ASC')->orderBy('created_at', 'DESC');
                 break;
             case 'views':
                 $query->orderBy('views', 'DESC');
                 break;
             default:
-                $query->orderBy('created_at', 'DESC');
+                $query->orderBy('sort_order', 'ASC')->orderBy('created_at', 'DESC');
                 break;
         }
 

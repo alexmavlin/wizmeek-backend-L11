@@ -33,6 +33,12 @@
     "src": "resources/js/admin/popup.js",
     "isEntry": true
   },
+  "resources/js/admin/videos-reorder.js": {
+    "file": "assets/videos-reorder-C2OaQjL_.js",
+    "name": "videos-reorder",
+    "src": "resources/js/admin/videos-reorder.js",
+    "isEntry": true
+  },
   "resources/js/admin/youtubeGetVideoData.js": {
     "file": "assets/youtubeGetVideoData-CWwYzYP_.js",
     "name": "youtubeGetVideoData",
@@ -57,12 +63,12 @@
     "isEntry": true
   },
   "resources/scss/admin/artists/artists_edit.scss": {
-    "file": "assets/artists_create-CyIDv9kN.css",
-    "src": "resources/scss/admin/artists/artists_create.scss",
+    "file": "assets/artists_edit-B4PQksA4.css",
+    "src": "resources/scss/admin/artists/artists_edit.scss",
     "isEntry": true
   },
   "resources/scss/admin/artists/artists_index.scss": {
-    "file": "assets/artists_index-DfgGbrdv.css",
+    "file": "assets/artists_index-CmkXG6Y2.css",
     "src": "resources/scss/admin/artists/artists_index.scss",
     "isEntry": true
   },

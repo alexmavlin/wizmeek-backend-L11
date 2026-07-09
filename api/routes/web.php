@@ -41,10 +41,12 @@ use App\Http\Controllers\Admin\Videos\YouTubeVideoDeletedIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDestroyController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoDraftIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoEditController;
+use App\Http\Controllers\Admin\Videos\ReorderYouTubeVideosController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoRestoreController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoShowController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideosIndexController;
 use App\Http\Controllers\Admin\Videos\YouTubeVideoUpdateController;
+use App\Http\Controllers\Api\Authentication\DevLoginController;
 use App\Http\Controllers\Api\Authentication\LoginController;
 use App\Http\Controllers\Api\Authentication\LogoutController;
 use App\Http\Controllers\Api\Authentication\RegisterController;
@@ -61,6 +63,7 @@ Route::post('/admin-authenticate', [AdminLoginController::class, 'authenticate']
 Route::get('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin_logout');
 
 Route::post('/api-login', LoginController::class);
+Route::match(['get', 'post'], '/api-dev-login', DevLoginController::class);
 Route::post('/api-register', RegisterController::class);
 Route::post('/api-logout', LogoutController::class)->middleware('api');
 
@@ -111,6 +114,7 @@ Route::prefix('admin')->middleware([AuthenticateAdmin::class])->group(function (
 
     Route::prefix('youtube-videos')->group(function () {
         Route::get('/', YouTubeVideosIndexController::class)->name('admin_youtube_video_index');
+        Route::post('/reorder', ReorderYouTubeVideosController::class)->name('admin_reorder_youtube_videos');
         Route::get('/submit', SubmitYouTubeVideoController::class)->name('admin_submit_youtube_video');
         Route::post('/store', StoreYouTubeVideoController::class)->name('admin_store_youtube_video');
         Route::get('/get-youtube-video-data', GetYouTubeVideoDataController::class)->name('admin_get_youtube_video_data');

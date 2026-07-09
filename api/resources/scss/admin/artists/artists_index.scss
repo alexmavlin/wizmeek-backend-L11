@@ -109,6 +109,53 @@
         }
     }
 }
+.drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: grab;
+    color: $background;
+    background-color: rgba($color: #000000, $alpha: 0.05);
+    flex-shrink: 0;
+    touch-action: none;
+    &:active {
+        cursor: grabbing;
+    }
+    svg {
+        width: 16px;
+        height: 16px;
+        fill: $background;
+    }
+}
+
+.reorder__status {
+    min-height: 22px;
+    margin-top: 15px;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 600;
+    &.is-saving {
+        color: $background;
+    }
+    &.is-success {
+        color: $accentGreen;
+    }
+    &.is-error {
+        color: $accentRed;
+    }
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+}
+
+.sortable-chosen {
+    background-color: rgba($color: #000000, $alpha: 0.03);
+}
+
 .artists__country {
     display: flex;
     align-items: center;

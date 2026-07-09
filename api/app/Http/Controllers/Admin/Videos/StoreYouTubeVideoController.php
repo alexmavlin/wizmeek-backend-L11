@@ -25,10 +25,15 @@ class StoreYouTubeVideoController extends Controller
             'editors_pick' => isset($request->editors_pick) ? 1 : 0,
             'new' => (isset($request->new) && $request->new == 'new') ? 1 : 0,
             'throwback' => (isset($request->new) && $request->new == 'throwback') ? 1 : 0,
-            'is_draft' => isset($request->is_draft) ? 1 : 0
+            'is_draft' => isset($request->is_draft) ? 1 : 0,
+            // Place new videos at the top of the manual order (home shows lowest first).
+            'sort_order' => 0,
         ];
 
         try {
+            // Shift existing videos down so the newly added one lands on top.
+            YouTubeVideo::query()->increment('sort_order');
+
             $existingVideo = YouTubeVideo::withTrashed()->where('youtube_id', $request->youtube_id)->first();
     
             if ($existingVideo) {
